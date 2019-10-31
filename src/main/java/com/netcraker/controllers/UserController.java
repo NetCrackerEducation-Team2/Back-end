@@ -1,0 +1,4 @@
+@Controller
+public class UserController {
+
+}

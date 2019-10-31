@@ -73,7 +73,11 @@ pom.xml.releaseBackup
 pom.xml.tag
 
 # STS (Spring Tool Suite)
+.apt_generated
+.factorypath
 .springBeans
+.sts4-cache
+
 
 # Locally stored "Eclipse launch configurations"
 *.launch
@@ -82,8 +86,6 @@ pom.xml.tag
 .gradle
 .gradletasknamecache
 
-
-
 .metadata
 bin/
 tmp/
@@ -91,7 +93,6 @@ tmp/
 *.bak
 *~.nib
 local.properties
-.settings/
 .loadpath
 .recommenders
 
@@ -100,12 +101,9 @@ local.properties
 *~
 .#*
 .*.md.html
-.classpath
-.factorypath
 
-.project
+
 .recommenders
-.settings
 /code
 MANIFEST.MF
 _site/
@@ -123,4 +121,4 @@ transaction-logs
 .flattened-pom.xml
 secrets.yml
 
-.sts4-cache
+out

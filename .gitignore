@@ -121,4 +121,6 @@ transaction-logs
 .flattened-pom.xml
 secrets.yml
 
-out
+# IDE
+.idea
+*.iml

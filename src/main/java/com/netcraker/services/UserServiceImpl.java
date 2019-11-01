@@ -1,4 +1,5 @@
-@Service
-public class UserServiceImpl implements UserService {
+package com.netcraker.services;
+
+public class UserServiceImpl{
 
 }

@@ -1,5 +1,8 @@
 package com.netcraker.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.netcraker.model.JwtRequest;
 import com.netcraker.security.SecurityConstants;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -8,12 +11,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,23 +28,38 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
         System.out.println("JwtAuthenticationFilter constructed ");
 
         this.authenticationManager = authenticationManager;
-
+        this.passwordEncoder = passwordEncoder;
         setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+
+        final JwtRequest jwtRequest = parseJwtRequest(request);
+
         System.out.println("Attempt to authenticate");
 
-        String username = request.getParameter(SPRING_SECURITY_FORM_USERNAME_KEY);
-        String password = request.getParameter(SPRING_SECURITY_FORM_PASSWORD_KEY);
-        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-        return authenticationManager.authenticate(authenticationToken);
+
+        String username = jwtRequest.getUsername();
+        String password = jwtRequest.getPassword();
+
+        if (password != null && username != null) {
+
+            System.out.println("username: " + jwtRequest.getUsername());
+            System.out.println("password: " + jwtRequest.getPassword());
+
+            Authentication authenticationToken =
+                    new UsernamePasswordAuthenticationToken(username, password);
+            System.out.println("encoded password: " + passwordEncoder.encode(password));
+            return authenticationManager.authenticate(authenticationToken);
+        }
+        throw new RuntimeException("Bad request (username and password must be not empty)");
     }
 
     @Override
@@ -68,5 +87,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .compact();
 
         response.addHeader(SecurityConstants.TOKEN_HEADER, SecurityConstants.TOKEN_PREFIX + token);
+    }
+
+    private JwtRequest parseJwtRequest(HttpServletRequest request) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(request.getInputStream(), JwtRequest.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new JwtRequest();
+        }
     }
 }

@@ -27,7 +27,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
 
     @Autowired
-    public SecurityConfiguration(@Qualifier("userDetailsServiceImpl")
+    public SecurityConfiguration(@Qualifier("jwtUserDetailsServiceImpl")
                                          UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
@@ -53,7 +53,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     protected PasswordEncoder passwordEncoder() {
-        //only for test purpose, in production change to return an instance of BCryptPasswordEncoder
+        // Code below is only for test purpose
+        // In production change to return an instance of BCryptPasswordEncoder
         return NoOpPasswordEncoder.getInstance();
     }
 

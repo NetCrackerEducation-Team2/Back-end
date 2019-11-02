@@ -1,7 +1,6 @@
 package com.netcraker.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.netcraker.model.JwtRequest;
 import com.netcraker.security.SecurityConstants;
 import io.jsonwebtoken.Jwts;

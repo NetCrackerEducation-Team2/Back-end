@@ -26,11 +26,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final AuthenticationManager authenticationManager;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+        System.out.println("JwtAuthenticationFilter constructed ");
+
         this.authenticationManager = authenticationManager;
 
         setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
     }
-
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {

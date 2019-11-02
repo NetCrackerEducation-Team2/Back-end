@@ -1,0 +1,19 @@
+
+BBBBBBBBBBBBBBBBB
+B::::::::::::::::B
+B::::::BBBBBB:::::B
+BB:::::B     B:::::B
+  B::::B     B:::::B  aaaaaaaaaaaaa  nnnn  nnnnnnnn    nnnn  nnnnnnnn        eeeeeeeeeeee    rrrrr   rrrrrrrrr
+  B::::B     B:::::B  a::::::::::::a n:::nn::::::::nn  n:::nn::::::::nn    ee::::::::::::ee  r::::rrr:::::::::r
+  B::::BBBBBB:::::B   aaaaaaaaa:::::an::::::::::::::nn n::::::::::::::nn  e::::::eeeee:::::eer:::::::::::::::::r
+  B:::::::::::::BB             a::::ann:::::::::::::::nnn:::::::::::::::ne::::::e     e:::::err::::::rrrrr::::::r
+  B::::BBBBBB:::::B     aaaaaaa:::::a  n:::::nnnn:::::n  n:::::nnnn:::::ne:::::::eeeee::::::e r:::::r     r:::::r
+  B::::B     B:::::B  aa::::::::::::a  n::::n    n::::n  n::::n    n::::ne:::::::::::::::::e  r:::::r     rrrrrrr
+  B::::B     B:::::B a::::aaaa::::::a  n::::n    n::::n  n::::n    n::::ne::::::eeeeeeeeeee   r:::::r
+  B::::B     B:::::Ba::::a    a:::::a  n::::n    n::::n  n::::n    n::::ne:::::::e            r:::::r
+BB:::::BBBBBB::::::Ba::::a    a:::::a  n::::n    n::::n  n::::n    n::::ne::::::::e           r:::::r
+B:::::::::::::::::B a:::::aaaa::::::a  n::::n    n::::n  n::::n    n::::n e::::::::eeeeeeee   r:::::r
+B::::::::::::::::B   a::::::::::aa:::a n::::n    n::::n  n::::n    n::::n  ee:::::::::::::e   r:::::r
+BBBBBBBBBBBBBBBBB     aaaaaaaaaa  aaaa nnnnnn    nnnnnn  nnnnnn    nnnnnn    eeeeeeeeeeeeee   rrrrrrr
+
+Goto: http://patorjk.com/software/taag/#p=display&f=Doh&t=Banner

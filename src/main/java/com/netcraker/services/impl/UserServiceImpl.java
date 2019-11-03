@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerUser(User user) {
+    public User saveUser(User user) {
         //Role roleUser = roleRepository.findById("ROLE_USER");
         List<Role> userRoles = new ArrayList<>();
         //userRoles.add(roleUser);
@@ -37,8 +37,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUser(String username, String password) {
-        return userRepository.findUser(username,password);
+    public User getUser(String username, String password) {
+        return userRepository.getUser(username,password);
     }
 
     @Override

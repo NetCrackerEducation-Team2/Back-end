@@ -1,9 +1,8 @@
 package com.netcraker.security.filter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netcraker.model.JwtRequest;
-import com.netcraker.model.JwtResponse;
+import com.netcraker.model.vo.JwtRequest;
+import com.netcraker.model.vo.JwtResponse;
 import com.netcraker.security.SecurityConstants;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

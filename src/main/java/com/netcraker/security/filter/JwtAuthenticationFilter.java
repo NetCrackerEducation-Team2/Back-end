@@ -1,7 +1,9 @@
 package com.netcraker.security.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.model.JwtRequest;
+import com.netcraker.model.JwtResponse;
 import com.netcraker.security.SecurityConstants;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -44,7 +46,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         System.out.println("Attempt to authenticate");
 
-
         String username = jwtRequest.getUsername();
         String password = jwtRequest.getPassword();
 
@@ -86,6 +87,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .compact();
 
         response.addHeader(SecurityConstants.TOKEN_HEADER, SecurityConstants.TOKEN_PREFIX + token);
+        response.addHeader("Access-Control-Allow-Origin", "*");
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            response.getWriter().write(mapper.writeValueAsString(new JwtResponse(token)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private JwtRequest parseJwtRequest(HttpServletRequest request) {

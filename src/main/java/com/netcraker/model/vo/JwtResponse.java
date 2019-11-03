@@ -1,4 +1,4 @@
-package com.netcraker.model;
+package com.netcraker.model.vo;
 
 public class JwtResponse {
     private String token;

@@ -1,7 +1,7 @@
 package com.netcraker.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netcraker.model.JwtRequest;
+import com.netcraker.model.vo.JwtRequest;
 import com.netcraker.security.SecurityConstants;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

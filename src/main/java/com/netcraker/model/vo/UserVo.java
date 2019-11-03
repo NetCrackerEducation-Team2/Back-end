@@ -1,26 +1,21 @@
-package com.netcraker.model;
+package com.netcraker.model.vo;
+
+import com.netcraker.model.Role;
+import com.netcraker.model.UserRole;
 
 import java.sql.Time;
+import java.util.Set;
 
-public class User {
+public class UserVo {
     private Integer user_id;
     private String password;
     private String lastName;
     private String firstName;
     private String email;
     private Time creation_time;
-    private boolean enabled;
+    private Set<UserRole> userRoles;
 
-
-    public User() {
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public UserVo() {
     }
 
     public Integer getUser_id() {
@@ -69,5 +64,13 @@ public class User {
 
     public void setCreation_time(Time creation_time) {
         this.creation_time = creation_time;
+    }
+
+    public Set<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(Set<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 }

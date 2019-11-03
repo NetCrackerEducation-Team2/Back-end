@@ -3,12 +3,12 @@ package com.netcraker.model;
 import java.sql.Time;
 
 public class User {
-    private Integer user_id;
+    private Integer userId;
     private String password;
     private String lastName;
     private String firstName;
     private String email;
-    private Time creation_time;
+    private Time createdAt;
     private boolean enabled;
 
 
@@ -23,12 +23,12 @@ public class User {
         this.enabled = enabled;
     }
 
-    public Integer getUser_id() {
-        return user_id;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUser_id(Integer user_id) {
-        this.user_id = user_id;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getPassword() {
@@ -63,11 +63,11 @@ public class User {
         this.email = email;
     }
 
-    public Time getCreation_time() {
-        return creation_time;
+    public Time getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreation_time(Time creation_time) {
-        this.creation_time = creation_time;
+    public void setCreatedAt(Time createdAt) {
+        this.createdAt = createdAt;
     }
 }

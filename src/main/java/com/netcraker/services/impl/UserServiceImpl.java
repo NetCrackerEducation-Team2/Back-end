@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User saveUser(User user) {
+    public User createUser(User user) {
         //Role roleUser = roleRepository.findById("ROLE_USER");
         List<Role> userRoles = new ArrayList<>();
         //userRoles.add(roleUser);
@@ -36,13 +36,13 @@ public class UserServiceImpl implements UserService {
         return null;//registeredUser
     }
 
-    @Override
-    public User getUser(String username, String password) {
-        return userRepository.getUser(username,password);
-    }
-
-    @Override
-    public void deleteUser(Long id) {
-       // userRepository.deleteById(id);
-    }
+//    @Override
+//    public User getUser(String username, String password) {
+//        return userRepository.getUser(username,password);
+//    }
+//
+//    @Override
+//    public void deleteUser(Long id) {
+//       // userRepository.deleteById(id);
+//    }
 }

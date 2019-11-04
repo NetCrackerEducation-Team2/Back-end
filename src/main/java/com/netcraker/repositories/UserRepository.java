@@ -43,8 +43,8 @@ public class UserRepository {
 //        return roles;
 //    }
 
-    public void saveUser(UserRole user) {
-        jdbcTemplate.update("INSERT INTO user(first_name, last_name, email, creation_time, password) VALUES(?, ?, ?, ?, ?)",
+    public void saveUser(User user) {
+        jdbcTemplate.update("INSERT INTO user(first_name, password) VALUES(?, ?, ?, ?, ?)",
                 new Object[] { user.getFirstName(), user.getPassword() });
 //        user.getRoles().forEach(r -> jdbcTemplate.update(new PreparedStatementCreator() {
 //            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {

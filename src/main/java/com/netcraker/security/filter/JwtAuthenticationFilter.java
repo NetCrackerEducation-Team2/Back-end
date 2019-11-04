@@ -1,5 +1,6 @@
 package com.netcraker.security.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.model.vo.JwtRequest;
 import com.netcraker.model.vo.JwtResponse;
@@ -55,8 +56,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             Authentication authenticationToken =
                     new UsernamePasswordAuthenticationToken(username, password);
+
+
             System.out.println("encoded password: " + passwordEncoder.encode(password));
-            return authenticationManager.authenticate(authenticationToken);
+            Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+
+            try {
+                System.out.println("authentication is json: " +
+                        new ObjectMapper().writeValueAsString(authenticationToken));
+                System.out.println();
+                System.out.println("authenticate is json: " +
+                        new ObjectMapper().writeValueAsString(authenticate));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            return authenticate;
         }
         throw new RuntimeException("Bad request (username and password must be not empty)");
     }

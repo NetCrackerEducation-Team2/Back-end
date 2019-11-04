@@ -24,16 +24,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUser(User user) {
+    public User createUser(User user) {
         //Role roleUser = roleRepository.findById("ROLE_USER");
-        userRepository.saveUser(user);
+
         //userRoles.add(roleUser);
         //user.setPassword(password);
         //user.setRole(userRoles);
         //user.setStatus(Status.ACTIVE);
-        //User registeredUser = userRepository.save(user);
-
-        //return null;
+        //User registeredUser = userRepository.save(user)
+        return userRepository.saveUser(user);
     }
 
 //    @Override

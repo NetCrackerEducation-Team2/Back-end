@@ -43,7 +43,7 @@ public class UserRepository {
 //        return roles;
 //    }
 
-    public void saveUser(User user) {
+    public User createUser(User user) {
         jdbcTemplate.update("INSERT INTO user(first_name, password) VALUES(?, ?, ?, ?, ?)",
                 new Object[] { user.getFirstName(), user.getPassword() });
 //        user.getRoles().forEach(r -> jdbcTemplate.update(new PreparedStatementCreator() {
@@ -56,5 +56,6 @@ public class UserRepository {
 //                return ps;
 //            }
 //        }));
+        return user;
     }
 }

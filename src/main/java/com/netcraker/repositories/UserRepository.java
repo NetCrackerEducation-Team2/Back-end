@@ -1,31 +1,17 @@
 package com.netcraker.repositories;
-
-import com.netcraker.model.Role;
 import com.netcraker.model.User;
-import com.netcraker.model.UserRole;
 import com.netcraker.model.mapper.UserRowMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Repository;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.sql.*;
 
 @Repository
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserRepository {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public User getUser(String firstName, String password) {
         String userSQLQuery = "SELECT * FROM users WHERE first_name=? AND password=?";
@@ -44,8 +30,11 @@ public class UserRepository {
 //    }
 
     public User createUser(User user) {
-        jdbcTemplate.update("INSERT INTO user(first_name, password) VALUES(?, ?, ?, ?, ?)",
-                new Object[] { user.getFirstName(), user.getPassword() });
+        user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        jdbcTemplate.update("INSERT INTO users (first_name, last_name, password, email, creation_time, enabled, photo_path)" +
+                                "VALUES(?, ?, ?, ?, ?, '1', ?)",
+                new Object[] { user.getFirstName(), user.getLastName(), user.getPassword(), user.getEmail(),
+                        user.getCreatedAt(), user.isEnabled(), user.getPhotoPath()});
 //        user.getRoles().forEach(r -> jdbcTemplate.update(new PreparedStatementCreator() {
 //            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 //                PreparedStatement ps = connection.prepareStatement(

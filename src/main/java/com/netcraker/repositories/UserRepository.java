@@ -36,18 +36,19 @@ public class UserRepository {
 //        return roles;
 //    }
 
-    public void saveUser(UserRole user) {
-        jdbcTemplate.update("INSERT INTO user(first_name, last_name, email, creation_time, password) VALUES(?, ?, ?, ?, ?)",
+    public User createUser(User user) {
+        jdbcTemplate.update("INSERT INTO user(first_name, password) VALUES(?, ?, ?, ?, ?)",
                 new Object[] { user.getFirstName(), user.getPassword() });
-        user.getRoles().forEach(r -> jdbcTemplate.update(new PreparedStatementCreator() {
-            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO user_role(first_name, user_role) values(?, ?)",
-                        new String[] { "user_name", "user_role" });
-                ps.setString(1, user.getFirstName());
-                ps.setString(2, r);
-                return ps;
-            }
-        }));
+//        user.getRoles().forEach(r -> jdbcTemplate.update(new PreparedStatementCreator() {
+//            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+//                PreparedStatement ps = connection.prepareStatement(
+//                        "INSERT INTO user_role(first_name, user_role) values(?, ?)",
+//                        new String[] { "user_name", "user_role" });
+//                ps.setString(1, user.getFirstName());
+//                ps.setString(2, r);
+//                return ps;
+//            }
+//        }));
+        return user;
     }
 }

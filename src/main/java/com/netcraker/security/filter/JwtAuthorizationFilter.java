@@ -1,6 +1,5 @@
 package com.netcraker.security.filter;
 
-
 import com.netcraker.security.SecurityConstants;
 import io.jsonwebtoken.*;
 import org.springframework.security.authentication.AuthenticationManager;

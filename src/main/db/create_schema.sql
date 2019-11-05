@@ -1,4 +1,5 @@
--- Last modification date: 2019-11-04 23:52:39.02
+-- Created by Vertabelo (http://vertabelo.com)
+-- Last modification date: 2019-11-05 10:12:19.253
 
 -- tables
 -- Table: achievements
@@ -21,9 +22,22 @@ CREATE TABLE activities (
 
 CREATE INDEX activities_user_id_index on activities (user_id ASC);
 
+-- Table: announcement_tags
+CREATE TABLE announcement_tags (
+    anounce_tags_id serial  NOT NULL,
+    announcement_id int  NOT NULL,
+    tag_id int  NOT NULL,
+    CONSTRAINT announcement_tags_pk PRIMARY KEY (anounce_tags_id)
+);
+
+CREATE INDEX announcement_tags_announcement_id_index on announcement_tags (announcement_id ASC);
+
+CREATE INDEX announcement_tags_tag_id_index on announcement_tags (tag_id ASC);
+
 -- Table: announcements
 CREATE TABLE announcements (
     announcement_id serial  NOT NULL,
+    title varchar(255)  NOT NULL,
     description text  NOT NULL,
     user_id int  NOT NULL,
     published boolean  NOT NULL,
@@ -101,8 +115,12 @@ CREATE TABLE books (
     rate_sum int  NOT NULL,
     voters_count int  NOT NULL,
     creation_time timestamp  NOT NULL,
+    slug varchar(255)  NOT NULL,
+    CONSTRAINT books_ak_slug UNIQUE (slug) NOT DEFERRABLE  INITIALLY IMMEDIATE,
     CONSTRAINT books_pk PRIMARY KEY (book_id)
 );
+
+CREATE INDEX books_slug_index on books (slug ASC);
 
 -- Table: books_authors
 CREATE TABLE books_authors (
@@ -267,6 +285,14 @@ CREATE TABLE settings (
 
 CREATE INDEX settings_user_id_index on settings (user_id ASC);
 
+-- Table: tags
+CREATE TABLE tags (
+    tag_id serial  NOT NULL,
+    name varchar(255)  NOT NULL,
+    description text  NOT NULL,
+    CONSTRAINT tags_pk PRIMARY KEY (tag_id)
+);
+
 -- Table: users
 CREATE TABLE users (
     user_id serial  NOT NULL,
@@ -325,6 +351,22 @@ CREATE INDEX users_roles_role_id_index on users_roles (role_id ASC);
 ALTER TABLE activities ADD CONSTRAINT activities_users
     FOREIGN KEY (user_id)
     REFERENCES users (user_id)  
+    NOT DEFERRABLE 
+    INITIALLY IMMEDIATE
+;
+
+-- Reference: announcement_tags_announcements (table: announcement_tags)
+ALTER TABLE announcement_tags ADD CONSTRAINT announcement_tags_announcements
+    FOREIGN KEY (announcement_id)
+    REFERENCES announcements (announcement_id)  
+    NOT DEFERRABLE 
+    INITIALLY IMMEDIATE
+;
+
+-- Reference: announcement_tags_tags (table: announcement_tags)
+ALTER TABLE announcement_tags ADD CONSTRAINT announcement_tags_tags
+    FOREIGN KEY (tag_id)
+    REFERENCES tags (tag_id)  
     NOT DEFERRABLE 
     INITIALLY IMMEDIATE
 ;

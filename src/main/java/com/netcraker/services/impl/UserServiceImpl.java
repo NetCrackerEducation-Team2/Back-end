@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
         //user.setRole(userRoles);
         //user.setStatus(Status.ACTIVE);
         //User registeredUser = userRepository.save(user)
-        return userRepository.saveUser(user);
+        return  userRepository.createUser(user);
     }
 
 //    @Override

@@ -117,15 +117,6 @@ create table roles
     description text        not null
 );
 
-create table tags
-(
-    tag_id      serial       not null
-        constraint tags_pk
-            primary key,
-    name        varchar(255) not null,
-    description text         not null
-);
-
 create table users
 (
     user_id       serial                  not null
@@ -173,25 +164,6 @@ create table announcements
     published       boolean   default false not null,
     creation_time   timestamp default now() not null
 );
-
-create table announcement_tags
-(
-    anounce_tags_id serial  not null
-        constraint announcement_tags_pk
-            primary key,
-    announcement_id integer not null
-        constraint announcement_tags_announcements
-            references announcements,
-    tag_id          integer not null
-        constraint announcement_tags_tags
-            references tags
-);
-
-create index announcement_tags_announcement_id_index
-    on announcement_tags (announcement_id);
-
-create index announcement_tags_tag_id_index
-    on announcement_tags (tag_id);
 
 create index announcements_user_id_index
     on announcements (user_id);

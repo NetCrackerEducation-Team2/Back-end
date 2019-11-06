@@ -4,44 +4,22 @@ import com.netcraker.model.User;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.services.UserService;
+import com.netcraker.services.impl.JwtUserDetailsServiceImpl;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.Role;
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-    }
+    private final @NonNull UserRepository userRepository;
+    private final @NonNull RoleRepository roleRepository;
 
     @Override
     public User createUser(User user) {
-        //Role roleUser = roleRepository.findById("ROLE_USER");
-
-        //userRoles.add(roleUser);
-        //user.setPassword(password);
-        //user.setRole(userRoles);
-        //user.setStatus(Status.ACTIVE);
-        //User registeredUser = userRepository.save(user)
         return  userRepository.createUser(user);
     }
 
-//    @Override
-//    public User getUser(String username, String password) {
-//        return userRepository.getUser(username,password);
-//    }
-//
-//    @Override
-//    public void deleteUser(Long id) {
-//       // userRepository.deleteById(id);
-//    }
 }

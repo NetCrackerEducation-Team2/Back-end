@@ -3,26 +3,24 @@ package com.netcraker.repositories;
 import com.netcraker.model.Announcement;
 import com.netcraker.model.mapper.AnnouncementRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.Assert;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@PropertySource("${classpath:sqlQueries.properties}")
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
-    private final JdbcTemplate jdbcTemplate;
 
-    @Value("${spring.queries.announcements}")
-    private String announcementsQuery;
+    private final JdbcTemplate jdbcTemplate;
+    private final Environment environment;
 
     @Autowired
-    public AnnouncementRepositoryImp(JdbcTemplate jdbcTemplate) {
-        Assert.notNull(jdbcTemplate, "JdbcTemplate must not be null!");
+    public AnnouncementRepositoryImp(JdbcTemplate jdbcTemplate, Environment environment) {
         this.jdbcTemplate = jdbcTemplate;
+        this.environment = environment;
     }
 
     @Override
@@ -47,6 +45,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
         //list.add(a);
 
         //String announcementSQLQuery = "SELECT * FROM announcements LIMIT ? OFFSET ?";
+        String announcementsQuery = environment.getProperty("announcements.select");
         return jdbcTemplate.query(announcementsQuery, new Object[]{ 5, 0}, new AnnouncementRowMapper());
     }
 

@@ -3,7 +3,6 @@ package com.netcraker.services.impl;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
-import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.services.MailSender;
 import com.netcraker.services.UserService;

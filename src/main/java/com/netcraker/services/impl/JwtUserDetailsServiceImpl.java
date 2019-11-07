@@ -1,5 +1,4 @@
 package com.netcraker.services.impl;
-import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +15,11 @@ import java.util.Collections;
 public class JwtUserDetailsServiceImpl implements UserDetailsService {
 
     private final @NonNull UserRepository userRepository;
-    private final @NonNull RoleRepository roleRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if(userRepository.findByUsername(username)!=null){
-            return new User(userRepository.findByUsername(username).getFirstName(),
+            return new User(userRepository.findByUsername(username).getEmail(),
                     userRepository.findByUsername(username).getPassword(), Collections.emptyList());
         }
          throw new UsernameNotFoundException(username);

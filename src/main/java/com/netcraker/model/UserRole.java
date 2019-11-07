@@ -14,6 +14,4 @@ public class UserRole {
     private String password;
     private String firstName;
 
-    public UserRole() {
-    }
 }

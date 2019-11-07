@@ -14,6 +14,4 @@ public class Role{
     private String description;
     private Set<UserRole> userRoles;
 
-    public Role() {
-    }
 }

@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 @Builder
 public class Book {
     private int bookId;
-    private @NonNull String title;
+    private String title;
     private int isbn;
-    private @NonNull LocalDate release;
+    private LocalDate release;
     private int pages;
-    private @NonNull String filePath;
+    private String filePath;
     private String photoPath;
-    private @NonNull String publishingHouse;
-    private int rateSum;
-    private int votersCount;
+    private String publishingHouse;
+    private int rateSum = 0;
+    private int votersCount = 0;
     private LocalDateTime creationTime;
-    private @NonNull String slug;
+    private String slug;
 }

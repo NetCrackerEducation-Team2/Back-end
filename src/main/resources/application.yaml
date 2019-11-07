@@ -1,0 +1,13 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    username: netcracker.edu.t2@gmail.com
+    password: netcracker234
+    port: 465
+    protocol: smtps
+  datasource:
+    url: ${JDBC_DATABASE_URL}
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
+server:
+  port: 8081

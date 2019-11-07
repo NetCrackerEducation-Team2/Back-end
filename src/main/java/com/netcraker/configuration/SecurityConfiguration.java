@@ -42,6 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET,  "/api/announcements/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
                 //pages that can be showing without authentication
                 .antMatchers("/books","/announcements","/activate/*").permitAll()

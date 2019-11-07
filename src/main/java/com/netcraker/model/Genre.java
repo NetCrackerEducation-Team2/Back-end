@@ -1,17 +1,12 @@
 package com.netcraker.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
-
-@Getter
-@Setter
-public class Role{
-
-    private Integer role_id;
+@Getter @Setter @Builder
+public class Genre {
+    private int genreId;
     private String name;
     private String description;
-    private Set<UserRole> userRoles;
-
 }

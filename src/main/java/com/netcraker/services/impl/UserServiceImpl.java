@@ -1,47 +1,65 @@
 package com.netcraker.services.impl;
 
+import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
+import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
+import com.netcraker.services.MailSender;
 import com.netcraker.services.UserService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.Role;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-    }
+    private final @NonNull UserRepository userRepository;
+    private final @NonNull AuthorizationRepository authorizationRepository;
+    private final MailSender mailSender;
 
     @Override
-    public User createUser(User user) {
-        //Role roleUser = roleRepository.findById("ROLE_USER");
+    public ResponseEntity createUser(User user) {
+        try {
+            User userFromDB = userRepository.findByUsername(user.getEmail());
+            if (userFromDB != null){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception ignored){ }
+        userRepository.createUser(user);
+        AuthorizationLinks authorizationLinks = new AuthorizationLinks();
+        authorizationLinks.setToken(UUID.randomUUID().toString());
+        authorizationLinks.setUserId(userRepository.findByUsername(user.getEmail()).getUserId());
+        authorizationLinks.setRegistrationToken(true);
+        authorizationLinks.setUsed(true);
+        authorizationRepository.creteAuthorizationLinks(authorizationLinks);
 
-        //userRoles.add(roleUser);
-        //user.setPassword(password);
-        //user.setRole(userRoles);
-        //user.setStatus(Status.ACTIVE);
-        //User registeredUser = userRepository.save(user)
-        return  userRepository.createUser(user);
+        String message = String.format(
+                "Hello, %s! \n"+
+                        "Welcome to library. Please visit next link: http://localhost:8081/activate/%s",
+                user.getFull_name(),
+                authorizationLinks.getToken()
+        );
+        mailSender.send(user.getEmail(),"Activation code", message);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
-//    @Override
-//    public User getUser(String username, String password) {
-//        return userRepository.getUser(username,password);
-//    }
-//
-//    @Override
-//    public void deleteUser(Long id) {
-//       // userRepository.deleteById(id);
-//    }
+    public boolean activateUser(String token){
+        AuthorizationLinks authorizationLinks = authorizationRepository.findByActivationCode(token);
+        User user = userRepository.findByUserId(authorizationLinks.getUserId());
+
+        if(user == null){
+            return false;
+        }
+        authorizationLinks.setUsed(false);
+        authorizationRepository.updateAuthorizationLinks(authorizationLinks);
+        return true;
+    }
+
 }

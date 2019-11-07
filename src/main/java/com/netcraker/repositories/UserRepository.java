@@ -61,13 +61,12 @@ public class UserRepository {
     }
 
     public void updateUser(User oldUser, User newUser) throws SQLDataException {
-        String sql = "";
         Object[] params = { newUser.getFull_name(), newUser.getEmail(), newUser.getPassword(),
                             newUser.getCreatedAt(), newUser.getEnabled(), newUser.getPhotoPath(),
 
                             oldUser.getUserId(), oldUser.getFull_name(), oldUser.getEmail(), oldUser.getPassword(),
                             oldUser.getCreatedAt(), oldUser.getEnabled(), oldUser.getPhotoPath() };
-        int changedRowsCount = jdbcTemplate.update(sql, params);
+        int changedRowsCount = jdbcTemplate.update(sqlUpdateUser, params);
         if (changedRowsCount != 1)
             throw new SQLDataException();
     }

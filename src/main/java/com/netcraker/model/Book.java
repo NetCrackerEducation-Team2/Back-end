@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,4 +22,6 @@ public class Book {
     private int votersCount;
     private LocalDateTime creationTime;
     private @NonNull String slug;
+    private @Singular List<Genre> genres;
+    private @Singular List<Author> authors;
 }

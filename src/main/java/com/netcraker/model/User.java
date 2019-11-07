@@ -11,6 +11,6 @@ public class User {
     private String email;
     private String password;
     private Timestamp createdAt;
-    private boolean enabled;
+    private Boolean enabled;
     private String photoPath;
 }

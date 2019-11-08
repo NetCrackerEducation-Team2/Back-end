@@ -46,16 +46,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         System.out.println("Attempt to authenticate");
 
-        String username = jwtRequest.getUsername();
+        String email = jwtRequest.getEmail();
         String password = jwtRequest.getPassword();
 
-        if (password != null && username != null) {
+        if (password != null && email != null && password.length() != 0 && email.length() != 0) {
 
-            System.out.println("username: " + jwtRequest.getUsername());
+            System.out.println("email: " + jwtRequest.getEmail());
             System.out.println("password: " + jwtRequest.getPassword());
 
             Authentication authenticationToken =
-                    new UsernamePasswordAuthenticationToken(username, password);
+                    new UsernamePasswordAuthenticationToken(email, password);
 
 
             System.out.println("encoded password: " + passwordEncoder.encode(password));

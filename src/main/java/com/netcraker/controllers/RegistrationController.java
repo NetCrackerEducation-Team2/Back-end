@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(methods = RequestMethod.POST, origins = "localhost:4200")
+@CrossOrigin(methods = {RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.GET})
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RegistrationController {
 
@@ -40,15 +40,19 @@ public class RegistrationController {
         userService.createUser(user);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
-//        return ResponseEntity.created();
     }
 
     @GetMapping("/auth/activate/{code}")
     public ResponseEntity activate(@PathVariable String code) {
         boolean isActivated = userService.activateUser(code);
+
         if (isActivated) {
-            return new ResponseEntity(HttpStatus.ACCEPTED);
+            System.out.println("Activation code is admitted");
+            return new ResponseEntity(HttpStatus.OK);
         }
+
+        System.out.println("Activation code is rejected");
+
         throw new FailedToRegisterException("Invalid activation code. Try to sign up again");
     }
 }

@@ -51,7 +51,7 @@ public class UserRepository {
         return user;
     }
 
-    public User findByUsername(String email) {
+    public User findByEmail(String email) {
 //        return jdbcTemplate.queryForObject(sqlSelectUserEmail, new Object[]{ username}, new UserRowMapper());
         for (User u : TEST_USER_LIST) {
             if(u.getEmail().equals(email)){

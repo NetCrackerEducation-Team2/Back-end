@@ -42,23 +42,23 @@ public class UserServiceImpl implements UserService {
         authorizationLinks.setUsed(true);
         authorizationRepository.creteAuthorizationLinks(authorizationLinks);
 
-//        String message = String.format(
-//                "Hello, %s! \n" +
-//                        "Welcome to library. " +
-//                        "Please visit next link: http://netcracker2-front-end.herokuapp.com%s/%s",
-//                user.getFullName(),
-//                SecurityConstants.AUTH_ACTIVATION_URL,
-//                authorizationLinks.getToken()
-//        );
-
         String message = String.format(
                 "Hello, %s! \n" +
                         "Welcome to library. " +
-                        "Please visit next link: http://localhost:4200%s/%s",
+                        "Please visit next link: http://netcracker2-front-end.herokuapp.com%s/%s",
                 user.getFullName(),
                 SecurityConstants.AUTH_ACTIVATION_URL,
                 authorizationLinks.getToken()
         );
+
+//        String message = String.format(
+//                "Hello, %s! \n" +
+//                        "Welcome to library. " +
+//                        "Please visit next link: http://localhost:4200%s/%s",
+//                user.getFullName(),
+//                SecurityConstants.AUTH_ACTIVATION_URL,
+//                authorizationLinks.getToken()
+//        );
 
         mailSender.send(user.getEmail(), "Activation code", message);
         return user;

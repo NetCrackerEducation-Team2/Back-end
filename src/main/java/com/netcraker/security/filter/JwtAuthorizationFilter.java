@@ -25,6 +25,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
         System.out.println("JwtAuthorizationFilter is doing filter");
+//        response.addHeader("Content-Type","*/*");
+        response.addHeader("Access-Control-Allow-Origin", "*");
+//        response.addHeader("Access-Control-Allow-Credentials", "true");
+//        response.addHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+//        response.addHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+//        response.setStatus(204);
 
         Authentication authentication = getAuthentication(request);
         if (authentication == null) {

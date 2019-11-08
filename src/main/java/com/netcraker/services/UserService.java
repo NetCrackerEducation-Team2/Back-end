@@ -4,7 +4,7 @@ import com.netcraker.model.User;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {
-    ResponseEntity createUser(User user);
+    User createUser(User user);
 
     boolean activateUser(String code);
 }

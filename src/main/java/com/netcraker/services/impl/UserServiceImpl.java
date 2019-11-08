@@ -66,6 +66,11 @@ public class UserServiceImpl implements UserService {
 
     public boolean activateUser(String token) {
         AuthorizationLinks authorizationLinks = authorizationRepository.findByActivationCode(token);
+
+        if (authorizationLinks == null) {
+            return false;
+        }
+
         User user = userRepository.findByUserId(authorizationLinks.getUserId());
 
         if (user == null) {
@@ -76,4 +81,8 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }

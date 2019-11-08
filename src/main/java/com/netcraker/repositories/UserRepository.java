@@ -34,7 +34,7 @@ public class UserRepository {
     private List<User> TEST_USER_LIST = new ArrayList<User>() {
         {
             final User user = new User();
-            user.setUserId(1);
+            user.setUserId(0);
             user.setFullName("Alpha Beta");
             user.setEmail("test@test.com");
             user.setPassword("test");
@@ -47,6 +47,7 @@ public class UserRepository {
     public User createUser(User user) {
 //        jdbcTemplate.update(sqlCreateUser, new Object[] { user.getFull_name(), user.getPassword(), user.getEmail(),
 //                                        new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath()});
+        user.setUserId(TEST_USER_LIST.size());
         TEST_USER_LIST.add(user);
         return user;
     }

@@ -55,7 +55,7 @@ public class UserRepository {
     public User findByEmail(String email) {
 //        return jdbcTemplate.queryForObject(sqlSelectUserEmail, new Object[]{ username}, new UserRowMapper());
         for (User u : TEST_USER_LIST) {
-            if(u.getEmail().equals(email)){
+            if (u.getEmail().equals(email)) {
                 return u;
             }
         }
@@ -63,8 +63,9 @@ public class UserRepository {
     }
 
     public User findByUserId(int userId) {
-        for(User u: TEST_USER_LIST){
-            if(u.getUserId()==userId){
+        for (User u : TEST_USER_LIST) {
+            System.out.println("ID: " + u.getUserId());
+            if (u.getUserId() == userId) {
                 return u;
             }
         }

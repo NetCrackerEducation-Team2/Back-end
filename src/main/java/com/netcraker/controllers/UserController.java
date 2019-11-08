@@ -15,7 +15,7 @@ public class UserController {
     @Autowired
     private final UserService userService;
 
-    @GetMapping("/api/users/{userId}")
+    @GetMapping("/profile/{userId}")
     public User getUserProfile(@PathVariable int userId) {
         return userService.getUser(userId);
     }

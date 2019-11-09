@@ -41,8 +41,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET,  "/api/announcements/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/activate/*", "/profile/**", "**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                // must-have
+                .antMatchers(HttpMethod.OPTIONS, "**").permitAll()
                 //pages that can be showing without authentication
                 .antMatchers("/books", "/book/download", "/announcements","/activate/*").permitAll()
                 .anyRequest().authenticated()
@@ -57,8 +59,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected PasswordEncoder passwordEncoder() {
         // Code below is only for test purpose
         // In production change to return an instance of BCryptPasswordEncoder
-        //return NoOpPasswordEncoder.getInstance();
-        return new BCryptPasswordEncoder();
+        return NoOpPasswordEncoder.getInstance();
+//        return new BCryptPasswordEncoder();
     }
 
     @Override

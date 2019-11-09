@@ -1,14 +1,14 @@
 package com.netcraker.services;
 
 import com.netcraker.model.Book;
+import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
+import java.util.HashMap;
 
 public interface BookService {
-    Page<Book> getBooksPagination(int page);
-    Page<Book> getBooksByNamePagination(String name, int page);
-    Page<Book> getBooksByGenrePagination(int genreId, int page);
-    Page<Book> getBooksByAuthorPagination(int authorId, int page);
-    Page<Book> getBooksByAnnouncementDatePagination(LocalDate date, int page);
+      Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page);
+      void downloadBook(String fileName, HttpServletResponse response);
 }

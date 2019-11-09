@@ -1,9 +1,11 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.model.Book;
+import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
 import com.netcraker.repositories.BookRepository;
 import com.netcraker.services.BookService;
+import com.netcraker.services.FileService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,66 +13,49 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@PropertySource("classpath:view.properties")
+@PropertySource({"classpath:view.properties", "classpath:path.properties"})
 public class BookServiceImp implements BookService {
 
     private final @NonNull BookRepository bookRepository;
+
+    private final @NonNull FileService fileService;
+
+    @Value("${books.contentPath}")
+    private String booksContentPath;
+    @Value("${books.imagePath}")
+    private String booksImagePath;
 
     @Value("${books.pageSize}")
     private int pageSize;
 
     @Override
-    public Page<Book> getBooksPagination(int page) {
-        int total = bookRepository.countAll();
-        int pagesCount = (int) Math.ceil((double) total / pageSize);
-        int currentPage = Math.min(pagesCount, Math.max(1, page));
+    public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page) {
+        int total = bookRepository.countFiltered(filteringParams);
+        int pagesCount = getPagesCount(total);
+        int currentPage = getRestrictedPage(page, pagesCount);
         int offset = (currentPage - 1) * pageSize;
-        ArrayList<Book> books = new ArrayList<>(bookRepository.getAll(pageSize, offset));
+        ArrayList<Book> books = new ArrayList<>(bookRepository.getFiltered(filteringParams, pageSize, offset));
+        books.forEach(book -> book.setPhoto(fileService.getImage(booksImagePath + book.getPhotoPath())));
         return new Page<>(currentPage, pagesCount, books);
     }
 
     @Override
-    public Page<Book> getBooksByNamePagination(String name, int page) {
-        int total = bookRepository.countByName(name);
-        int pagesCount = (int) Math.ceil((double) total / pageSize);
-        int currentPage = Math.min(pagesCount, Math.max(1, page));
-        int offset = (currentPage - 1) * pageSize;
-        ArrayList<Book> books = new ArrayList<>(bookRepository.getByName(name, pageSize, offset));
-        return new Page<>(currentPage, pagesCount, books);
+    public void downloadBook(String fileName, HttpServletResponse response) {
+        fileService.downloadFile(booksContentPath + fileName, response);
     }
 
-    @Override
-    public Page<Book> getBooksByGenrePagination(int genreId, int page) {
-        int total = bookRepository.countByGenre(genreId);
-        int pagesCount = (int) Math.ceil((double) total / pageSize);
-        int currentPage = Math.min(pagesCount, Math.max(1, page));
-        int offset = (currentPage - 1) * pageSize;
-        ArrayList<Book> books = new ArrayList<>(bookRepository.getByGenre(genreId, pageSize, offset));
-        return new Page<>(currentPage, pagesCount, books);
+    private int getPagesCount(int total){
+        return Math.max(1, (int) Math.ceil((double) total / pageSize));
     }
 
-    @Override
-    public Page<Book> getBooksByAuthorPagination(int authorId, int page) {
-        int total = bookRepository.countByAuthor(authorId);
-        int pagesCount = (int) Math.ceil((double) total / pageSize);
-        int currentPage = Math.min(pagesCount, Math.max(1, page));
-        int offset = (currentPage - 1) * pageSize;
-        ArrayList<Book> books = new ArrayList<>(bookRepository.getByAuthor(authorId, pageSize, offset));
-        return new Page<>(currentPage, pagesCount, books);
-    }
-
-    @Override
-    public Page<Book> getBooksByAnnouncementDatePagination(LocalDate date, int page) {
-        int total = bookRepository.countByAnnouncementDate(date);
-        int pagesCount = (int) Math.ceil((double) total / pageSize);
-        int currentPage = Math.min(pagesCount, Math.max(1, page));
-        int offset = (currentPage - 1) * pageSize;
-        ArrayList<Book> books = new ArrayList<>(bookRepository.getByAnnouncementDate(date, pageSize, offset));
-        return new Page<>(currentPage, pagesCount, books);
+    private int getRestrictedPage(int page, int pagesCount){
+        return Math.min(pagesCount, Math.max(1, page));
     }
 }

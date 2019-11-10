@@ -43,7 +43,7 @@ public class BookServiceImp implements BookService {
         int offset = (currentPage - 1) * pageSize;
         ArrayList<Book> books = new ArrayList<>(bookRepository.getFiltered(filteringParams, pageSize, offset));
         books.forEach(book -> book.setPhoto(fileService.getImage(booksImagePath + book.getPhotoPath())));
-        return new Page<>(currentPage, pagesCount, books);
+        return new Page<Book>(currentPage, pagesCount, books);
     }
 
     @Override

@@ -14,6 +14,8 @@ public class AnnouncementRowMapper implements RowMapper<Announcement> {
                 .title(resultSet.getString("TITLE"))
                 .description(resultSet.getString("DESCRIPTION"))
                 .user_id(resultSet.getInt("USER_ID"))
+                .published(resultSet.getBoolean("PUBLISHED"))
+                .book_id(resultSet.getInt("BOOK_ID"))
                 .build();
         return  announcement;
     }

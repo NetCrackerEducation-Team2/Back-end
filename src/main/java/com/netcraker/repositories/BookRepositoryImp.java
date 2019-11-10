@@ -21,13 +21,19 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
 public class BookRepositoryImp implements BookRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
-    private final @NonNull GenreRepository genreRepository;
-    private final @NonNull AuthorRepository authorRepository;
+    private final JdbcTemplate jdbcTemplate;
+    private final GenreRepository genreRepository;
+    private final AuthorRepository authorRepository;
+
+    @Autowired
+    public BookRepositoryImp(JdbcTemplate jdbcTemplate, GenreRepository genreRepository, AuthorRepository authorRepository) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.genreRepository = genreRepository;
+        this.authorRepository = authorRepository;
+    }
 
     @Value("${books.getById}")
     private String sqlGetById;

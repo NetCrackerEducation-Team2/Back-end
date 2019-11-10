@@ -32,7 +32,7 @@ public class GenreRepositoryImp implements GenreRepository {
     private String sqlGetByBook;
 
     @Override
-    public Genre getById(int id) {
+    public Genre getById(Integer id) {
         return jdbcTemplate.queryForObject(sqlGetById, new GenreRowMapper());
     }
 
@@ -56,7 +56,7 @@ public class GenreRepositoryImp implements GenreRepository {
     }
 
     @Override
-    public boolean delete(int id) {
+    public boolean delete(Integer id) {
         return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setInt(1, id);
             return ps.execute();
@@ -67,4 +67,5 @@ public class GenreRepositoryImp implements GenreRepository {
     public List<Genre> getByBook(int bookId) {
         return jdbcTemplate.query(sqlGetByBook, new GenreRowMapper(), bookId);
     }
+
 }

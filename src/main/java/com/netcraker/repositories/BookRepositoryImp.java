@@ -42,11 +42,6 @@ public class BookRepositoryImp implements BookRepository {
     @Value("${books.getFiltered}")
     private String sqlGetFiltered;
 
-    @Override
-    public Book getById(int id) {
-        return jdbcTemplate.queryForObject(sqlGetById,
-                new BookRowMapper(genreRepository, authorRepository), id);
-    }
 
     @Override
     public boolean insert(Book entity) {
@@ -81,19 +76,26 @@ public class BookRepositoryImp implements BookRepository {
         });
     }
 
+
     @Override
-    public boolean delete(int id) {
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> ps.execute());
+    public Book getById(Integer id) {
+        return jdbcTemplate.queryForObject(sqlGetById,
+                new BookRowMapper(genreRepository, authorRepository), id);
     }
 
     @Override
+    public boolean delete(Integer integer) {
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> ps.execute());
+    }
+
+//    @Override
     public int countFiltered(HashMap<BookFilteringParam, Object> filteringParams) {
         checkBookFilteringParams(filteringParams);
         List params = getBookFilteringParams(filteringParams);
         return jdbcTemplate.queryForObject(sqlCountFiltered, params.toArray(), int.class);
     }
 
-    @Override
+//    @Override
     public List<Book> getFiltered(HashMap<BookFilteringParam, Object> filteringParams, int size, int offset) {
         checkBookFilteringParams(filteringParams);
         List<Object> params = getBookFilteringParams(filteringParams);
@@ -127,5 +129,55 @@ public class BookRepositoryImp implements BookRepository {
         List<Object> list = new ArrayList<>();
         Collections.addAll(list, params);
         return list;
+    }
+
+    @Override
+    public int countAll() {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getAll(int size, int offset) {
+        return null;
+    }
+
+    @Override
+    public int countByName(String name) {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getByName(String name, int size, int offset) {
+        return null;
+    }
+
+    @Override
+    public int countByAuthor(int authorId) {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getByAuthor(int authorId, int size, int offset) {
+        return null;
+    }
+
+    @Override
+    public int countByGenre(int genreId) {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getByGenre(int genreId, int size, int offset) {
+        return null;
+    }
+
+    @Override
+    public int countByAnnouncementDate(LocalDate date) {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getByAnnouncementDate(LocalDate date, int size, int offset) {
+        return null;
     }
 }

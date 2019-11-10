@@ -49,7 +49,6 @@ public class UserRepository {
                             new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath() };
         jdbcTemplate.update(sqlCreateUser, params);
         user = findByEmail(user.getEmail());
-        System.out.println("Got id:" + user.getUserId());
         return user;
     }
 

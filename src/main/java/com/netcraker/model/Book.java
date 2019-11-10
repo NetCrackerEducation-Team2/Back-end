@@ -11,11 +11,11 @@ import java.util.List;
 @Builder
 public class Book {
     private int bookId;
-    private @NonNull String title;
+    private String title;
     private int isbn;
-    private @NonNull LocalDate release;
+    private LocalDate release;
     private int pages;
-    private @NonNull String filePath;
+    private String filePath;
     private String photoPath;
     private byte[] photo;
     private @NonNull String publishingHouse;

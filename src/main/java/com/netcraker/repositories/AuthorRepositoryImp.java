@@ -34,10 +34,6 @@ public class AuthorRepositoryImp implements AuthorRepository {
     @Value("${authors.getByBook}")
     private String sqlGetByBook;
 
-    @Override
-    public Author getById(int id) {
-        return jdbcTemplate.queryForObject(sqlGetById, new AuthorRowMapper());
-    }
 
     @Override
     public boolean insert(Author entity) {
@@ -58,16 +54,22 @@ public class AuthorRepositoryImp implements AuthorRepository {
         });
     }
 
-    @Override
-    public boolean delete(int id) {
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
-            ps.setInt(1, id);
-            return ps.execute();
-        });
-    }
 
     @Override
     public List<Author> getByBook(int bookId) {
         return jdbcTemplate.query(sqlGetByBook, new AuthorRowMapper(), bookId);
+    }
+
+    @Override
+    public Author getById(Integer id) {
+        return jdbcTemplate.queryForObject(sqlGetById, new Object[]{id}, new AuthorRowMapper());
+    }
+
+    @Override
+    public boolean delete(Integer id) {
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
+            ps.setInt(1, id);
+            return ps.execute();
+        });
     }
 }

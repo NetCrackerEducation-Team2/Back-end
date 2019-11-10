@@ -4,14 +4,14 @@ import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
-import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.security.SecurityConstants;
-import com.netcraker.services.MailSender;
+import com.netcraker.services.MailSenderService;
 import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -22,12 +22,18 @@ public class UserServiceImpl implements UserService {
 
     private final @NonNull UserRepository userRepository;
     private final @NonNull AuthorizationRepository authorizationRepository;
-    private final MailSender mailSender;
+    private final MailSenderService mailSenderService;
 
 
     @Override
     public User createUser(User user) {
-        User userFromDB = userRepository.findByEmail(user.getEmail());
+        User userFromDB = null;
+        try {
+            userFromDB = userRepository.findByEmail(user.getEmail());
+        } catch (EmptyResultDataAccessException ignored){
+
+        }
+
 
         if (userFromDB != null) {
             throw new FailedToRegisterException("Email is already used");
@@ -37,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
         AuthorizationLinks authorizationLinks = new AuthorizationLinks();
         authorizationLinks.setToken(UUID.randomUUID().toString());
-        authorizationLinks.setUserId(registered.getUserId());
+        authorizationLinks.setUserId(userRepository.findByEmail(registered.getEmail()).getUserId());
         authorizationLinks.setRegistrationToken(true);
         authorizationLinks.setUsed(true);
         authorizationRepository.creteAuthorizationLinks(authorizationLinks);
@@ -60,7 +66,7 @@ public class UserServiceImpl implements UserService {
 //                authorizationLinks.getToken()
 //        );
 
-        mailSender.send(user.getEmail(), "Activation code", message);
+        mailSenderService.send(user.getEmail(), "Activation code", message);
         return user;
     }
 

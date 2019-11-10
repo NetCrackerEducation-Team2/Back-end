@@ -1,7 +1,6 @@
 package com.netcraker.repositories;
 
 import com.netcraker.model.AuthorizationLinks;
-import com.netcraker.model.User;
 import com.netcraker.model.mapper.LinkRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +10,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
 public class AuthorizationRepository {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${spring.queries.find.authorizationLink}")

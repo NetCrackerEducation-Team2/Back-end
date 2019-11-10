@@ -1,5 +1,6 @@
 package com.netcraker.repositories;
 
+import com.netcraker.exceptions.FailedToUpdateUserException;
 import com.netcraker.model.User;
 import com.netcraker.model.mapper.UserRowMapper;
 import lombok.RequiredArgsConstructor;
@@ -62,15 +63,18 @@ public class UserRepository {
         return jdbcTemplate.queryForObject(sqlSelectUserId, params, new UserRowMapper());
     }
 
-    public void updateUser(User oldUser, User newUser) throws SQLDataException {
+    public void updateUser(User oldUser, User newUser) {
         Object[] params = { newUser.getFullName(), newUser.getEmail(), newUser.getPassword(),
                             newUser.getCreatedAt(), newUser.getEnabled(), newUser.getPhotoPath(),
 
                             oldUser.getUserId(), oldUser.getFullName(), oldUser.getEmail(), oldUser.getPassword(),
                             oldUser.getCreatedAt(), oldUser.getEnabled(), oldUser.getPhotoPath() };
         int changedRowsCount = jdbcTemplate.update(sqlUpdateUser, params);
-        if (changedRowsCount != 1)
-            throw new SQLDataException();
+
+        if (changedRowsCount == 0)
+            throw new FailedToUpdateUserException("User is not found!");
+        if (changedRowsCount > 1)
+            throw new FailedToUpdateUserException("Multiple update! Only one user can be changed!");
     }
 
     public void deleteUser(User user) throws SQLDataException {

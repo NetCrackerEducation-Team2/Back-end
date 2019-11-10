@@ -105,4 +105,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
+    @Override
+    public void updateUser(User oldUser, User newUser) {
+        userRepository.updateUser(oldUser, newUser);
+    }
 }

@@ -17,11 +17,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
 public class AuthorRepositoryImp implements AuthorRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public AuthorRepositoryImp(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Value("${authors.getById}")
     private String sqlGetById;

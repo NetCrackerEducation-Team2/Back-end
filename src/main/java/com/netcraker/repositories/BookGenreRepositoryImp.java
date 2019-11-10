@@ -10,11 +10,15 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
 public class BookGenreRepositoryImp implements BookGenreRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public BookGenreRepositoryImp(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Value("${books_genres.insert}")
     private String sqlInsert;

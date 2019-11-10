@@ -9,17 +9,23 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:path.properties")
 public class FileServiceImp implements FileService {
 
-    private final @NonNull ResourceLoader resourceLoader;
+    private final ResourceLoader resourceLoader;
+
+    @Autowired
+    public FileServiceImp(ResourceLoader resourceLoader) {
+        Assert.notNull(resourceLoader, "ResourceLoader shouldn't be null");
+        this.resourceLoader = resourceLoader;
+    }
 
     @Override
     public void downloadFile(String filePath, HttpServletResponse response) {

@@ -13,10 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
+@Transactional
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceImpl implements UserService {
 
@@ -69,6 +71,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Override
     public boolean activateUser(String token) {
         AuthorizationLinks authorizationLinks;
         try {
@@ -93,12 +96,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findByUserId(int userId) {
+        return userRepository.findByUserId(userId);
+    }
+
+    @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    @Override
-    public User findByUserId(int userId) {
-        return userRepository.findByUserId(userId);
-    }
 }

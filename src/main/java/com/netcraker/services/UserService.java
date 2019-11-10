@@ -7,4 +7,5 @@ public interface UserService {
     boolean activateUser(String code);
     User findByUserId(int userId);
     User findByEmail(String email);
+    void updateUser(User oldUser, User newUser);
 }

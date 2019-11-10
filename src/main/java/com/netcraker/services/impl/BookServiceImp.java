@@ -13,19 +13,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource({"classpath:view.properties", "classpath:path.properties"})
 public class BookServiceImp implements BookService {
 
-    private final @NonNull BookRepository bookRepository;
-    private final @NonNull PageService pageService;
-    private final @NonNull FileService fileService;
+    private final BookRepository bookRepository;
+    private final PageService pageService;
+    private final FileService fileService;
+
+    @Autowired
+    public BookServiceImp(BookRepository bookRepository, PageService pageService, FileService fileService) {
+        Assert.notNull(bookRepository, "BookRepository shouldn't be null");
+        Assert.notNull(pageService, "PageService shouldn't be null");
+        Assert.notNull(fileService, "FileService shouldn't be null");
+        this.bookRepository = bookRepository;
+        this.pageService = pageService;
+        this.fileService = fileService;
+    }
 
     @Value("${books.contentPath}")
     private String booksContentPath;

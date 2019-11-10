@@ -45,8 +45,8 @@ public class UserRepository {
 //    };
 
     public User createUser(User user) {
-        jdbcTemplate.update(sqlCreateUser, new Object[] { user.getFullName(), user.getPassword(), user.getEmail(),
-                                        new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath()});
+        jdbcTemplate.update(sqlCreateUser, new Object[]{user.getFullName(), user.getPassword(), user.getEmail(),
+                new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath()});
 //        user.setUserId(TEST_USER_LIST.size());
 //        TEST_USER_LIST.add(user);
         return user;

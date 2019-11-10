@@ -8,6 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -40,13 +41,21 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
     @Override
     public List<Announcement> getAll() {
-        //Announcement a = new Announcement(1, "ff" , " ff", 1, true, LocalDateTime.now(), 1);
-        //List<Announcement> list = new ArrayList<>();
-        //list.add(a);
-
         //String announcementSQLQuery = "SELECT * FROM announcements LIMIT ? OFFSET ?";
         String announcementsQuery = environment.getProperty("announcements.select");
         return jdbcTemplate.query(announcementsQuery, new Object[]{ 5, 0}, new AnnouncementRowMapper());
+    }
+
+    @Override
+    public List<Announcement> getAnnouncements(int limit, int offset) {
+        String announcementsQuery = environment.getProperty("announcements.select");
+        return jdbcTemplate.query(announcementsQuery, new Object[]{ limit, offset}, new AnnouncementRowMapper());
+    }
+
+    @Override
+    public int getCount() {
+        String announcementsQuery = environment.getProperty("announcements.count");
+        return jdbcTemplate.queryForObject(announcementsQuery, int.class);
     }
 
     @Override

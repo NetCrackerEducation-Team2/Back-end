@@ -12,6 +12,7 @@ import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -27,7 +28,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        User userFromDB = userRepository.findByEmail(user.getEmail());
+        User userFromDB = null;
+        try {
+            userFromDB = userRepository.findByEmail(user.getEmail());
+        } catch (DataAccessException ignored) {
+            // it's alright
+        }
 
         if (userFromDB != null) {
             throw new FailedToRegisterException("Email is already used");
@@ -65,12 +71,18 @@ public class UserServiceImpl implements UserService {
     }
 
     public boolean activateUser(String token) {
-        AuthorizationLinks authorizationLinks = authorizationRepository.findByActivationCode(token);
+        AuthorizationLinks authorizationLinks;
+        try {
+            authorizationLinks = authorizationRepository.findByActivationCode(token);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return false;
+        }
 
         if (authorizationLinks == null) {
             return false;
         }
-
+        System.out.println("Auth link has user's id:" + authorizationLinks.getUserId());
         User user = userRepository.findByUserId(authorizationLinks.getUserId());
 
         if (user == null) {

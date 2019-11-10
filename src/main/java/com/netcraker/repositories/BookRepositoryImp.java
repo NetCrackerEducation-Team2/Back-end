@@ -1,7 +1,10 @@
 package com.netcraker.repositories;
 
 import com.netcraker.model.Book;
+import com.netcraker.model.BookFilteringParam;
+import com.netcraker.model.Page;
 import com.netcraker.model.mapper.BookRowMapper;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,19 +14,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
 public class BookRepositoryImp implements BookRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final @NonNull GenreRepository genreRepository;
+    private final @NonNull AuthorRepository authorRepository;
 
     @Value("${books.getById}")
     private String sqlGetById;
@@ -33,60 +37,15 @@ public class BookRepositoryImp implements BookRepository {
     private String sqlUpdate;
     @Value("${books.delete}")
     private String sqlDelete;
-    @Value("${books.getByName}")
-    private String sqlGetByName;
-    @Value("${books.getByGenre}")
-    private String sqlGetByGenre;
-    @Value("${books.getByAuthor}")
-    private String sqlGetByAuthor;
-    @Value("${books.getByAnnouncementDate}")
-    private String sqlGetAnnouncementDate;
-    @Value("${books.addGenre}")
-    private String sqlAddGenre;
-    @Value("${books.addAuthor}")
-    private String sqlAddAuthor;
-
-    @Override
-    public List<Book> getByName(String name, int size, int offset) {
-        return jdbcTemplate.query(sqlGetByName, new BookRowMapper(), name, size, offset);
-    }
-
-    @Override
-    public List<Book> getByAuthor(int authorId, int size, int offset) {
-        return jdbcTemplate.query(sqlGetByName, new BookRowMapper(), authorId, size, offset);
-    }
-
-    @Override
-    public List<Book> getByGenre(int genreId, int size, int offset) {
-        return jdbcTemplate.query(sqlGetByName, new BookRowMapper(), genreId, size, offset);
-    }
-
-    @Override
-    public List<Book> getByAnnouncementDate(LocalDateTime date, int size, int offset) {
-        return jdbcTemplate.query(sqlGetByName, new BookRowMapper(), Timestamp.valueOf(date), size, offset);
-    }
-
-    @Override
-    public boolean addGenre(int bookId, int genreId) {
-        return jdbcTemplate.execute(sqlAddGenre, (PreparedStatementCallback<Boolean>) ps -> {
-            ps.setInt(1, bookId);
-            ps.setInt(2, genreId);
-            return ps.execute();
-        });
-    }
-
-    @Override
-    public boolean addAuthor(int bookId, int authorId) {
-        return jdbcTemplate.execute(sqlAddAuthor, (PreparedStatementCallback<Boolean>) ps -> {
-            ps.setInt(1, bookId);
-            ps.setInt(2, authorId);
-            return ps.execute();
-        });
-    }
+    @Value("${books.countFiltered}")
+    private String sqlCountFiltered;
+    @Value("${books.getFiltered}")
+    private String sqlGetFiltered;
 
     @Override
     public Book getById(int id) {
-        return jdbcTemplate.queryForObject(sqlGetById, new BookRowMapper(), id);
+        return jdbcTemplate.queryForObject(sqlGetById,
+                new BookRowMapper(genreRepository, authorRepository), id);
     }
 
     @Override
@@ -125,5 +84,48 @@ public class BookRepositoryImp implements BookRepository {
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> ps.execute());
+    }
+
+    @Override
+    public int countFiltered(HashMap<BookFilteringParam, Object> filteringParams) {
+        checkBookFilteringParams(filteringParams);
+        List params = getBookFilteringParams(filteringParams);
+        return jdbcTemplate.queryForObject(sqlCountFiltered, params.toArray(), int.class);
+    }
+
+    @Override
+    public List<Book> getFiltered(HashMap<BookFilteringParam, Object> filteringParams, int size, int offset) {
+        checkBookFilteringParams(filteringParams);
+        List<Object> params = getBookFilteringParams(filteringParams);
+        params.add(size);
+        params.add(offset);
+        return jdbcTemplate.query(sqlGetFiltered, params.toArray(), new BookRowMapper(genreRepository, authorRepository));
+    }
+
+    private void checkBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams){
+        if(!checkBookFilteringParamsTypes(filteringParams)){
+            throw new IllegalArgumentException("One or more filtering params have incorrect types");
+        }
+        if(filteringParams.entrySet().size() != BookFilteringParam.values().length){
+            throw new IllegalArgumentException("Illegal number of filtering params");
+        }
+    }
+
+    private boolean checkBookFilteringParamsTypes(HashMap<BookFilteringParam, Object> filteringParams){
+        return filteringParams.entrySet().stream().allMatch((entry) ->
+                entry.getValue() == null || entry.getKey().getClazz().isInstance(entry.getValue()));
+    }
+
+    private List<Object> getBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams){
+        LocalDate localDate = (LocalDate) filteringParams.get(BookFilteringParam.ANNOUNCEMENT_DATE);
+        Date date = localDate == null ? null : Date.valueOf(localDate);
+        Object[] params = new Object[]{
+            filteringParams.get(BookFilteringParam.TITLE),
+            filteringParams.get(BookFilteringParam.GENRE),
+            filteringParams.get(BookFilteringParam.AUTHOR),
+            date};
+        List<Object> list = new ArrayList<>();
+        Collections.addAll(list, params);
+        return list;
     }
 }

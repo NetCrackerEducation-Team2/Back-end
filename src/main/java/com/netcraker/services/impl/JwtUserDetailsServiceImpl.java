@@ -17,11 +17,12 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
     private final @NonNull UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if(userRepository.findByUsername(username)!=null){
-            return new User(userRepository.findByUsername(username).getEmail(),
-                    userRepository.findByUsername(username).getPassword(), Collections.emptyList());
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        final com.netcraker.model.User userFromDb = userRepository.findByEmail(email);
+
+        if(userFromDb!=null){
+            return new User(userFromDb.getEmail(), userFromDb.getPassword(), Collections.emptyList());
         }
-         throw new UsernameNotFoundException(username);
+         throw new UsernameNotFoundException(email);
     }
 }

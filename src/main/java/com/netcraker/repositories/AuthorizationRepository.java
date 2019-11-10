@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -28,6 +30,7 @@ public class AuthorizationRepository {
     @Value("${spring.queries.update.authorizationLinks}")
     private String sqlUpdateLink;
 
+
     public AuthorizationLinks findByActivationCode(String token) {
         return jdbcTemplate.queryForObject(sqlFindLink, new Object[]{ token}, new LinkRowMapper());
     }
@@ -35,6 +38,7 @@ public class AuthorizationRepository {
         jdbcTemplate.update(sqlCreateLink, new Object[] {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
                 authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
                 authorizationLinks.isUsed()});
+
         return authorizationLinks;
     }
     public AuthorizationLinks updateAuthorizationLinks(AuthorizationLinks authorizationLinks) {

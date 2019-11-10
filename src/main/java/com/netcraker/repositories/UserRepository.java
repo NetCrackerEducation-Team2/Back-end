@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
 import java.sql.*;
 import java.util.List;
 
@@ -18,40 +19,42 @@ public class UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Value("${spring.queries.user.create}")
+    @Value("${user.create}")
     private String sqlCreateUser;
 
-    @Value("${spring.queries.user.findByUserId}")
+    @Value("${user.findByUserId}")
     private String sqlSelectUserId;
 
-    @Value("${spring.queries.user.findByUsername}")
+    @Value("${user.findByUsername}")
     private String sqlSelectUserEmail;
 
-    @Value("${spring.queries.user.update}")
+    @Value("${user.update}")
     private String sqlUpdateUser;
 
-    @Value("${spring.queries.user.delete}")
+    @Value("${user.delete}")
     private String sqlDeleteUser;
 
-    @Value("${spring.queries.user.getByFilter}")
+    @Value("${user.getByFilter}")
     private String sqlGetUsersByFilter;
 
-    @Value("${spring.queries.user.updateByFilter}")
+    @Value("${user.updateByFilter}")
     private String sqlUpdateUsersByFilter;
 
-    @Value("${spring.queries.user.deleteByFilter}")
+    @Value("${user.deleteByFilter}")
     private String sqlDeleteUsersByFilter;
 
 
     public User createUser(User user) {
-        Object[] params = { user.getFull_name(), user.getPassword(), user.getEmail(),
+        Object[] params = { user.getFullName(), user.getPassword(), user.getEmail(),
                             new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath() };
         jdbcTemplate.update(sqlCreateUser, params);
+        user = findByEmail(user.getEmail());
+        System.out.println("Got id:" + user.getUserId());
         return user;
     }
 
-    public User findByUsername(String username) {
-        Object[] params = { username };
+    public User findByEmail(String email) {
+        Object[] params = { email };
         return jdbcTemplate.queryForObject(sqlSelectUserEmail, params, new UserRowMapper());
     }
 
@@ -61,10 +64,10 @@ public class UserRepository {
     }
 
     public void updateUser(User oldUser, User newUser) throws SQLDataException {
-        Object[] params = { newUser.getFull_name(), newUser.getEmail(), newUser.getPassword(),
+        Object[] params = { newUser.getFullName(), newUser.getEmail(), newUser.getPassword(),
                             newUser.getCreatedAt(), newUser.getEnabled(), newUser.getPhotoPath(),
 
-                            oldUser.getUserId(), oldUser.getFull_name(), oldUser.getEmail(), oldUser.getPassword(),
+                            oldUser.getUserId(), oldUser.getFullName(), oldUser.getEmail(), oldUser.getPassword(),
                             oldUser.getCreatedAt(), oldUser.getEnabled(), oldUser.getPhotoPath() };
         int changedRowsCount = jdbcTemplate.update(sqlUpdateUser, params);
         if (changedRowsCount != 1)
@@ -72,7 +75,7 @@ public class UserRepository {
     }
 
     public void deleteUser(User user) throws SQLDataException {
-        Object[] params = { user.getUserId(), user.getFull_name(), user.getEmail(), user.getPassword(),
+        Object[] params = { user.getUserId(), user.getFullName(), user.getEmail(), user.getPassword(),
                             user.getCreatedAt(), user.getEnabled(), user.getPhotoPath() };
         int changedRowsCount = jdbcTemplate.update(sqlDeleteUser, params);
         if (changedRowsCount != 1)
@@ -82,7 +85,7 @@ public class UserRepository {
 
     public List<User> getUsersByFilter(User userFilter, int paginationPosition, int paginationCount) {
         Object[] params = {
-                userFilter.getFull_name(),  userFilter.getFull_name()  == null,
+                userFilter.getFullName(),   userFilter.getFullName()  == null,
                 userFilter.getEmail(),      userFilter.getEmail()      == null,
                 userFilter.getPassword(),   userFilter.getPassword()   == null,
                 userFilter.getCreatedAt(),  userFilter.getCreatedAt()  == null,
@@ -96,14 +99,14 @@ public class UserRepository {
 
     public int updateUsersByFilter(User userFilter, User userNewData) {
         Object[] params = {
-                userNewData.getFull_name()  == null, userNewData.getFull_name(),
+                userNewData.getFullName()   == null, userNewData.getFullName(),
                 userNewData.getEmail()      == null, userNewData.getEmail(),
                 userNewData.getPassword()   == null, userNewData.getPassword(),
                 userNewData.getCreatedAt()  == null, userNewData.getCreatedAt(),
                 userNewData.getEnabled()    == null, userNewData.getEnabled(),
                 userNewData.getPhotoPath()  == null, userNewData.getPhotoPath(),
 
-                userFilter.getFull_name(),  userFilter.getFull_name()  == null,
+                userFilter.getFullName(),   userFilter.getFullName()   == null,
                 userFilter.getEmail(),      userFilter.getEmail()      == null,
                 userFilter.getPassword(),   userFilter.getPassword()   == null,
                 userFilter.getCreatedAt(),  userFilter.getCreatedAt()  == null,
@@ -115,7 +118,7 @@ public class UserRepository {
 
     public int deleteUsersByFilter(User userFilter) {
         Object[] params = {
-                userFilter.getFull_name(),  userFilter.getFull_name()  == null,
+                userFilter.getFullName(),   userFilter.getFullName()   == null,
                 userFilter.getEmail(),      userFilter.getEmail()      == null,
                 userFilter.getPassword(),   userFilter.getPassword()   == null,
                 userFilter.getCreatedAt(),  userFilter.getCreatedAt()  == null,

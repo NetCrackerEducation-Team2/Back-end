@@ -18,6 +18,6 @@ public class User {
     @Size(min = 6)
     private String password;
     private Timestamp createdAt;
-    private boolean enabled;
+    private Boolean enabled;
     private String photoPath;
 }

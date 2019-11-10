@@ -6,7 +6,7 @@ import com.netcraker.model.Page;
 import java.util.List;
 
 public interface AnnouncementService {
-    List<Announcement> getAllAnnouncements();
+    Page<Announcement> getAnnouncements(int page);
     Announcement getAnnouncementById();
     boolean addAnnouncement(Announcement announcement);
     boolean updateAnnouncement(Announcement announcement);

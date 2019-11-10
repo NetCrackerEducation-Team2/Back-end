@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,10 +19,15 @@ import java.time.LocalDate;
 import java.util.HashMap;
 
 @RestController
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookController {
 
-    private final @NonNull BookService bookService;
+    private final BookService bookService;
+
+    @Autowired
+    public BookController(BookService bookService) {
+        Assert.notNull(bookService, "BookService shouldn't be null");
+        this.bookService = bookService;
+    }
 
     @GetMapping("/books")
     public ResponseEntity<Page<Book>> getBooksPage(

@@ -29,25 +29,14 @@ public class AuthorizationRepository {
     @Value("${spring.queries.update.authorizationLinks}")
     private String sqlUpdateLink;
 
-//    List<AuthorizationLinks> TEST_AUTHLINKS = new ArrayList<AuthorizationLinks>(){{
-//
-//    }};
 
     public AuthorizationLinks findByActivationCode(String token) {
         return jdbcTemplate.queryForObject(sqlFindLink, new Object[]{ token}, new LinkRowMapper());
-//        for(AuthorizationLinks link: TEST_AUTHLINKS){
-//            if(token.equals(link.getToken())){
-//                return link;
-//            }
-//        }
-//        return null;
     }
     public AuthorizationLinks creteAuthorizationLinks(AuthorizationLinks authorizationLinks) {
         jdbcTemplate.update(sqlCreateLink, new Object[] {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
                 authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
                 authorizationLinks.isUsed()});
-//
-//        TEST_AUTHLINKS.add(authorizationLinks);
 
         return authorizationLinks;
     }

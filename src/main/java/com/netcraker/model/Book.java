@@ -17,9 +17,10 @@ public class Book {
     private int pages;
     private String filePath;
     private String photoPath;
-    private String publishingHouse;
-    private int rateSum = 0;
-    private int votersCount = 0;
+    private byte[] photo;
+    private @NonNull String publishingHouse;
+    private int rateSum;
+    private int votersCount;
     private LocalDateTime creationTime;
     private @NonNull String slug;
     private @Singular List<Genre> genres;

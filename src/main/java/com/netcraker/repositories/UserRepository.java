@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -30,8 +33,9 @@ public class UserRepository {
 
 
     public User createUser(User user) {
-        jdbcTemplate.update(sqlCreateUser,  user.getFullName(), user.getPassword(), user.getEmail(),
-                                        new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath());
+        jdbcTemplate.update(sqlCreateUser, new Object[]{user.getFullName(), user.getPassword(), user.getEmail(),
+                new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath()});
+        user = findByEmail(user.getEmail());
         return user;
     }
 

@@ -1,6 +1,7 @@
 package com.netcraker.repositories;
 
 import com.netcraker.model.Book;
+import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
 import com.netcraker.model.mapper.BookRowMapper;
 import lombok.NonNull;
@@ -13,13 +14,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -30,10 +29,6 @@ public class BookRepositoryImp implements BookRepository {
     private final @NonNull GenreRepository genreRepository;
     private final @NonNull AuthorRepository authorRepository;
 
-    @Value("${books.countAll}")
-    private String sqlCountAll;
-    @Value("${books.getAll}")
-    private String sqlGetAll;
     @Value("${books.getById}")
     private String sqlGetById;
     @Value("${books.insert}")
@@ -42,77 +37,10 @@ public class BookRepositoryImp implements BookRepository {
     private String sqlUpdate;
     @Value("${books.delete}")
     private String sqlDelete;
-    @Value("${books.countByName}")
-    private String sqlCountByName;
-    @Value("${books.getByName}")
-    private String sqlGetByName;
-    @Value("${books.countByGenre}")
-    private String sqlCountByGenre;
-    @Value("${books.getByGenre}")
-    private String sqlGetByGenre;
-    @Value("${books.countByAuthor}")
-    private String sqlCountByAuthor;
-    @Value("${books.getByAuthor}")
-    private String sqlGetByAuthor;
-    @Value("${books.countByAnnouncementDate}")
-    private String sqlCountByAnnouncementDate;
-    @Value("${books.getByAnnouncementDate}")
-    private String sqlGetAnnouncementDate;
-
-    @Override
-    public int countAll() {
-        return jdbcTemplate.queryForObject(sqlCountAll, int.class);
-    }
-
-    @Override
-    public List<Book> getAll(int size, int offset) {
-        return jdbcTemplate.query(sqlGetAll,
-                new BookRowMapper(genreRepository, authorRepository), size, offset);
-    }
-
-    @Override
-    public int countByName(String name) {
-        return jdbcTemplate.queryForObject(sqlCountByName, int.class);
-    }
-
-    @Override
-    public List<Book> getByName(String name, int size, int offset) {
-        return jdbcTemplate.query(sqlGetByName,
-                new BookRowMapper(genreRepository, authorRepository), name, size, offset);
-    }
-
-    @Override
-    public int countByAuthor(int authorId) {
-        return jdbcTemplate.queryForObject(sqlCountByAuthor, int.class, authorId);
-    }
-
-    @Override
-    public List<Book> getByAuthor(int authorId, int size, int offset) {
-        return jdbcTemplate.query(sqlGetByName,
-                new BookRowMapper(genreRepository, authorRepository), authorId, size, offset);
-    }
-
-    @Override
-    public int countByGenre(int genreId) {
-        return jdbcTemplate.queryForObject(sqlCountByGenre, int.class, genreId);
-    }
-
-    @Override
-    public List<Book> getByGenre(int genreId, int size, int offset) {
-        return jdbcTemplate.query(sqlGetByName,
-                new BookRowMapper(genreRepository, authorRepository), genreId, size, offset);
-    }
-
-    @Override
-    public int countByAnnouncementDate(LocalDate date) {
-        return jdbcTemplate.queryForObject(sqlCountByAnnouncementDate, int.class, date);
-    }
-
-    @Override
-    public List<Book> getByAnnouncementDate(LocalDate date, int size, int offset) {
-        return jdbcTemplate.query(sqlGetByName,
-                new BookRowMapper(genreRepository, authorRepository), Date.valueOf(date), size, offset);
-    }
+    @Value("${books.countFiltered}")
+    private String sqlCountFiltered;
+    @Value("${books.getFiltered}")
+    private String sqlGetFiltered;
 
 
     @Override
@@ -158,5 +86,98 @@ public class BookRepositoryImp implements BookRepository {
     @Override
     public boolean delete(Integer integer) {
         return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> ps.execute());
+    }
+
+//    @Override
+    public int countFiltered(HashMap<BookFilteringParam, Object> filteringParams) {
+        checkBookFilteringParams(filteringParams);
+        List params = getBookFilteringParams(filteringParams);
+        return jdbcTemplate.queryForObject(sqlCountFiltered, params.toArray(), int.class);
+    }
+
+//    @Override
+    public List<Book> getFiltered(HashMap<BookFilteringParam, Object> filteringParams, int size, int offset) {
+        checkBookFilteringParams(filteringParams);
+        List<Object> params = getBookFilteringParams(filteringParams);
+        params.add(size);
+        params.add(offset);
+        return jdbcTemplate.query(sqlGetFiltered, params.toArray(), new BookRowMapper(genreRepository, authorRepository));
+    }
+
+    private void checkBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams){
+        if(!checkBookFilteringParamsTypes(filteringParams)){
+            throw new IllegalArgumentException("One or more filtering params have incorrect types");
+        }
+        if(filteringParams.entrySet().size() != BookFilteringParam.values().length){
+            throw new IllegalArgumentException("Illegal number of filtering params");
+        }
+    }
+
+    private boolean checkBookFilteringParamsTypes(HashMap<BookFilteringParam, Object> filteringParams){
+        return filteringParams.entrySet().stream().allMatch((entry) ->
+                entry.getValue() == null || entry.getKey().getClazz().isInstance(entry.getValue()));
+    }
+
+    private List<Object> getBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams){
+        LocalDate localDate = (LocalDate) filteringParams.get(BookFilteringParam.ANNOUNCEMENT_DATE);
+        Date date = localDate == null ? null : Date.valueOf(localDate);
+        Object[] params = new Object[]{
+            filteringParams.get(BookFilteringParam.TITLE),
+            filteringParams.get(BookFilteringParam.GENRE),
+            filteringParams.get(BookFilteringParam.AUTHOR),
+            date};
+        List<Object> list = new ArrayList<>();
+        Collections.addAll(list, params);
+        return list;
+    }
+
+    @Override
+    public int countAll() {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getAll(int size, int offset) {
+        return null;
+    }
+
+    @Override
+    public int countByName(String name) {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getByName(String name, int size, int offset) {
+        return null;
+    }
+
+    @Override
+    public int countByAuthor(int authorId) {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getByAuthor(int authorId, int size, int offset) {
+        return null;
+    }
+
+    @Override
+    public int countByGenre(int genreId) {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getByGenre(int genreId, int size, int offset) {
+        return null;
+    }
+
+    @Override
+    public int countByAnnouncementDate(LocalDate date) {
+        return 0;
+    }
+
+    @Override
+    public List<Book> getByAnnouncementDate(LocalDate date, int size, int offset) {
+        return null;
     }
 }

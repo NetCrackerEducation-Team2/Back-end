@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Enumeration;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -68,7 +69,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 //            } catch (IllegalArgumentException exception) {
 ////                log.warn("Request to parse empty or null JWT : {} failed : {}", token, exception.getMessage());
 //            }
-            catch (Exception e){
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }

@@ -6,6 +6,7 @@ import com.netcraker.model.Page;
 import com.netcraker.repositories.BookRepository;
 import com.netcraker.services.BookService;
 import com.netcraker.services.FileService;
+import com.netcraker.services.PageService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import java.util.HashMap;
 public class BookServiceImp implements BookService {
 
     private final @NonNull BookRepository bookRepository;
-
+    private final @NonNull PageService pageService;
     private final @NonNull FileService fileService;
 
     @Value("${books.contentPath}")
@@ -38,8 +39,8 @@ public class BookServiceImp implements BookService {
     @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page) {
         int total = bookRepository.countFiltered(filteringParams);
-        int pagesCount = getPagesCount(total);
-        int currentPage = getRestrictedPage(page, pagesCount);
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = (currentPage - 1) * pageSize;
         ArrayList<Book> books = new ArrayList<>(bookRepository.getFiltered(filteringParams, pageSize, offset));
         books.forEach(book -> book.setPhoto(fileService.getImage(booksImagePath + book.getPhotoPath())));
@@ -49,13 +50,5 @@ public class BookServiceImp implements BookService {
     @Override
     public void downloadBook(String fileName, HttpServletResponse response) {
         fileService.downloadFile(booksContentPath + fileName, response);
-    }
-
-    private int getPagesCount(int total){
-        return Math.max(1, (int) Math.ceil((double) total / pageSize));
-    }
-
-    private int getRestrictedPage(int page, int pagesCount){
-        return Math.min(pagesCount, Math.max(1, page));
     }
 }

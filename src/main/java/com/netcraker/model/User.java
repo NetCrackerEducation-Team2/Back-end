@@ -9,6 +9,8 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     private int userId;
     @NotBlank

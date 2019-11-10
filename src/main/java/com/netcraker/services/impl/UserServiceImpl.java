@@ -72,12 +72,18 @@ public class UserServiceImpl implements UserService {
     }
 
     public boolean activateUser(String token) {
-        AuthorizationLinks authorizationLinks = authorizationRepository.findByActivationCode(token);
+        AuthorizationLinks authorizationLinks;
+        try {
+            authorizationLinks = authorizationRepository.findByActivationCode(token);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return false;
+        }
 
         if (authorizationLinks == null) {
             return false;
         }
-
+        System.out.println("Auth link has user's id:" + authorizationLinks.getUserId());
         User user = userRepository.findByUserId(authorizationLinks.getUserId());
 
         if (user == null) {

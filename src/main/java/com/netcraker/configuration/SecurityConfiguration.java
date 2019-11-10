@@ -47,7 +47,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // must-have
                 .antMatchers(HttpMethod.OPTIONS, "**").permitAll()
                 //pages that can be showing without authentication
-                .antMatchers("/books", "/announcements", "/activate/*").permitAll()
+                .antMatchers("/books", "/book/download", "/announcements","/activate/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(), passwordEncoder()))

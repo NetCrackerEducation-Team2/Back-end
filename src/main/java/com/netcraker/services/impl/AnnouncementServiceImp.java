@@ -7,6 +7,7 @@ import com.netcraker.services.AnnouncementService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,9 +21,11 @@ public class AnnouncementServiceImp implements AnnouncementService {
     }
 
     @Override
-    public List<Announcement> getAllAnnouncements() {
-
-        return announcementRepository.getAll();
+    public Page<Announcement> getAnnouncements(int page) {
+        int count = announcementRepository.getCount();
+        ArrayList<Announcement> list = (ArrayList<Announcement>) announcementRepository.getAnnouncements(5,0);
+        Page<Announcement> announcementPage = new Page(count, 10, page, list);
+        return announcementPage;
     }
 
     @Override

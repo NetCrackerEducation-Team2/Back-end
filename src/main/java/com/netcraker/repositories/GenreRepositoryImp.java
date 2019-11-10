@@ -2,6 +2,7 @@ package com.netcraker.repositories;
 
 import com.netcraker.model.Genre;
 import com.netcraker.model.mapper.GenreRowMapper;
+import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ public class GenreRepositoryImp implements GenreRepository {
 
     @Autowired
     public GenreRepositoryImp(JdbcTemplate jdbcTemplate) {
+        Assert.notNull(jdbcTemplate, "JdbcTemplate shouldn't be null");
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -36,7 +38,7 @@ public class GenreRepositoryImp implements GenreRepository {
     private String sqlGetByBook;
 
     @Override
-    public Genre getById(Integer id) {
+    public Genre getById(int id) {
         return jdbcTemplate.queryForObject(sqlGetById, new GenreRowMapper());
     }
 
@@ -60,7 +62,7 @@ public class GenreRepositoryImp implements GenreRepository {
     }
 
     @Override
-    public boolean delete(Integer id) {
+    public boolean delete(int id) {
         return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setInt(1, id);
             return ps.execute();
@@ -71,5 +73,4 @@ public class GenreRepositoryImp implements GenreRepository {
     public List<Genre> getByBook(int bookId) {
         return jdbcTemplate.query(sqlGetByBook, new GenreRowMapper(), bookId);
     }
-
 }

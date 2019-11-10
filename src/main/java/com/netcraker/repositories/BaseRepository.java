@@ -1,8 +1,8 @@
 package com.netcraker.repositories;
 
-public interface BaseRepository<T, Id> {
-    T getById(Id id);
+public interface BaseRepository<T> {
+    T getById(int id);
     boolean insert(T entity);
     boolean update(T entity);
-    boolean delete(Id id);
+    boolean delete(int id);
 }

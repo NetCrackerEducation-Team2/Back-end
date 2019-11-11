@@ -8,10 +8,7 @@ import java.util.Set;
 @Getter
 @Setter
 public class UserRole {
-    private Integer user_id;
-    private Integer role_id;
-    private Set<String> roles;
-    private String password;
-    private String firstName;
-
+    private int userRoleId;
+    private int userId;
+    private int roleId;
 }

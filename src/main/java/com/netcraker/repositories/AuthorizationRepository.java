@@ -32,12 +32,14 @@ public class AuthorizationRepository {
 
 
     public AuthorizationLinks findByActivationCode(String token) {
-        return jdbcTemplate.queryForObject(sqlFindLink, new Object[]{ token}, new LinkRowMapper());
+        Object[] param = {token};
+        return jdbcTemplate.queryForObject(sqlFindLink, param, new LinkRowMapper());
     }
     public AuthorizationLinks creteAuthorizationLinks(AuthorizationLinks authorizationLinks) {
-        jdbcTemplate.update(sqlCreateLink, new Object[] {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
-                authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
-                authorizationLinks.isUsed()});
+        Object[] param = {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
+                        authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
+                        authorizationLinks.isUsed()};
+        jdbcTemplate.update(sqlCreateLink, param);
 
         return authorizationLinks;
     }

@@ -1,6 +1,5 @@
 package com.netcraker.repositories;
 
-import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +11,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookAuthorRepositoryImp implements BookAuthorRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public BookAuthorRepositoryImp(JdbcTemplate jdbcTemplate) {
-        Assert.notNull(jdbcTemplate, "JdbcTemplate shouldn't be null");
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private final @NonNull JdbcTemplate jdbcTemplate;
 
     @Value("${books_authors.insert}")
     private String sqlInsert;

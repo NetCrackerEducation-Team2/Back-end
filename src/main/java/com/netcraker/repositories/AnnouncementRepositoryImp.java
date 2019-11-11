@@ -2,27 +2,23 @@ package com.netcraker.repositories;
 
 import com.netcraker.model.Announcement;
 import com.netcraker.model.mapper.AnnouncementRowMapper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final Environment environment;
-
-    @Autowired
-    public AnnouncementRepositoryImp(JdbcTemplate jdbcTemplate, Environment environment) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.environment = environment;
-    }
+    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final @NonNull Environment environment;
 
     @Override
     public boolean createAnnouncement(Announcement announcement) {

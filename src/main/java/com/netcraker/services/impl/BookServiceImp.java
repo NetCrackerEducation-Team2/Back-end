@@ -41,6 +41,8 @@ public class BookServiceImp implements BookService {
     private String booksContentPath;
     @Value("${books.imagePath}")
     private String booksImagePath;
+    @Value("${books.defaultImageName}")
+    private String booksDefaultImageName;
 
     @Value("${books.pageSize}")
     private int pageSize;
@@ -52,7 +54,13 @@ public class BookServiceImp implements BookService {
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = (currentPage - 1) * pageSize;
         ArrayList<Book> books = new ArrayList<>(bookRepository.getFiltered(filteringParams, pageSize, offset));
-        books.forEach(book -> book.setPhoto(fileService.getImage(booksImagePath + book.getPhotoPath())));
+        books.forEach(book -> {
+            if(book.getPhotoPath() != null) {
+                book.setPhoto(fileService.getImage(booksImagePath + book.getPhotoPath()));
+            }else{
+                book.setPhoto(fileService.getImage(booksImagePath + booksDefaultImageName));
+            }
+        });
         return new Page<>(currentPage, pagesCount, books);
     }
 

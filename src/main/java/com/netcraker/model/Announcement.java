@@ -4,16 +4,13 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
-@Builder
-@Getter
-@Setter
+@Data @Builder
 public class Announcement {
-    private @NonNull int announcement_id;
+    private int announcementId;
     private @NonNull String title;
     private @NonNull String description;
-    private @NonNull int user_id;
+    private int userId;
     private boolean published;
-    private LocalDateTime creation_time;
-    private @NonNull int book_id;
+    private LocalDateTime creationTime;
+    private int bookId;
 }

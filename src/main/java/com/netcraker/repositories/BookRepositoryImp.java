@@ -13,6 +13,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -23,21 +26,12 @@ import java.util.*;
 
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookRepositoryImp implements BookRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final GenreRepository genreRepository;
-    private final AuthorRepository authorRepository;
-
-    @Autowired
-    public BookRepositoryImp(JdbcTemplate jdbcTemplate, GenreRepository genreRepository, AuthorRepository authorRepository) {
-        Assert.notNull(jdbcTemplate, "JdbcTemplate shouldn't be null");
-        Assert.notNull(genreRepository, "GenreRepository shouldn't be null");
-        Assert.notNull(authorRepository, "AuthorRepository shouldn't be null");
-        this.jdbcTemplate = jdbcTemplate;
-        this.genreRepository = genreRepository;
-        this.authorRepository = authorRepository;
-    }
+    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final @NonNull GenreRepository genreRepository;
+    private final @NonNull AuthorRepository authorRepository;
 
     @Value("${books.getById}")
     private String sqlGetById;
@@ -59,8 +53,10 @@ public class BookRepositoryImp implements BookRepository {
     }
 
     @Override
-    public boolean insert(Book entity) {
-        return jdbcTemplate.execute(sqlInsert, (PreparedStatementCallback<Boolean>) ps -> {
+    public Book insert(Book entity) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getTitle());
             ps.setInt(2, entity.getIsbn());
             ps.setDate(3, Date.valueOf(entity.getRelease()));
@@ -70,13 +66,14 @@ public class BookRepositoryImp implements BookRepository {
             ps.setString(7, entity.getPublishingHouse());
             ps.setInt(8, entity.getRateSum());
             ps.setInt(9, entity.getVotersCount());
-            return ps.execute();
-        });
+            return ps;
+        }, keyHolder);
+        return getById(keyHolder.getKey().intValue());
     }
 
     @Override
-    public boolean update(Book entity) {
-        return jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
+    public Book update(Book entity) {
+        jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setString(1, entity.getTitle());
             ps.setInt(2, entity.getIsbn());
             ps.setDate(3, Date.valueOf(entity.getRelease()));
@@ -89,6 +86,7 @@ public class BookRepositoryImp implements BookRepository {
             ps.setInt(10, entity.getBookId());
             return ps.execute();
         });
+        return getById(entity.getBookId());
     }
 
     @Override

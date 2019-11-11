@@ -3,7 +3,6 @@ package com.netcraker.repositories;
 import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 

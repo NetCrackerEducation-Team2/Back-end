@@ -51,10 +51,10 @@ public class RoleController {
     @DeleteMapping("role/delete")
     public ResponseEntity<?> deleteUserRole(@RequestBody int roleId) throws SQLDataException {
         final Role roleFromDb = roleService.findByRoleId(roleId);
-        if (rolFromDb == null) {
+        if (roleFromDb == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Role with such id doesn't exist");
         }
-        roleService.deleteRole(rolFromDb);
+        roleService.deleteRole(roleFromDb);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

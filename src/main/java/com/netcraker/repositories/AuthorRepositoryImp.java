@@ -2,6 +2,7 @@ package com.netcraker.repositories;
 
 import com.netcraker.model.Author;
 import com.netcraker.model.mapper.AuthorRowMapper;
+import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ public class AuthorRepositoryImp implements AuthorRepository {
 
     @Autowired
     public AuthorRepositoryImp(JdbcTemplate jdbcTemplate) {
+        Assert.notNull(jdbcTemplate, "JdbcTemplate shouldn't be null");
         this.jdbcTemplate = jdbcTemplate;
     }
 

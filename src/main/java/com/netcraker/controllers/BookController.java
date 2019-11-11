@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 
 @RestController
+@RequestMapping({"/api"})
+@CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
 public class BookController {
 
     private final BookService bookService;

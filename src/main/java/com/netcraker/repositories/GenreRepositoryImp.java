@@ -2,6 +2,7 @@ package com.netcraker.repositories;
 
 import com.netcraker.model.Genre;
 import com.netcraker.model.mapper.GenreRowMapper;
+import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ public class GenreRepositoryImp implements GenreRepository {
 
     @Autowired
     public GenreRepositoryImp(JdbcTemplate jdbcTemplate) {
+        Assert.notNull(jdbcTemplate, "JdbcTemplate shouldn't be null");
         this.jdbcTemplate = jdbcTemplate;
     }
 

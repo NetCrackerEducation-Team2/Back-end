@@ -4,6 +4,7 @@ import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
 import com.netcraker.model.mapper.BookRowMapper;
+import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class BookRepositoryImp implements BookRepository {
 
     @Autowired
     public BookRepositoryImp(JdbcTemplate jdbcTemplate, GenreRepository genreRepository, AuthorRepository authorRepository) {
+        Assert.notNull(jdbcTemplate, "JdbcTemplate shouldn't be null");
+        Assert.notNull(genreRepository, "GenreRepository shouldn't be null");
+        Assert.notNull(authorRepository, "AuthorRepository shouldn't be null");
         this.jdbcTemplate = jdbcTemplate;
         this.genreRepository = genreRepository;
         this.authorRepository = authorRepository;
@@ -126,10 +130,10 @@ public class BookRepositoryImp implements BookRepository {
         LocalDate localDate = (LocalDate) filteringParams.get(BookFilteringParam.ANNOUNCEMENT_DATE);
         Date date = localDate == null ? null : Date.valueOf(localDate);
         Object[] params = new Object[]{
-            filteringParams.get(BookFilteringParam.TITLE),
-            filteringParams.get(BookFilteringParam.GENRE),
-            filteringParams.get(BookFilteringParam.AUTHOR),
-            date};
+                filteringParams.get(BookFilteringParam.TITLE),
+                filteringParams.get(BookFilteringParam.GENRE),
+                filteringParams.get(BookFilteringParam.AUTHOR),
+                date};
         List<Object> list = new ArrayList<>();
         Collections.addAll(list, params);
         return list;

@@ -5,8 +5,7 @@ import lombok.Setter;
 
 import java.util.Set;
 
-@Getter
-@Setter
+@Getter @Setter
 public class UserRole {
     private Integer user_id;
     private Integer role_id;

@@ -1,13 +1,8 @@
 package com.netcraker.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
-@Builder
+@Data @Builder
 public class Author {
     private int authorId;
     private @NonNull String fullName;

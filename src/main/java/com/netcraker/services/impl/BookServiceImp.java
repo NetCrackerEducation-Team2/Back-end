@@ -7,8 +7,6 @@ import com.netcraker.repositories.BookRepository;
 import com.netcraker.services.BookService;
 import com.netcraker.services.FileService;
 import com.netcraker.services.PageService;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -41,18 +39,27 @@ public class BookServiceImp implements BookService {
     private String booksContentPath;
     @Value("${books.imagePath}")
     private String booksImagePath;
+    @Value("${books.defaultImageName}")
+    private String booksDefaultImageName;
 
     @Value("${books.pageSize}")
     private int pageSize;
 
     @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page) {
+        bookRepository.delete(1);
         int total = bookRepository.countFiltered(filteringParams);
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = (currentPage - 1) * pageSize;
         ArrayList<Book> books = new ArrayList<>(bookRepository.getFiltered(filteringParams, pageSize, offset));
-        books.forEach(book -> book.setPhoto(fileService.getImage(booksImagePath + book.getPhotoPath())));
+        books.forEach(book -> {
+            if(book.getPhotoPath() != null) {
+                book.setPhoto(fileService.getImage(booksImagePath + book.getPhotoPath()));
+            }else{
+                book.setPhoto(fileService.getImage(booksImagePath + booksDefaultImageName));
+            }
+        });
         return new Page<>(currentPage, pagesCount, books);
     }
 

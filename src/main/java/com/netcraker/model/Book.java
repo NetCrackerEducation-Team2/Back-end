@@ -6,14 +6,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
-@Builder
+@Data @Builder
 public class Book {
     private int bookId;
     private @NonNull String title;
     private int isbn;
-    private @NonNull LocalDate release;
+    private LocalDate release;
     private int pages;
     private @NonNull String filePath;
     private String photoPath;

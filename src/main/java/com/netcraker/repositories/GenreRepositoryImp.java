@@ -49,7 +49,7 @@ public class GenreRepositoryImp implements GenreRepository {
             ps.setString(2, entity.getDescription());
             return ps;
         }, keyHolder);
-        return getById(keyHolder.getKey().intValue());
+        return getById((Integer) keyHolder.getKeys().get("genre_id"));
     }
 
     @Override

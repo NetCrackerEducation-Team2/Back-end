@@ -16,6 +16,7 @@ public class AnnouncementRowMapper implements RowMapper<Announcement> {
                 .userId(resultSet.getInt("USER_ID"))
                 .published(resultSet.getBoolean("PUBLISHED"))
                 .bookId(resultSet.getInt("BOOK_ID"))
+                .creationTime(resultSet.getTimestamp("CREATION_TIME").toLocalDateTime())
                 .build();
         return  announcement;
     }

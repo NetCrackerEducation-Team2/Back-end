@@ -36,23 +36,23 @@ public class AnnouncementServiceImp implements AnnouncementService {
     }
 
     @Override
-    public Announcement getAnnouncementById() {
-        return null;
+    public Announcement getAnnouncementById(int id) {
+        return announcementRepository.getById(id);
     }
 
     @Override
-    public boolean addAnnouncement(Announcement announcement) {
-        return false;
+    public Announcement addAnnouncement(Announcement announcement) {
+        return announcementRepository.insert(announcement);
     }
 
     @Override
-    public boolean updateAnnouncement(Announcement announcement) {
-        return false;
+    public Announcement updateAnnouncement(Announcement announcement) {
+        return announcementRepository.update(announcement);
     }
 
     @Override
     public boolean deleteAnnouncement(int id) {
-        return false;
+        return announcementRepository.delete(id);
     }
 
     @Override

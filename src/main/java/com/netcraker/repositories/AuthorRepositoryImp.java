@@ -52,7 +52,7 @@ public class AuthorRepositoryImp implements AuthorRepository {
             ps.setString(2, entity.getDescription());
             return ps;
         }, keyHolder);
-        return getById(keyHolder.getKey().intValue());
+        return getById((Integer) keyHolder.getKeys().get("author_id"));
     }
 
     @Override

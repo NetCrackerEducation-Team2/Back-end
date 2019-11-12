@@ -1,8 +1,6 @@
 package com.netcraker.repositories;
 
-import com.netcraker.model.Book;
-import com.netcraker.model.BookFilteringParam;
-import com.netcraker.model.Page;
+import com.netcraker.model.*;
 import com.netcraker.model.mapper.BookRowMapper;
 import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
@@ -32,6 +30,8 @@ public class BookRepositoryImp implements BookRepository {
     private final @NonNull JdbcTemplate jdbcTemplate;
     private final @NonNull GenreRepository genreRepository;
     private final @NonNull AuthorRepository authorRepository;
+    private final @NonNull BookGenreRepository bookGenreRepository;
+    private final @NonNull BookAuthorRepository bookAuthorRepository;
 
     @Value("${books.getById}")
     private String sqlGetById;
@@ -93,7 +93,15 @@ public class BookRepositoryImp implements BookRepository {
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> ps.execute());
+        Book book = getById(id);
+        List<Author> authors = book.getAuthors();
+        List<Genre> genres = book.getGenres();
+        authors.forEach(author -> bookAuthorRepository.delete(id, author.getAuthorId()));
+        genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
+            ps.setInt(1, id);
+            return ps.execute();
+        });
     }
 
     @Override

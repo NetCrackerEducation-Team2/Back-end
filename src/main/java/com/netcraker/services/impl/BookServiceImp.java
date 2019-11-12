@@ -47,6 +47,7 @@ public class BookServiceImp implements BookService {
 
     @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page) {
+        bookRepository.delete(1);
         int total = bookRepository.countFiltered(filteringParams);
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);

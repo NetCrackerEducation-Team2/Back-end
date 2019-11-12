@@ -66,9 +66,10 @@ public class BookRepositoryImp implements BookRepository {
             ps.setString(7, entity.getPublishingHouse());
             ps.setInt(8, entity.getRateSum());
             ps.setInt(9, entity.getVotersCount());
+            ps.setString(10, entity.getSlug());
             return ps;
         }, keyHolder);
-        return getById(keyHolder.getKey().intValue());
+        return getById((Integer) keyHolder.getKeys().get("book_id"));
     }
 
     @Override
@@ -83,7 +84,8 @@ public class BookRepositoryImp implements BookRepository {
             ps.setString(7, entity.getPublishingHouse());
             ps.setInt(8, entity.getRateSum());
             ps.setInt(9, entity.getVotersCount());
-            ps.setInt(10, entity.getBookId());
+            ps.setString(10, entity.getSlug());
+            ps.setInt(11, entity.getBookId());
             return ps.execute();
         });
         return getById(entity.getBookId());

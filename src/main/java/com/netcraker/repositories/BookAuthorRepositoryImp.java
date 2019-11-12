@@ -32,7 +32,7 @@ public class BookAuthorRepositoryImp implements BookAuthorRepository {
 
     @Override
     public boolean delete(int bookId, int authorId) {
-        return jdbcTemplate.execute(sqlInsert, (PreparedStatementCallback<Boolean>) ps -> {
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setInt(1, bookId);
             ps.setInt(2, authorId);
             return ps.execute();

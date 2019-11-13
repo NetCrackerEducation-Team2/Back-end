@@ -1,9 +1,8 @@
 package com.netcraker.repositories;
 
-import com.netcraker.model.Book;
-import com.netcraker.model.BookFilteringParam;
-import com.netcraker.model.Page;
+import com.netcraker.model.*;
 import com.netcraker.model.mapper.BookRowMapper;
+import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -22,18 +24,14 @@ import java.util.*;
 
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookRepositoryImp implements BookRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final GenreRepository genreRepository;
-    private final AuthorRepository authorRepository;
-
-    @Autowired
-    public BookRepositoryImp(JdbcTemplate jdbcTemplate, GenreRepository genreRepository, AuthorRepository authorRepository) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.genreRepository = genreRepository;
-        this.authorRepository = authorRepository;
-    }
+    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final @NonNull GenreRepository genreRepository;
+    private final @NonNull AuthorRepository authorRepository;
+    private final @NonNull BookGenreRepository bookGenreRepository;
+    private final @NonNull BookAuthorRepository bookAuthorRepository;
 
     @Value("${books.getById}")
     private String sqlGetById;
@@ -55,8 +53,10 @@ public class BookRepositoryImp implements BookRepository {
     }
 
     @Override
-    public boolean insert(Book entity) {
-        return jdbcTemplate.execute(sqlInsert, (PreparedStatementCallback<Boolean>) ps -> {
+    public Book insert(Book entity) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getTitle());
             ps.setInt(2, entity.getIsbn());
             ps.setDate(3, Date.valueOf(entity.getRelease()));
@@ -66,13 +66,15 @@ public class BookRepositoryImp implements BookRepository {
             ps.setString(7, entity.getPublishingHouse());
             ps.setInt(8, entity.getRateSum());
             ps.setInt(9, entity.getVotersCount());
-            return ps.execute();
-        });
+            ps.setString(10, entity.getSlug());
+            return ps;
+        }, keyHolder);
+        return getById((Integer) keyHolder.getKeys().get("book_id"));
     }
 
     @Override
-    public boolean update(Book entity) {
-        return jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
+    public Book update(Book entity) {
+        jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setString(1, entity.getTitle());
             ps.setInt(2, entity.getIsbn());
             ps.setDate(3, Date.valueOf(entity.getRelease()));
@@ -82,14 +84,24 @@ public class BookRepositoryImp implements BookRepository {
             ps.setString(7, entity.getPublishingHouse());
             ps.setInt(8, entity.getRateSum());
             ps.setInt(9, entity.getVotersCount());
-            ps.setInt(10, entity.getBookId());
+            ps.setString(10, entity.getSlug());
+            ps.setInt(11, entity.getBookId());
             return ps.execute();
         });
+        return getById(entity.getBookId());
     }
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> ps.execute());
+        Book book = getById(id);
+        List<Author> authors = book.getAuthors();
+        List<Genre> genres = book.getGenres();
+        authors.forEach(author -> bookAuthorRepository.delete(id, author.getAuthorId()));
+        genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
+            ps.setInt(1, id);
+            return ps.execute();
+        });
     }
 
     @Override
@@ -126,10 +138,10 @@ public class BookRepositoryImp implements BookRepository {
         LocalDate localDate = (LocalDate) filteringParams.get(BookFilteringParam.ANNOUNCEMENT_DATE);
         Date date = localDate == null ? null : Date.valueOf(localDate);
         Object[] params = new Object[]{
-            filteringParams.get(BookFilteringParam.TITLE),
-            filteringParams.get(BookFilteringParam.GENRE),
-            filteringParams.get(BookFilteringParam.AUTHOR),
-            date};
+                filteringParams.get(BookFilteringParam.TITLE),
+                filteringParams.get(BookFilteringParam.GENRE),
+                filteringParams.get(BookFilteringParam.AUTHOR),
+                date};
         List<Object> list = new ArrayList<>();
         Collections.addAll(list, params);
         return list;

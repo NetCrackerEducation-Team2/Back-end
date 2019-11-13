@@ -7,11 +7,9 @@ import com.netcraker.services.BookService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -19,15 +17,12 @@ import java.time.LocalDate;
 import java.util.HashMap;
 
 @RestController
+@RequestMapping({"/api"})
+@CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookController {
 
-    private final BookService bookService;
-
-    @Autowired
-    public BookController(BookService bookService) {
-        Assert.notNull(bookService, "BookService shouldn't be null");
-        this.bookService = bookService;
-    }
+    private final @NonNull BookService bookService;
 
     @GetMapping("/books")
     public ResponseEntity<Page<Book>> getBooksPage(

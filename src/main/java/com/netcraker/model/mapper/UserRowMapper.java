@@ -1,7 +1,6 @@
 package com.netcraker.model.mapper;
 
 import com.netcraker.model.User;
-
 import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;

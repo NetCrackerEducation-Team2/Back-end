@@ -1,7 +1,6 @@
 package com.netcraker.repositories;
 
 import com.netcraker.model.AuthorizationLinks;
-import com.netcraker.model.User;
 import com.netcraker.model.mapper.LinkRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

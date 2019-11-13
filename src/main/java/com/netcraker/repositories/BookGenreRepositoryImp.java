@@ -11,14 +11,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookGenreRepositoryImp implements BookGenreRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public BookGenreRepositoryImp(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private final @NonNull JdbcTemplate jdbcTemplate;
 
     @Value("${books_genres.insert}")
     private String sqlInsert;
@@ -36,7 +32,7 @@ public class BookGenreRepositoryImp implements BookGenreRepository {
 
     @Override
     public boolean delete(int bookId, int genreId) {
-        return jdbcTemplate.execute(sqlInsert, (PreparedStatementCallback<Boolean>) ps -> {
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setInt(1, bookId);
             ps.setInt(2, genreId);
             return ps.execute();

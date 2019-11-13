@@ -13,8 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.sql.SQLDataException;
+import java.util.List;
 
 @RestController
 @CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
@@ -33,8 +32,8 @@ public class UserController {
     }
 
     @PutMapping("profile/update")
-    public ResponseEntity<?> updateUserProfile(@RequestBody User oldUser, @RequestBody User newUser) {
-        userService.updateUser(oldUser, newUser);
+    public ResponseEntity<?> updateUserProfile(@RequestBody List<User> users) {
+        userService.updateUser(users.get(0), users.get(1));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

@@ -17,15 +17,10 @@ import java.io.*;
 
 @Service
 @PropertySource("classpath:path.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FileServiceImp implements FileService {
 
-    private final ResourceLoader resourceLoader;
-
-    @Autowired
-    public FileServiceImp(ResourceLoader resourceLoader) {
-        Assert.notNull(resourceLoader, "ResourceLoader shouldn't be null");
-        this.resourceLoader = resourceLoader;
-    }
+    private final @NonNull ResourceLoader resourceLoader;
 
     @Override
     public void downloadFile(String filePath, HttpServletResponse response) {

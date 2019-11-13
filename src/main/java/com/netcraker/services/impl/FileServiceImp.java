@@ -9,14 +9,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 @Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:path.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FileServiceImp implements FileService {
 
     private final @NonNull ResourceLoader resourceLoader;

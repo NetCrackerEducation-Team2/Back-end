@@ -4,45 +4,55 @@ import com.netcraker.model.Announcement;
 import com.netcraker.model.Page;
 import com.netcraker.repositories.AnnouncementRepository;
 import com.netcraker.services.AnnouncementService;
+import com.netcraker.services.PageService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
-import java.util.List;
+import java.util.ArrayList;
 
 @Service
+@PropertySource({"classpath:view.properties"})
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AnnouncementServiceImp implements AnnouncementService {
 
-    private final AnnouncementRepository announcementRepository;
+    private final @NonNull AnnouncementRepository announcementRepository;
+    private final @NonNull PageService pageService;
 
-    public AnnouncementServiceImp(AnnouncementRepository announcementRepository) {
-        Assert.notNull(announcementRepository, "AnnouncementRepository must not be null!");
-        this.announcementRepository = announcementRepository;
+    @Value("${announcements.pageSize}")
+    private int pageSize;
+
+    @Override
+    public Page<Announcement> getAnnouncements(int page) {
+        int total = announcementRepository.getCount();
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = (currentPage - 1) * pageSize;
+        ArrayList<Announcement> list = (ArrayList<Announcement>) announcementRepository.getAnnouncements(pageSize,offset);
+        return new Page<>(currentPage, pagesCount, list);
     }
 
     @Override
-    public List<Announcement> getAllAnnouncements() {
-
-        return announcementRepository.getAll();
+    public Announcement getAnnouncementById(int id) {
+        return announcementRepository.getById(id);
     }
 
     @Override
-    public Announcement getAnnouncementById() {
-        return null;
+    public Announcement addAnnouncement(Announcement announcement) {
+        return announcementRepository.insert(announcement);
     }
 
     @Override
-    public boolean addAnnouncement(Announcement announcement) {
-        return false;
-    }
-
-    @Override
-    public boolean updateAnnouncement(Announcement announcement) {
-        return false;
+    public Announcement updateAnnouncement(Announcement announcement) {
+        return announcementRepository.update(announcement);
     }
 
     @Override
     public boolean deleteAnnouncement(int id) {
-        return false;
+        return announcementRepository.delete(id);
     }
 
     @Override

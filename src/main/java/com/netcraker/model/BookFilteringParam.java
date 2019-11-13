@@ -6,8 +6,7 @@ import lombok.NonNull;
 
 import java.time.LocalDate;
 
-@Getter
-@AllArgsConstructor
+@Getter @AllArgsConstructor
 public enum BookFilteringParam {
     TITLE(String.class), GENRE(Integer.class), AUTHOR(Integer.class), ANNOUNCEMENT_DATE(LocalDate.class);
 

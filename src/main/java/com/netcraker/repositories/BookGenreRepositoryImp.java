@@ -10,8 +10,8 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookGenreRepositoryImp implements BookGenreRepository {
 
     private final @NonNull JdbcTemplate jdbcTemplate;
@@ -32,7 +32,7 @@ public class BookGenreRepositoryImp implements BookGenreRepository {
 
     @Override
     public boolean delete(int bookId, int genreId) {
-        return jdbcTemplate.execute(sqlInsert, (PreparedStatementCallback<Boolean>) ps -> {
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setInt(1, bookId);
             ps.setInt(2, genreId);
             return ps.execute();

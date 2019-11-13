@@ -2,6 +2,7 @@ package com.netcraker.repositories;
 
 import com.netcraker.model.Author;
 import com.netcraker.model.mapper.AuthorRowMapper;
+import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +11,18 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthorRepositoryImp implements AuthorRepository {
 
     private final @NonNull JdbcTemplate jdbcTemplate;
@@ -34,42 +38,44 @@ public class AuthorRepositoryImp implements AuthorRepository {
     @Value("${authors.getByBook}")
     private String sqlGetByBook;
 
-
     @Override
-    public boolean insert(Author entity) {
-        return jdbcTemplate.execute(sqlInsert, (PreparedStatementCallback<Boolean>) ps -> {
-            ps.setString(1, entity.getFullName());
-            ps.setString(2, entity.getDescription());
-            return ps.execute();
-        });
+    public Author getById(int id) {
+        return jdbcTemplate.queryForObject(sqlGetById, new AuthorRowMapper());
     }
 
     @Override
-    public boolean update(Author entity) {
-        return jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
+    public Author insert(Author entity) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, entity.getFullName());
+            ps.setString(2, entity.getDescription());
+            return ps;
+        }, keyHolder);
+        return getById((Integer) keyHolder.getKeys().get("author_id"));
+    }
+
+    @Override
+    public Author update(Author entity) {
+        jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setString(1, entity.getFullName());
             ps.setString(2, entity.getDescription());
             ps.setInt(3, entity.getAuthorId());
             return ps.execute();
         });
-    }
-
-
-    @Override
-    public List<Author> getByBook(int bookId) {
-        return jdbcTemplate.query(sqlGetByBook, new AuthorRowMapper(), bookId);
+        return getById(entity.getAuthorId());
     }
 
     @Override
-    public Author getById(Integer id) {
-        return jdbcTemplate.queryForObject(sqlGetById, new Object[]{id}, new AuthorRowMapper());
-    }
-
-    @Override
-    public boolean delete(Integer id) {
+    public boolean delete(int id) {
         return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setInt(1, id);
             return ps.execute();
         });
+    }
+
+    @Override
+    public List<Author> getByBook(int bookId) {
+        return jdbcTemplate.query(sqlGetByBook, new AuthorRowMapper(), bookId);
     }
 }

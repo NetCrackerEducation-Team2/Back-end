@@ -1,9 +1,8 @@
 package com.netcraker.repositories;
 
-import com.netcraker.model.Book;
-import com.netcraker.model.BookFilteringParam;
-import com.netcraker.model.Page;
+import com.netcraker.model.*;
 import com.netcraker.model.mapper.BookRowMapper;
+import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -21,13 +23,15 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookRepositoryImp implements BookRepository {
 
     private final @NonNull JdbcTemplate jdbcTemplate;
     private final @NonNull GenreRepository genreRepository;
     private final @NonNull AuthorRepository authorRepository;
+    private final @NonNull BookGenreRepository bookGenreRepository;
+    private final @NonNull BookAuthorRepository bookAuthorRepository;
 
     @Value("${books.getById}")
     private String sqlGetById;
@@ -42,60 +46,72 @@ public class BookRepositoryImp implements BookRepository {
     @Value("${books.getFiltered}")
     private String sqlGetFiltered;
 
-
     @Override
-    public boolean insert(Book entity) {
-        return jdbcTemplate.execute(sqlInsert, (PreparedStatementCallback<Boolean>) ps -> {
-            ps.setString(1, entity.getTitle());
-            ps.setInt(2, entity.getIsbn());
-            ps.setDate(3, Date.valueOf(entity.getRelease()));
-            ps.setInt(4, entity.getPages());
-            ps.setString(5, entity.getFilePath());
-            ps.setString(6, entity.getPhotoPath());
-            ps.setString(7, entity.getPublishingHouse());
-            ps.setInt(8, entity.getRateSum());
-            ps.setInt(9, entity.getVotersCount());
-            return ps.execute();
-        });
-    }
-
-    @Override
-    public boolean update(Book entity) {
-        return jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
-            ps.setString(1, entity.getTitle());
-            ps.setInt(2, entity.getIsbn());
-            ps.setDate(3, Date.valueOf(entity.getRelease()));
-            ps.setInt(4, entity.getPages());
-            ps.setString(5, entity.getFilePath());
-            ps.setString(6, entity.getPhotoPath());
-            ps.setString(7, entity.getPublishingHouse());
-            ps.setInt(8, entity.getRateSum());
-            ps.setInt(9, entity.getVotersCount());
-            ps.setInt(10, entity.getBookId());
-            return ps.execute();
-        });
-    }
-
-
-    @Override
-    public Book getById(Integer id) {
+    public Book getById(int id) {
         return jdbcTemplate.queryForObject(sqlGetById,
                 new BookRowMapper(genreRepository, authorRepository), id);
     }
 
     @Override
-    public boolean delete(Integer integer) {
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> ps.execute());
+    public Book insert(Book entity) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, entity.getTitle());
+            ps.setInt(2, entity.getIsbn());
+            ps.setDate(3, Date.valueOf(entity.getRelease()));
+            ps.setInt(4, entity.getPages());
+            ps.setString(5, entity.getFilePath());
+            ps.setString(6, entity.getPhotoPath());
+            ps.setString(7, entity.getPublishingHouse());
+            ps.setInt(8, entity.getRateSum());
+            ps.setInt(9, entity.getVotersCount());
+            ps.setString(10, entity.getSlug());
+            return ps;
+        }, keyHolder);
+        return getById((Integer) keyHolder.getKeys().get("book_id"));
     }
 
-//    @Override
+    @Override
+    public Book update(Book entity) {
+        jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
+            ps.setString(1, entity.getTitle());
+            ps.setInt(2, entity.getIsbn());
+            ps.setDate(3, Date.valueOf(entity.getRelease()));
+            ps.setInt(4, entity.getPages());
+            ps.setString(5, entity.getFilePath());
+            ps.setString(6, entity.getPhotoPath());
+            ps.setString(7, entity.getPublishingHouse());
+            ps.setInt(8, entity.getRateSum());
+            ps.setInt(9, entity.getVotersCount());
+            ps.setString(10, entity.getSlug());
+            ps.setInt(11, entity.getBookId());
+            return ps.execute();
+        });
+        return getById(entity.getBookId());
+    }
+
+    @Override
+    public boolean delete(int id) {
+        Book book = getById(id);
+        List<Author> authors = book.getAuthors();
+        List<Genre> genres = book.getGenres();
+        authors.forEach(author -> bookAuthorRepository.delete(id, author.getAuthorId()));
+        genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
+            ps.setInt(1, id);
+            return ps.execute();
+        });
+    }
+
+    @Override
     public int countFiltered(HashMap<BookFilteringParam, Object> filteringParams) {
         checkBookFilteringParams(filteringParams);
         List params = getBookFilteringParams(filteringParams);
         return jdbcTemplate.queryForObject(sqlCountFiltered, params.toArray(), int.class);
     }
 
-//    @Override
+    @Override
     public List<Book> getFiltered(HashMap<BookFilteringParam, Object> filteringParams, int size, int offset) {
         checkBookFilteringParams(filteringParams);
         List<Object> params = getBookFilteringParams(filteringParams);
@@ -122,62 +138,12 @@ public class BookRepositoryImp implements BookRepository {
         LocalDate localDate = (LocalDate) filteringParams.get(BookFilteringParam.ANNOUNCEMENT_DATE);
         Date date = localDate == null ? null : Date.valueOf(localDate);
         Object[] params = new Object[]{
-            filteringParams.get(BookFilteringParam.TITLE),
-            filteringParams.get(BookFilteringParam.GENRE),
-            filteringParams.get(BookFilteringParam.AUTHOR),
-            date};
+                filteringParams.get(BookFilteringParam.TITLE),
+                filteringParams.get(BookFilteringParam.GENRE),
+                filteringParams.get(BookFilteringParam.AUTHOR),
+                date};
         List<Object> list = new ArrayList<>();
         Collections.addAll(list, params);
         return list;
-    }
-
-    @Override
-    public int countAll() {
-        return 0;
-    }
-
-    @Override
-    public List<Book> getAll(int size, int offset) {
-        return null;
-    }
-
-    @Override
-    public int countByName(String name) {
-        return 0;
-    }
-
-    @Override
-    public List<Book> getByName(String name, int size, int offset) {
-        return null;
-    }
-
-    @Override
-    public int countByAuthor(int authorId) {
-        return 0;
-    }
-
-    @Override
-    public List<Book> getByAuthor(int authorId, int size, int offset) {
-        return null;
-    }
-
-    @Override
-    public int countByGenre(int genreId) {
-        return 0;
-    }
-
-    @Override
-    public List<Book> getByGenre(int genreId, int size, int offset) {
-        return null;
-    }
-
-    @Override
-    public int countByAnnouncementDate(LocalDate date) {
-        return 0;
-    }
-
-    @Override
-    public List<Book> getByAnnouncementDate(LocalDate date, int size, int offset) {
-        return null;
     }
 }

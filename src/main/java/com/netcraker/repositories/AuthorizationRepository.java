@@ -17,24 +17,23 @@ import java.sql.Timestamp;
 public class AuthorizationRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    @Value("${spring.queries.create.authorizationLinks}")
+    @Value("${authorizationLink.create}")
     private String sqlCreateLink;
 
-    @Value("${spring.queries.update.authorizationLinks}")
+    @Value("${authorizationLink.update}")
     private String sqlUpdateLink;
 
-    @Value("${spring.find.authorizationLinkByToken}")
+    @Value("${authorizationLink.findByToken}")
     private String sqlFindLinkByToken;
 
-    @Value("${spring.find.authorizationLinkByUserId}")
+    @Value("${authorizationLink.findByUserId}")
     private String sqlFindLinkByUserId;
 
-//    @Value("${spring.update.authorizationLinks}")
-
     public AuthorizationLinks creteAuthorizationLinks(AuthorizationLinks authorizationLinks) {
-        jdbcTemplate.update(sqlCreateLink, new Object[] {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
-                authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
-                authorizationLinks.isUsed()});
+        Object[] param = {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
+                        authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
+                        authorizationLinks.isUsed()};
+        jdbcTemplate.update(sqlCreateLink, param);
 
         return authorizationLinks;
     }

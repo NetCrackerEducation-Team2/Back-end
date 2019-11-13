@@ -31,7 +31,7 @@ public class MailSender {
         return String.format(
                 "Hello, %s! \n" +
                         "Welcome to library. " +
-                        "Please visit next link: http://localhost:4200/auth%s/%s",
+                        "Please visit next link: https://localhost:4200/auth%s/%s",
                 fullName, SecurityConstants.AUTH_ACTIVATION_URL, token
         );
     }

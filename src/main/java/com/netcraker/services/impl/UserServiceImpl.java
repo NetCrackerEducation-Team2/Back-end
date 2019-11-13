@@ -34,27 +34,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        User userFromDB = null;
-        try {
-            userFromDB = userRepository.findByEmail(user.getEmail());
-            if (userFromDB != null) {
-                throw new FailedToRegisterException("Email is already used");
-            }
-        } catch (EmptyResultDataAccessException e){
-
+        User userFromDB = userRepository.findByEmail(user.getEmail());
+        if(userFromDB != null){
+            throw new FailedToRegisterException("Email is already used");
         }
-
         final User registered = userRepository.createUser(user);
         System.out.println("created with id: " + registered.getUserId());
 
-        AuthorizationLinks authorizationLinks = new AuthorizationLinks();
-        authorizationLinks.setToken(UUID.randomUUID().toString());
-        authorizationLinks.setUserId(userRepository.findByEmail(registered.getEmail()).getUserId());
-        authorizationLinks.setRegistrationToken(true);
-        authorizationLinks.setUsed(false);
-        authorizationRepository.creteAuthorizationLinks(authorizationLinks);
-        
-        mailSender.send(user, "Activation code", authorizationLinks);
+        final AuthorizationLinks authorizationLink =  authorizationRepository.creteAuthorizationLinks(registered);
+        System.out.println("created with id: " + authorizationLink.getUserId());
+
+        mailSender.send(user, "Activation code", authorizationLink);
         return user;
     }
 
@@ -86,19 +76,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createAdminModerator(User user, Role role){
-        User userFromDB = null;
-        try {
-            roleRepository.findByName(role.getName());
-            userFromDB = userRepository.findByEmail(user.getEmail());
-
-        } catch (DataAccessException ignored) {
-
-        }
-        if (userFromDB != null) {
+        User userFromDB = userRepository.findByEmail(user.getEmail());
+        if(userFromDB != null){
             throw new FailedToRegisterException("Email is already used");
         }
-
         final User registered = userRepository.createUser(user);
+        System.out.println("created with id: " + registered.getUserId());
+
         final Role userRole = roleRepository.findByName(role.getName());
         userRoleRepository.createUserRole(registered,userRole);
         return user;

@@ -66,12 +66,14 @@ public class UserRepository {
 
     public User findByEmail(String email) {
         Object[] params = { email };
-        return jdbcTemplate.queryForObject(sqlSelectUserEmail, params, new UserRowMapper());
+        List<User> users = jdbcTemplate.query(sqlSelectUserEmail, params, new UserRowMapper());
+        return users.size() > 0 ? users.get(0): null;
     }
 
     public User findByUserId(int userId) {
         Object[] params = { userId };
-        return jdbcTemplate.queryForObject(sqlSelectUserId, params, new UserRowMapper());
+        List<User> users = jdbcTemplate.query(sqlSelectUserId, params, new UserRowMapper());
+        return users.size() > 0 ? users.get(0): null;
     }
 
     public void updateUser(User oldUser, User newUser) {

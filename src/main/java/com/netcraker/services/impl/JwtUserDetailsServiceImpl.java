@@ -20,7 +20,7 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         final com.netcraker.model.User userFromDb = userRepository.findByEmail(email);
         if(userFromDb!=null){
-            if(userFromDb.isEnabled()){
+            if(userFromDb.getEnabled()){
                 return new User(userFromDb.getEmail(), userFromDb.getPassword(), Collections.emptyList());
             }
             else {

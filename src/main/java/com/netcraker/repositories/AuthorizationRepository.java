@@ -1,6 +1,7 @@
 package com.netcraker.repositories;
 
 import com.netcraker.model.AuthorizationLinks;
+import com.netcraker.model.User;
 import com.netcraker.model.mapper.LinkRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -29,12 +31,12 @@ public class AuthorizationRepository {
     @Value("${authorizationLink.findByUserId}")
     private String sqlFindLinkByUserId;
 
-    public AuthorizationLinks creteAuthorizationLinks(AuthorizationLinks authorizationLinks) {
-        Object[] param = {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
-                        authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
-                        authorizationLinks.isUsed()};
+    public AuthorizationLinks creteAuthorizationLinks(User user) {
+        String token = UUID.randomUUID().toString();
+        Object[] param = {token, new Timestamp(System.currentTimeMillis()),
+                        user.getUserId(), true, false};
         jdbcTemplate.update(sqlCreateLink, param);
-
+        AuthorizationLinks authorizationLinks = findByActivationCode(token);
         return authorizationLinks;
     }
     public AuthorizationLinks findByActivationCode(String token) {

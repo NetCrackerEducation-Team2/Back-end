@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +32,17 @@ public class UserServiceImpl implements UserService {
     private final @NonNull RoleRepository roleRepository;
     private final @NonNull UserRoleRepository userRoleRepository;
     private final MailSender mailSender;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Override
     public User createUser(User user) {
+        //duplicate will be fixed later
         User userFromDB = userRepository.findByEmail(user.getEmail());
         if(userFromDB != null){
             throw new FailedToRegisterException("Email is already used");
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         final User registered = userRepository.createUser(user);
         System.out.println("created with id: " + registered.getUserId());
 
@@ -76,8 +81,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createAdminModerator(User user, Role role){
-        User userFromDB = userRepository.findByEmail(user.getEmail());
-        if(userFromDB != null){
+        User adminModeratorDb = userRepository.findByEmail(user.getEmail());
+        if(adminModeratorDb != null){
             throw new FailedToRegisterException("Email is already used");
         }
         final User registered = userRepository.createUser(user);

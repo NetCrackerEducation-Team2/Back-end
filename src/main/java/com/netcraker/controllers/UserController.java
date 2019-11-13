@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
 @RequiredArgsConstructor(onConstructor = @_(@Autowired))
@@ -26,8 +28,8 @@ public class UserController {
     }
 
     @PutMapping("profile/update")
-    public ResponseEntity<?> updateUserProfile(@RequestBody User oldUser, @RequestBody User newUser) {
-        userService.updateUser(oldUser, newUser);
+    public ResponseEntity<?> updateUserProfile(@RequestBody List<User> users) {
+        userService.updateUser(users.get(0), users.get(1));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

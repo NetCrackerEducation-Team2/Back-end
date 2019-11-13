@@ -5,13 +5,13 @@ import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.UserRepository;
-import com.netcraker.security.SecurityConstants;
 import com.netcraker.services.MailSenderService;
 import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -30,13 +30,11 @@ public class UserServiceImpl implements UserService {
         User userFromDB = null;
         try {
             userFromDB = userRepository.findByEmail(user.getEmail());
+            if (userFromDB != null) {
+                throw new FailedToRegisterException("Email is already used");
+            }
+        } catch (EmptyResultDataAccessException e){
 
-        } catch (DataAccessException ignored) {
-            // if user will not found, it will cause an exception
-        }
-
-        if (userFromDB != null) {
-            throw new FailedToRegisterException("Email is already used");
         }
 
         final User registered = userRepository.createUser(user);
@@ -46,28 +44,10 @@ public class UserServiceImpl implements UserService {
         authorizationLinks.setToken(UUID.randomUUID().toString());
         authorizationLinks.setUserId(userRepository.findByEmail(registered.getEmail()).getUserId());
         authorizationLinks.setRegistrationToken(true);
-        authorizationLinks.setUsed(true);
+        authorizationLinks.setUsed(false);
         authorizationRepository.creteAuthorizationLinks(authorizationLinks);
-
-        String message = String.format(
-                "Hello, %s! \n" +
-                        "Welcome to library. " +
-                        "Please visit next link: http://netcracker2-front-end.herokuapp.com%s/%s",
-                user.getFullName(),
-                SecurityConstants.AUTH_ACTIVATION_URL,
-                authorizationLinks.getToken()
-        );
-
-//        String message = String.format(
-//                "Hello, %s! \n" +
-//                        "Welcome to library. " +
-//                        "Please visit next link: http://localhost:4200%s/%s",
-//                user.getFullName(),
-//                SecurityConstants.AUTH_ACTIVATION_URL,
-//                authorizationLinks.getToken()
-//        );
-
-        mailSenderService.send(user.getEmail(), "Activation code", message);
+        
+        mailSenderService.send(user, "Activation code", authorizationLinks);
         return user;
     }
 
@@ -89,7 +69,9 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             return false;
         }
-        authorizationLinks.setUsed(false);
+        authorizationLinks.setUsed(true);
+        user.setEnabled(true);
+        userRepository.updateUser(user);
         authorizationRepository.updateAuthorizationLinks(authorizationLinks);
         return true;
     }

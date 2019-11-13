@@ -17,25 +17,34 @@ import java.sql.Timestamp;
 public class AuthorizationRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    @Value("${spring.queries.find.authorizationLink}")
-    private String sqlFindLink;
-
     @Value("${spring.queries.create.authorizationLinks}")
     private String sqlCreateLink;
 
     @Value("${spring.queries.update.authorizationLinks}")
     private String sqlUpdateLink;
 
+    @Value("${spring.find.authorizationLinkByToken}")
+    private String sqlFindLinkByToken;
 
-    public AuthorizationLinks findByActivationCode(String token) {
-        return jdbcTemplate.queryForObject(sqlFindLink, new Object[]{ token}, new LinkRowMapper());
-    }
+    @Value("${spring.find.authorizationLinkByUserId}")
+    private String sqlFindLinkByUserId;
+
+//    @Value("${spring.update.authorizationLinks}")
+
     public AuthorizationLinks creteAuthorizationLinks(AuthorizationLinks authorizationLinks) {
         jdbcTemplate.update(sqlCreateLink, new Object[] {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
                 authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
                 authorizationLinks.isUsed()});
 
         return authorizationLinks;
+    }
+    public AuthorizationLinks findByActivationCode(String token) {
+        Object[] param = {token};
+        return jdbcTemplate.queryForObject(sqlFindLinkByToken, param, new LinkRowMapper());
+    }
+    public AuthorizationLinks findByUserId(int user_id) {
+        Object[] param = {user_id};
+        return jdbcTemplate.queryForObject(sqlFindLinkByUserId, param, new LinkRowMapper());
     }
     public AuthorizationLinks updateAuthorizationLinks(AuthorizationLinks authorizationLinks) {
         jdbcTemplate.update(sqlUpdateLink, authorizationLinks.isUsed(), authorizationLinks.getToken());

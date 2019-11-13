@@ -31,17 +31,28 @@ public class UserRepository {
     @Value("${spring.queries.find.user.email}")
     private String sqlSelectUserEmail;
 
+    @Value("${user.update.enable}")
+    private String sqlUpdateUserFieldEnable;
+
 
     public User createUser(User user) {
-        jdbcTemplate.update(sqlCreateUser, new Object[]{user.getFullName(), user.getPassword(), user.getEmail(),
-                new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath()});
-//        user.setUserId(TEST_USER_LIST.size());
-//        TEST_USER_LIST.add(user);
+        Object[] params = { user.getFullName(), user.getPassword(), user.getEmail(),
+                    new Timestamp(System.currentTimeMillis()), false, user.getPhotoPath()};
+        jdbcTemplate.update(sqlCreateUser, params);
         return user;
+    }
+    public void updateUser(User user) {
+        Object[] params = {user.isEnabled(), user.getUserId(),user.getEmail(), user.getPassword()};
+        int changedRowsCount = jdbcTemplate.update(sqlUpdateUserFieldEnable, params);
+//        if (changedRowsCount == 0)
+//            //throw new FailedToUpdateUserException("User is not found!");
+//        if (changedRowsCount > 1)
+//            throw new FailedToUpdateUserException("Multiple update! Only one user can be changed!");
     }
 
     public User findByEmail(String email) {
-        return jdbcTemplate.queryForObject(sqlSelectUserEmail, new Object[]{email}, new UserRowMapper());
+        Object[] param = {email};
+        return jdbcTemplate.queryForObject(sqlSelectUserEmail, param, new UserRowMapper());
     }
 
     public User findByUserId(int userId) {

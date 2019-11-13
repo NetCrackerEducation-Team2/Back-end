@@ -15,6 +15,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,49 +32,24 @@ public class UserServiceImpl implements UserService {
     private final @NonNull RoleRepository roleRepository;
     private final @NonNull UserRoleRepository userRoleRepository;
     private final MailSender mailSender;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
     public User createUser(User user) {
-        User userFromDB = null;
-        try {
-            userFromDB = userRepository.findByEmail(user.getEmail());
-        } catch (DataAccessException ignored) {
-            // it's alright
-        }
-
-        if (userFromDB != null) {
+        //duplicate will be fixed later
+        User userFromDB = userRepository.findByEmail(user.getEmail());
+        if(userFromDB != null){
             throw new FailedToRegisterException("Email is already used");
         }
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         final User registered = userRepository.createUser(user);
+        System.out.println("created with id: " + registered.getUserId());
 
-        AuthorizationLinks authorizationLinks = new AuthorizationLinks();
-        authorizationLinks.setToken(UUID.randomUUID().toString());
-        authorizationLinks.setUserId(registered.getUserId());
-        authorizationLinks.setRegistrationToken(true);
-        authorizationLinks.setUsed(true);
-        authorizationRepository.creteAuthorizationLinks(authorizationLinks);
+        final AuthorizationLinks authorizationLink =  authorizationRepository.creteAuthorizationLinks(registered);
+        System.out.println("created with id: " + authorizationLink.getUserId());
 
-        String message = String.format(
-                "Hello, %s! \n" +
-                        "Welcome to library. " +
-                        "Please visit next link: http://netcracker2-front-end.herokuapp.com%s/%s",
-                user.getFullName(),
-                SecurityConstants.AUTH_ACTIVATION_URL,
-                authorizationLinks.getToken()
-        );
-
-//        String message = String.format(
-//                "Hello, %s! \n" +
-//                        "Welcome to library. " +
-//                        "Please visit next link: http://localhost:4200%s/%s",
-//                user.getFullName(),
-//                SecurityConstants.AUTH_ACTIVATION_URL,
-//                authorizationLinks.getToken()
-//        );
-
-        mailSender.send(user.getEmail(), "Activation code", message);
+        mailSender.send(user, "Activation code", authorizationLink);
         return user;
     }
 
@@ -95,26 +72,22 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             return false;
         }
-        authorizationLinks.setUsed(false);
+        authorizationLinks.setUsed(true);
+        user.setEnabled(true);
+        userRepository.updateUser(user);
         authorizationRepository.updateAuthorizationLinks(authorizationLinks);
         return true;
     }
 
     @Override
     public User createAdminModerator(User user, Role role){
-        User userFromDB = null;
-        try {
-            roleRepository.findByName(role.getName());
-            userFromDB = userRepository.findByEmail(user.getEmail());
-
-        } catch (DataAccessException ignored) {
-
-        }
-        if (userFromDB != null) {
+        User adminModeratorDb = userRepository.findByEmail(user.getEmail());
+        if(adminModeratorDb != null){
             throw new FailedToRegisterException("Email is already used");
         }
-
         final User registered = userRepository.createUser(user);
+        System.out.println("created with id: " + registered.getUserId());
+
         final Role userRole = roleRepository.findByName(role.getName());
         userRoleRepository.createUserRole(registered,userRole);
         return user;

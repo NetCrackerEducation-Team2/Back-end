@@ -14,14 +14,18 @@ import java.util.Collections;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class JwtUserDetailsServiceImpl implements UserDetailsService {
 
-    private final @NonNull UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         final com.netcraker.model.User userFromDb = userRepository.findByEmail(email);
-
         if(userFromDb!=null){
-            return new User(userFromDb.getEmail(), userFromDb.getPassword(), Collections.emptyList());
+            if(userFromDb.getEnabled()){
+                return new User(userFromDb.getEmail(), userFromDb.getPassword(), Collections.emptyList());
+            }
+            else {
+                throw new UsernameNotFoundException(email);
+            }
         }
          throw new UsernameNotFoundException(email);
     }

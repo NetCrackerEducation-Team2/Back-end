@@ -60,8 +60,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected PasswordEncoder passwordEncoder() {
         // Code below is only for test purpose
         // In production change to return an instance of BCryptPasswordEncoder
-        return NoOpPasswordEncoder.getInstance();
-//        return new BCryptPasswordEncoder();
+//        return NoOpPasswordEncoder.getInstance();
+       return new BCryptPasswordEncoder();
     }
 
     @Override

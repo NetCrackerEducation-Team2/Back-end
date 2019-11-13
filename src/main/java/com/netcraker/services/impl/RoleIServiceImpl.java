@@ -16,7 +16,7 @@ import java.sql.SQLDataException;
 @Service
 @Transactional
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class RoleImpl implements RoleService {
+public class RoleIServiceImpl implements RoleService {
 
     private final @NonNull RoleRepository roleRepository;
 

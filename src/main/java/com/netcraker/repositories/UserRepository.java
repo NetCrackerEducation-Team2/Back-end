@@ -1,6 +1,7 @@
 package com.netcraker.repositories;
 
 import com.netcraker.exceptions.FailedToUpdateUserException;
+import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.model.mapper.UserRowMapper;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +63,8 @@ public class UserRepository {
         Object[] params = { userId };
         return jdbcTemplate.queryForObject(sqlSelectUserId, params, new UserRowMapper());
     }
+
+
 
     public void updateUser(User oldUser, User newUser) {
         Object[] params = { newUser.getFullName(), newUser.getEmail(), newUser.getPassword(),

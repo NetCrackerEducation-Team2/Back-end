@@ -2,9 +2,12 @@ package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.model.AuthorizationLinks;
+import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
+import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
+import com.netcraker.repositories.UserRoleRepository;
 import com.netcraker.security.SecurityConstants;
 import com.netcraker.services.MailSender;
 import com.netcraker.services.UserService;
@@ -24,6 +27,8 @@ public class UserServiceImpl implements UserService {
 
     private final @NonNull UserRepository userRepository;
     private final @NonNull AuthorizationRepository authorizationRepository;
+    private final @NonNull RoleRepository roleRepository;
+    private final @NonNull UserRoleRepository userRoleRepository;
     private final MailSender mailSender;
 
 
@@ -96,6 +101,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User createAdminModerator(User user, Role role){
+        User userFromDB = null;
+        try {
+            roleRepository.findByName(role.getName());
+            userFromDB = userRepository.findByEmail(user.getEmail());
+
+        } catch (DataAccessException ignored) {
+
+        }
+        if (userFromDB != null) {
+            throw new FailedToRegisterException("Email is already used");
+        }
+
+        final User registered = userRepository.createUser(user);
+        final Role userRole = roleRepository.findByName(role.getName());
+        userRoleRepository.createUserRole(registered,userRole);
+        return user;
+    }
+
+    @Override
     public User findByUserId(int userId) {
         return userRepository.findByUserId(userId);
     }
@@ -109,4 +134,13 @@ public class UserServiceImpl implements UserService {
     public void updateUser(User oldUser, User newUser) {
         userRepository.updateUser(oldUser, newUser);
     }
+
+    @Override
+    public void updateUserRole(Role oldRole, User newUser) {
+        userRoleRepository.updateUserRole(oldRole, newUser);
+    }
+
+//    @Override
+//    public void deleteAdminModerator(User user) {
+//    }
 }

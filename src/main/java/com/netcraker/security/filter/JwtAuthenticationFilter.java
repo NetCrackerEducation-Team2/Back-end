@@ -121,7 +121,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .compact();
 
         response.addHeader(SecurityConstants.TOKEN_HEADER, SecurityConstants.TOKEN_PREFIX + token);
-        response.addHeader("Access-Control-Allow-Origin", "*");
 
         ObjectMapper mapper = new ObjectMapper();
         try {

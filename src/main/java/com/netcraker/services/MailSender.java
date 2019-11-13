@@ -1,5 +1,8 @@
 package com.netcraker.services;
 
+import com.netcraker.model.AuthorizationLinks;
+import com.netcraker.model.User;
+import com.netcraker.security.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,13 +17,22 @@ public class MailSender {
     @Value("${spring.mail.username}")
     private String username;
 
-    public void send(String emailTo, String subject, String message){
+    public void send(User user, String subject, AuthorizationLinks authorizationLinks){
         SimpleMailMessage mailMessage = new SimpleMailMessage();
+        String message = createMessage(user.getFullName(),authorizationLinks.getToken());
         mailMessage.setFrom(username);
-        mailMessage.setTo(emailTo);
+        mailMessage.setTo(user.getEmail());
         mailMessage.setText(message);
         mailMessage.setSubject(subject);
 
         mailSender.send(mailMessage);
+    }
+    private String createMessage(String fullName, String token){
+        return String.format(
+                "Hello, %s! \n" +
+                        "Welcome to library. " +
+                        "Please visit next link: https://localhost:4200/auth%s/%s",
+                fullName, SecurityConstants.AUTH_ACTIVATION_URL, token
+        );
     }
 }

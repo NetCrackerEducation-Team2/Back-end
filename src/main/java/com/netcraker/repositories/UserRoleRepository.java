@@ -21,7 +21,7 @@ public class UserRoleRepository {
     @Value("${roleUser.create}")
     private String sqlCreateRoleUser;
 
-    @Value("${roleUser.UpdateRoleUser}")
+    @Value("${roleUser.update}")
     private String sqlUpdateRoleUser;
 
     @Value("${roleUser.delete}")

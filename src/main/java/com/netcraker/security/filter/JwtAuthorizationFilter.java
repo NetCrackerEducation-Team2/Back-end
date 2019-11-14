@@ -27,6 +27,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                                     FilterChain filterChain) throws IOException, ServletException {
         System.out.println("JwtAuthorizationFilter is doing filter");
 
+        if (request.getRequestURI().startsWith("/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         Authentication authentication = getAuthentication(request);
         if (authentication == null) {
             System.out.println("Authentication is null");

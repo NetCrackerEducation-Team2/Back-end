@@ -17,7 +17,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookReviewServiceImpl implements BookReviewService {
     private final BookReviewRepository bookReviewRepo;
-    private final PageService pageService;
 
     @Override
     public Optional<BookReview> createBookReview(BookReview bookReview) {
@@ -46,6 +45,6 @@ public class BookReviewServiceImpl implements BookReviewService {
 
     @Override
     public List<BookReview> getPage(int bookId, int page, int pageSize) {
-        return bookReviewRepo.getPage(bookId, page,pageSize);
+        return bookReviewRepo.getPage(bookId, page, pageSize);
     }
 }

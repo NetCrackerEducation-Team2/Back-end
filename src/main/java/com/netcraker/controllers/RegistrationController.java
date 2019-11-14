@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RegistrationController {
 
-    private final @NonNull UserService userService;
+    private final UserService userService;
 
     @PostMapping("/auth/register")
     public ResponseEntity<?> register(@RequestBody @Validated User user, BindingResult bindingResult)

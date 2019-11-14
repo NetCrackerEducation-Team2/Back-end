@@ -34,21 +34,11 @@ public class UserServiceImpl implements UserService {
     private final MailSender mailSender;
     private final PasswordEncoder passwordEncoder;
 
-
     @Override
-    public User createUser(User user) {
-        //duplicate will be fixed later
-        User userFromDB = userRepository.findByEmail(user.getEmail());
-        if(userFromDB != null){
-            throw new FailedToRegisterException("Email is already used");
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        final User registered = userRepository.createUser(user);
-        System.out.println("created with id: " + registered.getUserId());
-
+    public User createUsualUser(User user) {
+        final User registered = createUser(user);
         final AuthorizationLinks authorizationLink =  authorizationRepository.creteAuthorizationLinks(registered);
         System.out.println("created with id: " + authorizationLink.getUserId());
-
         mailSender.send(user, "Activation code", authorizationLink);
         return user;
     }
@@ -81,17 +71,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createAdminModerator(User user, Role role){
-        User adminModeratorDb = userRepository.findByEmail(user.getEmail());
-        if(adminModeratorDb != null){
-            throw new FailedToRegisterException("Email is already used");
-        }
-        final User registered = userRepository.createUser(user);
-        System.out.println("created with id: " + registered.getUserId());
-
+        final User registered = createUser(user);
         final Role userRole = roleRepository.findByName(role.getName());
         userRoleRepository.createUserRole(registered,userRole);
         return user;
     }
+
+    private User createUser(User user){
+        User userFromDB = userRepository.findByEmail(user.getEmail());
+        if(userFromDB != null){
+            throw new FailedToRegisterException("Email is already used");
+        }
+        //for hashing
+        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+        final User registered = userRepository.createUser(user);
+        System.out.println("created with id: " + registered.getUserId());
+        return registered;
+    }
+
 
     @Override
     public User findByUserId(int userId) {

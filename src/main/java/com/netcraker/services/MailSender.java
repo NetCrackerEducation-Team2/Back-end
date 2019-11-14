@@ -28,10 +28,12 @@ public class MailSender {
         mailSender.send(mailMessage);
     }
     private String createMessage(String fullName, String token){
+        // for deploy
+        // https://netcracker2-back-end.herokuapp.com
         return String.format(
                 "Hello, %s! \n" +
                         "Welcome to library. " +
-                        "Please visit next link: https://http://netcracker2-front-end.herokuapp.com%s/%s",
+                        "Please visit next link: http://localhost:4200%s/%s",
                 fullName, SecurityConstants.AUTH_ACTIVATION_URL, token
         );
     }

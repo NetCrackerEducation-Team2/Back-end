@@ -1,6 +1,7 @@
 package com.netcraker.repositories;
 
 import com.netcraker.exceptions.FailedToUpdateUserException;
+import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.model.mapper.UserRowMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,9 @@ public class UserRepository {
     @Value("${user.findByUsername}")
     private String sqlSelectUserEmail;
 
+    @Value("${user.update.enable}")
+    private String sqlUpdateUserFieldEnable;
+
     @Value("${user.update}")
     private String sqlUpdateUser;
 
@@ -44,23 +48,32 @@ public class UserRepository {
     @Value("${user.deleteByFilter}")
     private String sqlDeleteUsersByFilter;
 
-
     public User createUser(User user) {
         Object[] params = { user.getFullName(), user.getPassword(), user.getEmail(),
-                            new Timestamp(System.currentTimeMillis()), true, user.getPhotoPath() };
+                            new Timestamp(System.currentTimeMillis()), false, user.getPhotoPath() };
         jdbcTemplate.update(sqlCreateUser, params);
         user = findByEmail(user.getEmail());
         return user;
     }
+    public void updateUser(User user) {
+        Object[] params = {user.getEnabled(), user.getUserId(),user.getEmail(), user.getPassword()};
+        int changedRowsCount = jdbcTemplate.update(sqlUpdateUserFieldEnable, params);
+        if (changedRowsCount == 0)
+            throw new FailedToUpdateUserException("User is not found!");
+        if (changedRowsCount > 1)
+            throw new FailedToUpdateUserException("Multiple update! Only one user can be changed!");
+    }
 
     public User findByEmail(String email) {
         Object[] params = { email };
-        return jdbcTemplate.queryForObject(sqlSelectUserEmail, params, new UserRowMapper());
+        List<User> users = jdbcTemplate.query(sqlSelectUserEmail, params, new UserRowMapper());
+        return users.size() > 0 ? users.get(0): null;
     }
 
     public User findByUserId(int userId) {
         Object[] params = { userId };
-        return jdbcTemplate.queryForObject(sqlSelectUserId, params, new UserRowMapper());
+        List<User> users = jdbcTemplate.query(sqlSelectUserId, params, new UserRowMapper());
+        return users.size() > 0 ? users.get(0): null;
     }
 
     public void updateUser(User oldUser, User newUser) {

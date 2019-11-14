@@ -1,6 +1,7 @@
 package com.netcraker.repositories;
 
 import com.netcraker.model.AuthorizationLinks;
+import com.netcraker.model.User;
 import com.netcraker.model.mapper.LinkRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,35 +11,41 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
 public class AuthorizationRepository {
-
     private final JdbcTemplate jdbcTemplate;
 
-    @Value("${spring.queries.find.authorizationLink}")
-    private String sqlFindLink;
-
-    @Value("${spring.queries.create.authorizationLinks}")
+    @Value("${authorizationLink.create}")
     private String sqlCreateLink;
 
-    @Value("${spring.queries.update.authorizationLinks}")
+    @Value("${authorizationLink.update}")
     private String sqlUpdateLink;
 
+    @Value("${authorizationLink.findByToken}")
+    private String sqlFindLinkByToken;
 
-    public AuthorizationLinks findByActivationCode(String token) {
-        return jdbcTemplate.queryForObject(sqlFindLink, new Object[]{ token}, new LinkRowMapper());
-    }
-    public AuthorizationLinks creteAuthorizationLinks(AuthorizationLinks authorizationLinks) {
-        jdbcTemplate.update(sqlCreateLink, new Object[] {authorizationLinks.getToken(),  new Timestamp(System.currentTimeMillis()),
-                authorizationLinks.getUserId(), authorizationLinks.isRegistrationToken(),
-                authorizationLinks.isUsed()});
+    @Value("${authorizationLink.findByUserId}")
+    private String sqlFindLinkByUserId;
 
+    public AuthorizationLinks creteAuthorizationLinks(User user) {
+        String token = UUID.randomUUID().toString();
+        Object[] param = {token, new Timestamp(System.currentTimeMillis()),
+                        user.getUserId(), true, false};
+        jdbcTemplate.update(sqlCreateLink, param);
+        AuthorizationLinks authorizationLinks = findByActivationCode(token);
         return authorizationLinks;
+    }
+    public AuthorizationLinks findByActivationCode(String token) {
+        Object[] param = {token};
+        return jdbcTemplate.queryForObject(sqlFindLinkByToken, param, new LinkRowMapper());
+    }
+    public AuthorizationLinks findByUserId(int user_id) {
+        Object[] param = {user_id};
+        return jdbcTemplate.queryForObject(sqlFindLinkByUserId, param, new LinkRowMapper());
     }
     public AuthorizationLinks updateAuthorizationLinks(AuthorizationLinks authorizationLinks) {
         jdbcTemplate.update(sqlUpdateLink, authorizationLinks.isUsed(), authorizationLinks.getToken());

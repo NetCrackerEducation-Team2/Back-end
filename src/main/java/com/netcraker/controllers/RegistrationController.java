@@ -8,6 +8,7 @@ import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RegistrationController {
 
-    private final @NonNull UserService userService;
+    private final UserService userService;
 
     @PostMapping("/auth/register")
     public ResponseEntity<?> register(@RequestBody @Validated User user, BindingResult bindingResult)
@@ -44,7 +45,13 @@ public class RegistrationController {
 
     @GetMapping("/auth/activate/{code}")
     public ResponseEntity activate(@PathVariable String code) {
-        boolean isActivated = userService.activateUser(code);
+        boolean isActivated;
+        try {
+            isActivated = userService.activateUser(code);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            throw new FailedToRegisterException("Invalid activation code. Try to sign up again");
+        }
 
         if (isActivated) {
             System.out.println("Activation code is admitted");

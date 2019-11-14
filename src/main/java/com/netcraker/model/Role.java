@@ -3,15 +3,13 @@ package com.netcraker.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 public class Role{
-
-    private Integer role_id;
+    private int roleId;
+    @NotBlank
     private String name;
     private String description;
-    private Set<UserRole> userRoles;
-
 }

@@ -38,7 +38,7 @@ public class RegistrationController {
                     .body("User must have only valid properties");
         }
 
-        userService.createUser(user);
+        userService.createUsualUser(user);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

@@ -4,7 +4,7 @@ import com.netcraker.model.Role;
 import com.netcraker.model.User;
 
 public interface UserService {
-    User createUser(User user);
+    User createUsualUser(User user);
     User createAdminModerator(User user, Role role);
     void updateUserRole(Role oldRole, User newUser);
 //    void deleteAdminModerator(Role role);

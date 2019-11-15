@@ -93,7 +93,8 @@ public class UserRepositoryImpl implements UserRepository {
             throw new UpdateException("Cannot update user!");
 
         User user = entity.get();
-        Object[] params = { user.getEnabled(), user.getUserId(),user.getEmail(), user.getPassword() };
+        Object[] params = { user.getFullName(), user.getPassword(), user.getEmail(),
+                new Timestamp(System.currentTimeMillis()), user.getEnabled(), user.getPhotoPath(), user.getUserId() };
         int changedRowsCount = jdbcTemplate.update(sqlUpdate, params);
 
         if (changedRowsCount == 0)

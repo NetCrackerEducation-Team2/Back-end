@@ -59,6 +59,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             response.addHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
             return null;
         }
+        response.addHeader("Access-Control-Allow-Origin", "*");
+
 
         final JwtRequest jwtRequest = parseJwtRequest(request);
 

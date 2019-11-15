@@ -13,6 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 @PropertySource({"classpath:view.properties"})
@@ -36,17 +37,17 @@ public class AnnouncementServiceImp implements AnnouncementService {
     }
 
     @Override
-    public Announcement getAnnouncementById(int id) {
+    public Optional<Announcement> getAnnouncementById(int id) {
         return announcementRepository.getById(id);
     }
 
     @Override
-    public Announcement addAnnouncement(Announcement announcement) {
+    public Optional<Announcement> addAnnouncement(Announcement announcement) {
         return announcementRepository.insert(announcement);
     }
 
     @Override
-    public Announcement updateAnnouncement(Announcement announcement) {
+    public Optional<Announcement> updateAnnouncement(Announcement announcement) {
         return announcementRepository.update(announcement);
     }
 

@@ -33,7 +33,7 @@ public class MailSender {
         return String.format(
                 "Hello, %s! \n" +
                         "Welcome to library. " +
-                        "Please visit next link: https://netcracker2-back-end.herokuapp.com%s/%s",
+                        "Please visit next link: https://netcracker2-back-end.herokuapp.com/auth%s/%s",
                 fullName, SecurityConstants.AUTH_ACTIVATION_URL, token
         );
     }

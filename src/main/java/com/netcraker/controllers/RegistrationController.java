@@ -26,17 +26,18 @@ public class RegistrationController {
     public ResponseEntity<?> register(@RequestBody @Validated User user, BindingResult bindingResult)
             throws JsonProcessingException {
 
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("User must have only valid properties");
+        }
+
         ObjectMapper mapper = new ObjectMapper();
         String userInJson = mapper.writeValueAsString(user);
 
         System.out.println("Attempt to register");
         System.out.println(userInJson);
 
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("User must have only valid properties");
-        }
 
         userService.createUsualUser(user);
 

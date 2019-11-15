@@ -2,6 +2,7 @@ package com.netcraker.controllers;
 
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
+import com.netcraker.repositories.UserRepository;
 import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

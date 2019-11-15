@@ -56,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
             throw new FindException("User is not activated! User is not found.");
 
         User user = entity.get();
-        Object[] params = { user.getEnabled(), user.getUserId(), user.getEmail(), user.getPassword() };
+        Object[] params = { true, user.getUserId(), user.getEmail(), user.getPassword() };
         int changedRowsCount = jdbcTemplate.update(sqlActivate, params);
 
         if (changedRowsCount == 0)

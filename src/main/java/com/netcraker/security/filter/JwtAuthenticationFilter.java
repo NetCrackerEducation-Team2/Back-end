@@ -48,12 +48,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         System.out.println("Attempt to authenticate");
 
+        System.out.println("Method: " + request.getMethod());
+
         if (!request.getMethod().equalsIgnoreCase("POST")
                 && !request.getMethod().equalsIgnoreCase("OPTIONS")) {
             throw new FailedToLoginException("Only 'POST', 'OPTIONS' requests at /auth/login are allowed");
         }
 
-        if(request.getMethod().equalsIgnoreCase("OPTIONS")){
+        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
             response.addHeader("Access-Control-Allow-Origin", "*");
             response.addHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS");
             response.addHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
@@ -61,6 +63,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
         response.addHeader("Access-Control-Allow-Origin", "*");
 
+
+        // for cors
+        response.addHeader("Access-Control-Allow-Origin","*");
 
         final JwtRequest jwtRequest = parseJwtRequest(request);
 

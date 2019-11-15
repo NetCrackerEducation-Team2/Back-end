@@ -1,6 +1,5 @@
 package com.netcraker.repositories.impl;
 
-import com.netcraker.exceptions.CreationException;
 import com.netcraker.exceptions.FindException;
 import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.User;
@@ -75,26 +74,18 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> insert(Optional<User> entity) {
-        if (!entity.isPresent())
-            throw new CreationException("Cannot create user!");
-
-        User user = entity.get();
-        Object[] params = { user.getFullName(), user.getPassword(), user.getEmail(),
-                            new Timestamp(System.currentTimeMillis()), false, user.getPhotoPath() };
+    public Optional<User> insert(User entity) {
+        Object[] params = { entity.getFullName(), entity.getPassword(), entity.getEmail(),
+                new Timestamp(System.currentTimeMillis()), false, entity.getPhotoPath() };
         jdbcTemplate.update(sqlInsert, params);
 
-        return findByEmail(user.getEmail());
+        return findByEmail(entity.getEmail());
     }
 
     @Override
-    public Optional<User> update(Optional<User> entity) {
-        if (!entity.isPresent())
-            throw new UpdateException("Cannot update user!");
-
-        User user = entity.get();
-        Object[] params = { user.getFullName(), user.getPassword(), user.getEmail(),
-                new Timestamp(System.currentTimeMillis()), user.getEnabled(), user.getPhotoPath(), user.getUserId() };
+    public Optional<User> update(User entity) {
+        Object[] params = { entity.getFullName(), entity.getPassword(), entity.getEmail(),
+                new Timestamp(System.currentTimeMillis()), entity.getEnabled(), entity.getPhotoPath(), entity.getUserId() };
         int changedRowsCount = jdbcTemplate.update(sqlUpdate, params);
 
         if (changedRowsCount == 0)
@@ -102,7 +93,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (changedRowsCount > 1)
             throw new UpdateException("Multiple update! Only one user can be changed!");
 
-        return getById(user.getUserId());
+        return getById(entity.getUserId());
     }
 
     @Override

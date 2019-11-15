@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
         User user = userOpt.get();
         authorizationLinks.setUsed(true);
         user.setEnabled(true);
-        userRepository.update(Optional.of(user));
+        userRepository.update(user);
         authorizationRepository.updateAuthorizationLinks(authorizationLinks);
         return true;
     }
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
         //for hashing
         // user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Optional<User> registeredOpt = userRepository.insert(Optional.of(user));
+        Optional<User> registeredOpt = userRepository.insert(user);
         if (!registeredOpt.isPresent()) {
             throw new FailedToRegisterException("Error in creating user! Email is free, but creation query failure.");
         }
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User oldUser, User newUser) {
-        userRepository.update(Optional.of(newUser));
+        userRepository.update(newUser);
     }
 
     @Override

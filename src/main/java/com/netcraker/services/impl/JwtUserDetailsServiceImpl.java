@@ -1,6 +1,5 @@
 package com.netcraker.services.impl;
-import com.netcraker.repositories.UserRepository;
-import lombok.NonNull;
+import com.netcraker.repositories.impl.UserRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -14,7 +13,7 @@ import java.util.Collections;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class JwtUserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryImpl userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

@@ -1,8 +1,7 @@
 package com.netcraker.repositories;
 
-import com.netcraker.exceptions.FailedToUpdateUserException;
+import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Role;
-import com.netcraker.model.User;
 import com.netcraker.model.mapper.RoleRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.sql.SQLDataException;
-import java.sql.Timestamp;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -60,10 +56,10 @@ public class RoleRepository {
         int changedRowsCount = jdbcTemplate.update(sqlUpdateRole, params);
 
         if (changedRowsCount == 0){
-            throw new FailedToUpdateUserException("Role is not found!");
+            throw new UpdateException("Role is not found!");
         }
         if (changedRowsCount > 1){
-            throw new FailedToUpdateUserException("Multiple update! Only one role can be changed!");
+            throw new UpdateException("Multiple update! Only one role can be changed!");
         }
 
     }

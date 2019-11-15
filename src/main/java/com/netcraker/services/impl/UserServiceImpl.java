@@ -6,28 +6,24 @@ import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.RoleRepository;
-import com.netcraker.repositories.UserRepository;
+import com.netcraker.repositories.impl.UserRepositoryImpl;
 import com.netcraker.repositories.UserRoleRepository;
-import com.netcraker.security.SecurityConstants;
 import com.netcraker.services.MailSender;
 import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @Transactional
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceImpl implements UserService {
 
-    private final @NonNull UserRepository userRepository;
+    private final @NonNull UserRepositoryImpl userRepository;
     private final @NonNull AuthorizationRepository authorizationRepository;
     private final @NonNull RoleRepository roleRepository;
     private final @NonNull UserRoleRepository userRoleRepository;

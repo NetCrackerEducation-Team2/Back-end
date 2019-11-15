@@ -1,7 +1,5 @@
 package com.netcraker.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.services.UserService;

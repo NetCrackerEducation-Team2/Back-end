@@ -4,7 +4,10 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data @Builder
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Announcement {
     private int announcementId;
     private @NonNull String title;

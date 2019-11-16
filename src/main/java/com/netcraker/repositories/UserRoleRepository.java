@@ -1,9 +1,8 @@
 package com.netcraker.repositories;
 
-import com.netcraker.exceptions.FailedToUpdateUserException;
+import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
-import com.netcraker.model.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,10 +39,10 @@ public class UserRoleRepository {
         int changedRowsCount = jdbcTemplate.update(sqlUpdateRoleUser, params);
 
         if (changedRowsCount == 0){
-            throw new FailedToUpdateUserException("Role or user is not found!");
+            throw new UpdateException("Role or user is not found!");
         }
         if (changedRowsCount > 1){
-            throw new FailedToUpdateUserException("Multiple update!");
+            throw new UpdateException("Multiple update!");
         }
 
     }

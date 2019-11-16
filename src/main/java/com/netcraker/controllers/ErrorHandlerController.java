@@ -27,14 +27,6 @@ public class ErrorHandlerController {
                 .body(e.getMessage());
     }
 
-    @ExceptionHandler(FailedToUpdateUserException.class)
-    public ResponseEntity<?> handleFailedToUpdateUserException(FailedToUpdateUserException e) {
-        System.out.println("ErrorHandlerController is handling FailedToUpdateUserException");
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(e.getMessage());
-    }
     @ExceptionHandler(CreationException.class)
     public ResponseEntity<?> handleCreationException(CreationException e) {
         System.out.println("ErrorHandlerController is handling CreationException");
@@ -46,6 +38,14 @@ public class ErrorHandlerController {
     @ExceptionHandler(UpdateException.class)
     public ResponseEntity<?> handleUpdateException(UpdateException e) {
         System.out.println("ErrorHandlerController is handling CreationException");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(FindException.class)
+    public ResponseEntity<?> handleFindException(FindException e) {
+        System.out.println("ErrorHandlerController is handling FindException");
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

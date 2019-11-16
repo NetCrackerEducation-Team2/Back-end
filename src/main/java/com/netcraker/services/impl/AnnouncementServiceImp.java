@@ -13,6 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 @PropertySource({"classpath:view.properties"})
@@ -30,23 +31,23 @@ public class AnnouncementServiceImp implements AnnouncementService {
         int total = announcementRepository.getCount();
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
-        int offset = (currentPage - 1) * pageSize;
+        int offset = currentPage * pageSize;
         ArrayList<Announcement> list = (ArrayList<Announcement>) announcementRepository.getAnnouncements(pageSize,offset);
         return new Page<>(currentPage, pagesCount, list);
     }
 
     @Override
-    public Announcement getAnnouncementById(int id) {
+    public Optional<Announcement> getAnnouncementById(int id) {
         return announcementRepository.getById(id);
     }
 
     @Override
-    public Announcement addAnnouncement(Announcement announcement) {
+    public Optional<Announcement> addAnnouncement(Announcement announcement) {
         return announcementRepository.insert(announcement);
     }
 
     @Override
-    public Announcement updateAnnouncement(Announcement announcement) {
+    public Optional<Announcement> updateAnnouncement(Announcement announcement) {
         return announcementRepository.update(announcement);
     }
 

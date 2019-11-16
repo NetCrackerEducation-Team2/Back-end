@@ -63,10 +63,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
         response.addHeader("Access-Control-Allow-Origin", "*");
 
-
-        // for cors
-        response.addHeader("Access-Control-Allow-Origin","*");
-
         final JwtRequest jwtRequest = parseJwtRequest(request);
 
         String email = jwtRequest.getEmail();

@@ -35,11 +35,11 @@ public class BookReviewController {
     }
 
     @GetMapping("all/{bookId}")
-    public ResponseEntity<List<BookReview>> getBookReview(
+    public ResponseEntity<Page<BookReview>> getBookReview(
             @PathVariable("bookId") int bookId,
-            @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "1") int pageSize) {
-        return ResponseEntity.ok().body(bookReviewService.getPage(bookId, pageNo, pageSize));
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "5") int pageSize) {
+        return ResponseEntity.ok().body(bookReviewService.getPage(bookId, page, pageSize));
     }
 
     @PutMapping
@@ -47,7 +47,6 @@ public class BookReviewController {
         return ResponseEntity.ok()
                 .body(bookReviewService.updateBookReview(bookReview)
                         .orElseThrow(() -> new UpdateException("Cannot update book review")));
-
     }
 
     @GetMapping("rating/{bookId}")

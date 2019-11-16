@@ -31,7 +31,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
         int total = announcementRepository.getCount();
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
-        int offset = (currentPage - 1) * pageSize;
+        int offset = currentPage * pageSize;
         ArrayList<Announcement> list = (ArrayList<Announcement>) announcementRepository.getAnnouncements(pageSize,offset);
         return new Page<>(currentPage, pagesCount, list);
     }

@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
 
     private User createUser(User user){
         Optional<User> userFromDB = userRepository.findByEmail(user.getEmail());
-        if (!userFromDB.isPresent()) {
+        if (userFromDB.isPresent()) {
             throw new FailedToRegisterException("Email is already used");
         }
         //for hashing

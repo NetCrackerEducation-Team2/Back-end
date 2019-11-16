@@ -1,5 +1,6 @@
-package com.netcraker.repositories;
+package com.netcraker.repositories.impl;
 
+import com.netcraker.repositories.BookGenreRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,29 +13,29 @@ import org.springframework.stereotype.Repository;
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class BookAuthorRepositoryImp implements BookAuthorRepository {
+public class BookGenreRepositoryImp implements BookGenreRepository {
 
     private final @NonNull JdbcTemplate jdbcTemplate;
 
-    @Value("${books_authors.insert}")
+    @Value("${books_genres.insert}")
     private String sqlInsert;
-    @Value("${books_authors.delete}")
+    @Value("${books_genres.delete}")
     private String sqlDelete;
 
     @Override
-    public boolean insert(int bookId, int authorId) {
+    public boolean insert(int bookId, int genreId) {
         return jdbcTemplate.execute(sqlInsert, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setInt(1, bookId);
-            ps.setInt(2, authorId);
+            ps.setInt(2, genreId);
             return ps.execute();
         });
     }
 
     @Override
-    public boolean delete(int bookId, int authorId) {
+    public boolean delete(int bookId, int genreId) {
         return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setInt(1, bookId);
-            ps.setInt(2, authorId);
+            ps.setInt(2, genreId);
             return ps.execute();
         });
     }

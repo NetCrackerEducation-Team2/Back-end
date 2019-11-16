@@ -22,7 +22,7 @@ public class BookRowMapper implements RowMapper<Book> {
         Book book = Book.builder()
                 .bookId(resultSet.getInt("book_id"))
                 .title(resultSet.getString("title"))
-                .isbn(resultSet.getInt("isbn"))
+                .isbn(resultSet.getLong("isbn"))
                 .release(resultSet.getDate("release").toLocalDate())
                 .pages(resultSet.getInt("pages"))
                 .filePath(resultSet.getString("file_path"))

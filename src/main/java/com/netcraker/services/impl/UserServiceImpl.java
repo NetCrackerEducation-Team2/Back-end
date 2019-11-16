@@ -8,19 +8,17 @@ import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.UserRoleRepository;
-import com.netcraker.security.SecurityConstants;
 import com.netcraker.services.MailSender;
 import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -57,14 +55,15 @@ public class UserServiceImpl implements UserService {
             return false;
         }
         System.out.println("Auth link has user's id:" + authorizationLinks.getUserId());
-        User user = userRepository.findByUserId(authorizationLinks.getUserId());
+        Optional<User> userOpt = userRepository.getById(authorizationLinks.getUserId());
 
-        if (user == null) {
+        if (!userOpt.isPresent()) {
             return false;
         }
+        User user = userOpt.get();
         authorizationLinks.setUsed(true);
         user.setEnabled(true);
-        userRepository.updateUser(user);
+        userRepository.update(user);
         authorizationRepository.updateAuthorizationLinks(authorizationLinks);
         return true;
     }
@@ -78,13 +77,19 @@ public class UserServiceImpl implements UserService {
     }
 
     private User createUser(User user){
-        User userFromDB = userRepository.findByEmail(user.getEmail());
-        if(userFromDB != null){
+        Optional<User> userFromDB = userRepository.findByEmail(user.getEmail());
+        if (!userFromDB.isPresent()) {
             throw new FailedToRegisterException("Email is already used");
         }
         //for hashing
         // user.setPassword(passwordEncoder.encode(user.getPassword()));
-        final User registered = userRepository.createUser(user);
+
+        Optional<User> registeredOpt = userRepository.insert(user);
+        if (!registeredOpt.isPresent()) {
+            throw new FailedToRegisterException("Error in creating user! Email is free, but creation query failure.");
+        }
+        User registered = registeredOpt.get();
+
         System.out.println("created with id: " + registered.getUserId());
         return registered;
     }
@@ -92,17 +97,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUserId(int userId) {
-        return userRepository.findByUserId(userId);
+        return userRepository.getById(userId).orElse(null);
     }
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     @Override
     public void updateUser(User oldUser, User newUser) {
-        userRepository.updateUser(oldUser, newUser);
+        userRepository.update(newUser);
     }
 
     @Override

@@ -10,10 +10,10 @@ import java.util.List;
 public class Book {
     private int bookId;
     private @NonNull String title;
-    private int isbn;
+    private long isbn;
     private LocalDate release;
     private int pages;
-    private @NonNull String filePath;
+    private String filePath;
     private String photoPath;
     private byte[] photo;
     private @NonNull String publishingHouse;

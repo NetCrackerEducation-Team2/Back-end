@@ -1,7 +1,8 @@
-package com.netcraker.repositories;
+package com.netcraker.repositories.impl;
 
 import com.netcraker.model.Genre;
 import com.netcraker.model.mapper.GenreRowMapper;
+import com.netcraker.repositories.GenreRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ public class GenreRepositoryImp implements GenreRepository {
     private String sqlUpdate;
     @Value("${genres.delete}")
     private String sqlDelete;
+    @Value("${genres.getAll}")
+    private String sqlGetAll;
     @Value("${genres.getByBook}")
     private String sqlGetByBook;
 
@@ -69,6 +72,11 @@ public class GenreRepositoryImp implements GenreRepository {
             ps.setInt(1, id);
             return ps.execute();
         });
+    }
+
+    @Override
+    public List<Genre> getAll() {
+        return jdbcTemplate.query(sqlGetAll, new GenreRowMapper());
     }
 
     @Override

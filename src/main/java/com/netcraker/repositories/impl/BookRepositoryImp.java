@@ -1,7 +1,8 @@
-package com.netcraker.repositories;
+package com.netcraker.repositories.impl;
 
 import com.netcraker.model.*;
 import com.netcraker.model.mapper.BookRowMapper;
+import com.netcraker.repositories.*;
 import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class BookRepositoryImp implements BookRepository {
         jdbcTemplate.update(conn -> {
             PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getTitle());
-            ps.setInt(2, entity.getIsbn());
+            ps.setLong(2, entity.getIsbn());
             ps.setDate(3, Date.valueOf(entity.getRelease()));
             ps.setInt(4, entity.getPages());
             ps.setString(5, entity.getFilePath());
@@ -76,7 +77,7 @@ public class BookRepositoryImp implements BookRepository {
     public Book update(Book entity) {
         jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
             ps.setString(1, entity.getTitle());
-            ps.setInt(2, entity.getIsbn());
+            ps.setLong(2, entity.getIsbn());
             ps.setDate(3, Date.valueOf(entity.getRelease()));
             ps.setInt(4, entity.getPages());
             ps.setString(5, entity.getFilePath());

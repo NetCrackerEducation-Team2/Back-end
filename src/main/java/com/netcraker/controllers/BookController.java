@@ -26,7 +26,8 @@ public class BookController {
 
     @GetMapping("/books")
     public ResponseEntity<Page<Book>> getBooksPage(
-            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int pageSize,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Integer genreId,
             @RequestParam(required = false) Integer authorId,
@@ -37,7 +38,7 @@ public class BookController {
         map.put(BookFilteringParam.GENRE, genreId);
         map.put(BookFilteringParam.AUTHOR, authorId);
         map.put(BookFilteringParam.ANNOUNCEMENT_DATE, date);
-        Page<Book> pagination = bookService.getFilteredBooksPagination(map, page);
+        Page<Book> pagination = bookService.getFilteredBooksPagination(map, page, pageSize);
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 

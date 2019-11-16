@@ -81,7 +81,6 @@ public class BookReviewRepositoryImpl implements BookReviewRepository {
                 ps.setString(2, entity.getDescription());
                 ps.setInt(3, entity.getUserId());
                 ps.setInt(4, entity.getBookId());
-                ps.setBoolean(5, true);
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {

@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.util.FileCopyUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -37,6 +36,7 @@ public class FileServiceImp implements FileService {
     @Override
     public byte[] getImage(String imagePath) {
         Resource resource = resourceLoader.getResource(imagePath);
+        if(!resource.exists()) return null;
         byte[] image = null;
         try {
             InputStream is = resource.getInputStream();

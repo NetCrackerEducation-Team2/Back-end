@@ -27,32 +27,32 @@ import java.util.Optional;
 
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class AnnouncementRepositoryImp implements AnnouncementRepository {
+    @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+    public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final AnnouncementRowMapper announcementRowMapper;
+        private final JdbcTemplate jdbcTemplate;
+        private final AnnouncementRowMapper announcementRowMapper;
 
-    @Value("${announcements.getById}")
-    private String sqlGetById;
-    @Value("${announcements.select}")
-    private String sqlGetAnnouncements;
-    @Value("${announcements.count}")
-    private String sqlGetAnnouncementsCount;
-    @Value("${announcements.insert}")
-    private String sqlInsert;
-    @Value("${announcements.update}")
-    private String sqlUpdate;
-    @Value("${announcements.delete}")
-    private String sqlDelete;
-    @Value("${announcements.publish}")
-    private String sqlPublish;
-    @Value("${announcements.unPublish}")
-    private String sqlUnPublish;
+        @Value("${announcements.getById}")
+        private String sqlGetById;
+        @Value("${announcements.select}")
+        private String sqlGetAnnouncements;
+        @Value("${announcements.count}")
+        private String sqlGetAnnouncementsCount;
+        @Value("${announcements.insert}")
+        private String sqlInsert;
+        @Value("${announcements.update}")
+        private String sqlUpdate;
+        @Value("${announcements.delete}")
+        private String sqlDelete;
+        @Value("${announcements.publish}")
+        private String sqlPublish;
+        @Value("${announcements.unPublish}")
+        private String sqlUnPublish;
 
 
 
-    @Override
+        @Override
     public List<Announcement> getAll() {
         return jdbcTemplate.query(sqlGetAnnouncements, new Object[]{ 5, 0}, announcementRowMapper);
     }

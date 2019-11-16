@@ -9,6 +9,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 
 public interface BookService {
-      Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page);
+      Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize);
       void downloadBook(String fileName, HttpServletResponse response);
 }

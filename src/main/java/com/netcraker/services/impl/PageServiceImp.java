@@ -13,6 +13,6 @@ public class PageServiceImp implements PageService {
 
     @Override
     public int getRestrictedPage(int page, int pagesCount) {
-        return Math.min(pagesCount, Math.max(1, page));
+        return Math.min(pagesCount, Math.max(0, page));
     }
 }

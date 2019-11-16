@@ -1,7 +1,8 @@
-package com.netcraker.repositories;
+package com.netcraker.repositories.impl;
 
 import com.netcraker.model.Author;
 import com.netcraker.model.mapper.AuthorRowMapper;
+import com.netcraker.repositories.AuthorRepository;
 import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,8 @@ public class AuthorRepositoryImp implements AuthorRepository {
     private String sqlUpdate;
     @Value("${authors.delete}")
     private String sqlDelete;
+    @Value("${authors.getAll}")
+    private String sqlGetAll;
     @Value("${authors.getByBook}")
     private String sqlGetByBook;
 
@@ -72,6 +75,11 @@ public class AuthorRepositoryImp implements AuthorRepository {
             ps.setInt(1, id);
             return ps.execute();
         });
+    }
+
+    @Override
+    public List<Author> getAll() {
+        return jdbcTemplate.query(sqlGetAll, new AuthorRowMapper());
     }
 
     @Override

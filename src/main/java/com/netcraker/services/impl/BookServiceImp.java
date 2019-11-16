@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 @Service
 @PropertySource({"classpath:path.properties"})
@@ -49,6 +50,11 @@ public class BookServiceImp implements BookService {
     @Override
     public void downloadBook(String fileName, HttpServletResponse response) {
         fileService.downloadFile(booksContentPath + fileName, response);
+    }
+
+    @Override
+    public Optional<Book> getBookBySlug(String slug) {
+        return bookRepository.getBySlug(slug);
     }
 
     private void insureBookPhoto(Book book){

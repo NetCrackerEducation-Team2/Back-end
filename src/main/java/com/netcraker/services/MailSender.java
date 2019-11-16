@@ -29,11 +29,13 @@ public class MailSender {
     }
     private String createMessage(String fullName, String token){
         // for deploy
-        // https://netcracker2-back-end.herokuapp.com
+        // https://netcracker2-front-end.herokuapp.com%s/%s"
+        // for local
+        // http://localhost:4200
         return String.format(
                 "Hello, %s! \n" +
                         "Welcome to library. " +
-                        "Please visit next link: https://netcracker2-back-end.herokuapp.com%s/%s",
+                        "Please visit next link: https://netcracker2-front-end.herokuapp.com%s/%s",
                 fullName, SecurityConstants.AUTH_ACTIVATION_URL, token
         );
     }

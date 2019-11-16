@@ -1,8 +1,8 @@
 package com.netcraker.services;
 
 import com.netcraker.model.BookReview;
+import com.netcraker.model.Page;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface BookReviewService {
@@ -10,7 +10,6 @@ public interface BookReviewService {
     Optional<BookReview> updateBookReview(BookReview bookReview);
     Optional<BookReview> getById(int bookReviewId);
     boolean delete(int bookId);
-
-    List<BookReview> getPage(int bookId, int page, int pageSize);
+    Page<BookReview> getPage(int bookId, int page, int pageSize);
     double getAverageRating(int bookId);
 }

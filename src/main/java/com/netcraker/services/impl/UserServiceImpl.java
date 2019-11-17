@@ -8,7 +8,7 @@ import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
-import com.netcraker.repositories.RoleRepository;
+import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.UserRoleRepository;
 import com.netcraker.services.EmailSenderService;
@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final AuthorizationRepository authorizationRepository;
-    private final RoleRepository roleRepository;
+    private final RoleRepositoryImpl roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailSenderService emailSender;
@@ -72,10 +73,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAdminModerator(User user, Role role) {
+    public User createAdminModerator(User user, List<Role> roles){
         final User registered = createUser(user);
-        final Role userRole = roleRepository.findByName(role.getName());
-        userRoleRepository.createUserRole(registered, userRole);
+        for (Role role:roles) {
+            Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
+            if(!roleFromDB.isPresent()){
+                throw new FindException("Role not found");
+            }
+            Role roleFind = roleFromDB.get();
+            userRoleRepository.createUserRole(registered,roleFind);
+        }
+
         return user;
     }
 
@@ -113,11 +121,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserRole(Role oldRole, User newUser) {
-        userRoleRepository.updateUserRole(oldRole, newUser);
+    public void updateAdminModerator(User newUser, List<Role> roles) {
+        userRepository.update(newUser);
+        for (Role role:roles) {
+            Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
+            if(!roleFromDB.isPresent()){
+                throw new FindException("Role not found");
+            }
+            Role roleFind = roleFromDB.get();
+            userRoleRepository.update(newUser, roleFind);
+        }
     }
 
     @Override
+    public void deleteAdminModerator(int id) {
+        userRoleRepository.delete(id);
+        userRepository.delete(id);
+    }
+
     public boolean equalsPassword(User user, String rawPassword) {
         System.out.println("Old password: " + user.getPassword() + " new password: " + rawPassword);
         return passwordEncoder.matches(rawPassword, user.getPassword());

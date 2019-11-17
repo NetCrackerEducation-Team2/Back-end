@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import java.sql.SQLDataException;
 import java.util.List;
 
 @RestController
@@ -35,19 +35,6 @@ public class UserController {
     public ResponseEntity<?> updateUserProfile(@RequestBody List<User> users) {
         userService.updateUser(users.get(0), users.get(1));
         return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @PostMapping("admins/create")
-    public ResponseEntity<?> createAdminModerator(@RequestBody @Validated User user,
-                                                  @RequestBody Role role,
-                                                  BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("User must have only valid properties");
-        }
-        userService.createAdminModerator(user, role);
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("profile/change-password/{userId}")

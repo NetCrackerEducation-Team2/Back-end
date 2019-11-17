@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookOverview {

@@ -30,7 +30,6 @@ public class RecoveryServiceImpl implements RecoveryService {
         return true;
     }
 
-    @Transactional
     @Override
     public Optional<User> recoverPassword(String recoveryCode) throws NoSuchAlgorithmException {
         AuthorizationLinks linkFromDb;
@@ -49,7 +48,6 @@ public class RecoveryServiceImpl implements RecoveryService {
         userFromDb.setPassword(newPassword);
         userService.updateUser(userFromDb, userFromDb);
         emailSender.sendNewGeneratedPassword(userFromDb, newPassword);
-
 
         linkFromDb.setUsed(true);
         authRepo.updateAuthorizationLinks(linkFromDb);

@@ -12,5 +12,6 @@ public interface UserService {
     User findByUserId(int userId);
     User findByEmail(String email);
     void updateUser(User oldUser, User newUser);
-    boolean equalsPassword(int userId, String password);
+    boolean equalsPassword(User user, String password);
+    User changePassword(int userId, String oldPass, String newPass);
 }

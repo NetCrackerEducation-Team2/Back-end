@@ -70,7 +70,7 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> getById(int id) {
         Object[] params = {id};
         List<User> users = jdbcTemplate.query(sqlGetById, params, new UserRowMapper());
-        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
+        return Optional.ofNullable(users.get(0));
     }
 
     @Override
@@ -85,8 +85,12 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> update(User entity) {
 
-        Object[] params = {
-                entity.getFullName(), entity.getEmail(), entity.getEnabled(), entity.getPhotoPath(), entity.getUserId()};
+        Object[] params = {entity.getPassword(),
+                entity.getEmail(),
+                entity.getEnabled(),
+                entity.getPhotoPath(),
+                entity.getFullName(),
+                entity.getUserId()};
 
         int changedRowsCount = jdbcTemplate.update(sqlUpdate, params);
 

@@ -1,7 +1,9 @@
 package com.netcraker.services.impl;
 
+import com.netcraker.exceptions.CreationException;
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.exceptions.FindException;
+import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
@@ -116,9 +118,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean equalsPassword(int userId, String password) {
-        final User fromDb = userRepository.getById(userId)
-                .orElseThrow(() -> new FindException("User doesn't exist with such id"));
-        return passwordEncoder.matches(password, fromDb.getPassword());
+    public boolean equalsPassword(User user, String rawPassword) {
+        System.out.println("Old password: " + user.getPassword() + " new password: " + rawPassword);
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    @Override
+    public User changePassword(int userId, String oldPass, String newPass) {
+        final User user = this.userRepository.getById(userId)
+                .orElseThrow(() -> new FindException("Cannot find user with such id"));
+
+        if (!equalsPassword(user, oldPass))
+            throw new UpdateException("Wrong entered old password");
+
+        user.setPassword(passwordEncoder.encode(newPass));
+
+        return userRepository.update(user)
+                .orElseThrow(() -> new UpdateException("Cannot update password"));
     }
 }

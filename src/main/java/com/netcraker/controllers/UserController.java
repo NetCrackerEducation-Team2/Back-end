@@ -1,7 +1,9 @@
 package com.netcraker.controllers;
 
+import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
+import com.netcraker.model.vo.ChangePassword;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -36,8 +39,8 @@ public class UserController {
 
     @PostMapping("admins/create")
     public ResponseEntity<?> createAdminModerator(@RequestBody @Validated User user,
-                                      @RequestBody Role role,
-                                      BindingResult bindingResult) {
+                                                  @RequestBody Role role,
+                                                  BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -45,5 +48,17 @@ public class UserController {
         }
         userService.createAdminModerator(user, role);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PutMapping("profile/change-password/{userId}")
+    public ResponseEntity<?> changePassword(@PathVariable int userId,
+                                            @RequestBody @Validated ChangePassword changePassword,
+                                            BindingResult result) {
+        if(result.hasErrors()){
+            throw new UpdateException("Password must be valid");
+        }
+
+        return ResponseEntity.ok(userService
+                .changePassword(userId, changePassword.getOldPassword(), changePassword.getNewPassword()));
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class BookGenreRepositoryImp implements BookGenreRepository {
 
     private final @NonNull JdbcTemplate jdbcTemplate;

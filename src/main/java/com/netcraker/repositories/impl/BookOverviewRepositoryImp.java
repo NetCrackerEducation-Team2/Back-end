@@ -1,7 +1,9 @@
 package com.netcraker.repositories.impl;
 
 import com.netcraker.model.BookOverview;
+import com.netcraker.model.mapper.BookOverviewRowMapper;
 import com.netcraker.repositories.BookOverviewRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,30 +22,57 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Repository
-@PropertySource("${classpath:sqlQueries.properties}")
+@PropertySource("classpath:sqlQueries.properties")
 @RequiredArgsConstructor
 public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    //private final BookOverviewRowMapper bookOverviewRowMapper;
+    private final @NonNull JdbcTemplate jdbcTemplate;
+
+    @Value("${book_overviews.getById}")
+    private String sqlGetById;
+    @Value("${book_overviews.countByBook}")
+    private String sqlCountByBook;
+    @Value("${book_overviews.getByBook}")
+    private String sqlGetByBook;
+    @Value("${book_overviews.getPublishedByBook}")
+    private String sqlGetPublishedByBook;
     @Value("${book_overviews.insert}")
     private String sqlInsert;
     @Value("${book_overviews.update}")
     private String sqlUpdate;
 
     @Override
-    public List<BookOverview> getByBook(int bookId) {
-        return null;
+    public int countByBook(int bookId) {
+        return jdbcTemplate.queryForObject(sqlCountByBook, new Object[]{bookId}, int.class);
+    }
+
+    @Override
+    public List<BookOverview> getByBook(int bookId, int size, int offset) {
+        return jdbcTemplate.query(sqlGetByBook, new BookOverviewRowMapper(), bookId, size, offset);
     }
 
     @Override
     public Optional<BookOverview> getPublishedByBook(int bookId) {
-        return Optional.empty();
+        try{
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetPublishedByBook,
+                    new BookOverviewRowMapper(), bookId));
+        }catch (DataAccessException e) {
+            System.out.println("BookOverview::getPublishedByBook bookId: " + bookId + ". Stack trace: ");
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override
     public Optional<BookOverview> getById(int id) {
-        return Optional.empty();
+        try{
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById,
+                    new BookOverviewRowMapper(), id));
+        }catch (DataAccessException e) {
+            System.out.println("BookOverview::getById id: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override

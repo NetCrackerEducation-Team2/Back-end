@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class BookOverview {
     private int bookOverviewId;
     private @NonNull String description;

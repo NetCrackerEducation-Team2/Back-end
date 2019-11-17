@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @Service
 @PropertySource({"classpath:path.properties"})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class BookServiceImp implements BookService {
 
     private final @NonNull BookRepository bookRepository;

@@ -24,7 +24,7 @@ import java.util.Optional;
 
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class AuthorRepositoryImp implements AuthorRepository {
 
     private final @NonNull JdbcTemplate jdbcTemplate;

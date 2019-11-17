@@ -58,4 +58,9 @@ public class BookOverviewController {
                         .orElseThrow(() -> new UpdateException("Cannot update book overview")));
     }
 
+    @DeleteMapping("{bookOverviewId}")
+    public ResponseEntity<?> deleteBookOverview(@PathVariable int bookOverviewId) {
+        return ResponseEntity.ok().body(bookOverviewService.deleteBookOverview(bookOverviewId));
+    }
+
 }

@@ -1,6 +1,9 @@
 package com.netcraker.services.impl;
 
+import com.netcraker.exceptions.CreationException;
 import com.netcraker.exceptions.FailedToRegisterException;
+import com.netcraker.exceptions.FindException;
+import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
@@ -23,7 +26,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @PropertySource("classpath:email-messages.properties")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -105,6 +108,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User oldUser, User newUser) {
+        System.out.println(newUser + " to update");
         userRepository.update(newUser);
     }
 
@@ -113,4 +117,23 @@ public class UserServiceImpl implements UserService {
         userRoleRepository.updateUserRole(oldRole, newUser);
     }
 
+    @Override
+    public boolean equalsPassword(User user, String rawPassword) {
+        System.out.println("Old password: " + user.getPassword() + " new password: " + rawPassword);
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    @Override
+    public User changePassword(int userId, String oldPass, String newPass) {
+        final User user = this.userRepository.getById(userId)
+                .orElseThrow(() -> new FindException("Cannot find user with such id"));
+
+        if (!equalsPassword(user, oldPass))
+            throw new UpdateException("Wrong entered old password");
+
+        user.setPassword(passwordEncoder.encode(newPass));
+
+        return userRepository.update(user)
+                .orElseThrow(() -> new UpdateException("Cannot update password"));
+    }
 }

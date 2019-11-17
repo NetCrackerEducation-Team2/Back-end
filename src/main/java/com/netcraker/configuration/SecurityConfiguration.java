@@ -44,6 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/books", "/api/announcements/**", "/auth/**", "/profile/**", "**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/**", "/api/book-overviews/**").permitAll()
+
                 // must-have
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "**").permitAll()
                 //pages that can be showing without authentication

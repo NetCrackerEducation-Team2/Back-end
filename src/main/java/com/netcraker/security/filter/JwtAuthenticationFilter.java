@@ -128,7 +128,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         ObjectMapper mapper = new ObjectMapper();
         try {
             JwtResponse jwtResponse = new JwtResponse(token);
-            jwtResponse.setUserId(userFromDb.getUserId());
+            jwtResponse.setUser(userFromDb);
 
             response.getWriter().write(mapper.writeValueAsString(jwtResponse));
         } catch (IOException e) {

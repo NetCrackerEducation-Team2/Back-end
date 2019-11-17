@@ -1,9 +1,12 @@
 package com.netcraker.model;
 
-import lombok.NonNull;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@AllArgsConstructor
 public class BookOverview {
     private int bookOverviewId;
     private @NonNull String description;

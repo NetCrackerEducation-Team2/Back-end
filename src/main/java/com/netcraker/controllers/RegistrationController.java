@@ -77,7 +77,7 @@ public class RegistrationController {
     public ResponseEntity<?> getRecoveryLink(@PathVariable String email) {
         boolean sent = recoveryService.sendRecoveryCode(email);
         if (sent)
-            return ResponseEntity.status(HttpStatus.OK).body("Recovery link sent to your email");
+            return new ResponseEntity<>(HttpStatus.OK);
         throw new FindException("Recovery link was not sent. Try again");
     }
 

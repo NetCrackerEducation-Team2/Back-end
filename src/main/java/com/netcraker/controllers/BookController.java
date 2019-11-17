@@ -1,9 +1,11 @@
 package com.netcraker.controllers;
 
+import com.netcraker.exceptions.CreationException;
 import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
 import com.netcraker.services.BookService;
+import jdk.nashorn.internal.runtime.options.Option;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Optional;
 
 @RestController
 @RequestMapping({"/api"})
@@ -45,5 +48,11 @@ public class BookController {
     @GetMapping("/book/download")
     public void downloadBook(@RequestParam String fileName, HttpServletResponse response){
         bookService.downloadBook(fileName, response);
+    }
+
+    @GetMapping("/book/{slug}")
+    public ResponseEntity<Book> getBookBySlug(@PathVariable String slug){
+        return ResponseEntity.ok().body(bookService.getBookBySlug(slug)
+                .orElseThrow(() -> new CreationException("Cannot find book by slug")));
     }
 }

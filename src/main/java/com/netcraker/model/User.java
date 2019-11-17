@@ -23,5 +23,5 @@ public class User {
     private Timestamp createdAt;
     private Boolean enabled;
     private String photoPath;
-    private List<Role> roleList;
+    private List<Role> roles;
 }

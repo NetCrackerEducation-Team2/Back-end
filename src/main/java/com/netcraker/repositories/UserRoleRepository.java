@@ -29,7 +29,10 @@ public class UserRoleRepository {
     @Value("${roleUser.update}")
     private String sqlUpdateRoleUser;
 
-    @Value("${roleUser.delete}")
+    @Value("${roleUser.deleteUserId}")
+    private String sqlDeleteUserRole;
+
+    @Value("${roleUser.deleteRoleId}")
     private String sqlDeleteRoleUser;
 
     @Value("${roleUser.findByUserRoleId}")
@@ -46,8 +49,8 @@ public class UserRoleRepository {
         return userRoles.isEmpty() ? Optional.empty() : Optional.of(userRoles.get(0));
     }
 
-    public void updateUserRole(Role oldRole, User newUser) {
-        Object[] params = { newUser.getUserId(), oldRole.getRoleId()};
+    public Optional<UserRole> update(User user, Role role) {
+        Object[] params = { user.getUserId(), role.getRoleId()};
         int changedRowsCount = jdbcTemplate.update(sqlUpdateRoleUser, params);
 
         if (changedRowsCount == 0){
@@ -56,13 +59,12 @@ public class UserRoleRepository {
         if (changedRowsCount > 1){
             throw new UpdateException("Multiple update!");
         }
-
+        return getById(user.getUserId());
     }
 
-    public boolean delete(User user)  {
-        Object[] params = {user.getUserId()};
-        int changedRowsCount = jdbcTemplate.update(sqlDeleteRoleUser, params);
-        return changedRowsCount == 1;
+    public boolean delete(int id)  {
+        Object[] params = { id };
+        return jdbcTemplate.update(sqlDeleteUserRole, params) == 1;
     }
 
 }

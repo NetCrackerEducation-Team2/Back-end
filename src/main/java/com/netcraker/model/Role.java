@@ -13,5 +13,4 @@ public class Role{
     @NotBlank
     private String name;
     private String description;
-    private List<User> userList;
 }

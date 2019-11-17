@@ -117,13 +117,23 @@ public class UserServiceImpl implements UserService {
     public void updateUser(User oldUser, User newUser) {
         userRepository.update(newUser);
     }
-//
-//    @Override
-//    public void updateUserRole(Role oldRole, User newUser) {
-//        userRoleRepository.updateUserRole(oldRole, newUser);
-//    }
 
-//    @Override
-//    public void deleteAdminModerator(User user) {
-//    }
+    @Override
+    public void updateAdminModerator(User newUser, List<Role> roles) {
+        userRepository.update(newUser);
+        for (Role role:roles) {
+            Optional<Role> roleFromDB = roleRepositoryImpl.findByName(role.getName());
+            if(!roleFromDB.isPresent()){
+                throw new FindException("Role not found");
+            }
+            Role roleFind = roleFromDB.get();
+            userRoleRepository.update(newUser, roleFind);
+        }
+    }
+
+    @Override
+    public void deleteAdminModerator(int id) {
+        userRoleRepository.delete(id);
+        userRepository.delete(id);
+    }
 }

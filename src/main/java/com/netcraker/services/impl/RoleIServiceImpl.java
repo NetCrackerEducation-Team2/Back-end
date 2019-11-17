@@ -2,6 +2,7 @@ package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.model.Role;
+import com.netcraker.repositories.UserRoleRepository;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.services.RoleService;
 import lombok.NonNull;
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class RoleIServiceImpl implements RoleService {
 
     private final @NonNull RoleRepositoryImpl roleRepositoryImpl;
+    private final UserRoleRepository userRoleRepository;
 
     @Override
     public Role createRole(Role role) {
@@ -47,17 +49,14 @@ public class RoleIServiceImpl implements RoleService {
         return roleRepositoryImpl.findByName(name).orElse(null);
     }
 
-//    @Override
-//    public void updateRole(Role oldRole, Role newRole) {
-//        roleRepositoryImpl.updateRole(oldRole, newRole);
-//    }
-//
-//    @Override
-//    public void deleteRole(Role role) throws SQLDataException{
-//
-//        if(!roleRepositoryImpl.deleteRole(role)){
-//            throw new SQLDataException();
-//        }
-//
-//    }
+    @Override
+    public void update(Role role) {
+        roleRepositoryImpl.update(role);
+    }
+
+    @Override
+    public void delete(int id) {
+        userRoleRepository.delete(id);
+        roleRepositoryImpl.delete(id);
+    }
 }

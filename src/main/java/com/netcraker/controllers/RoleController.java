@@ -45,17 +45,17 @@ public class RoleController {
 
     @PutMapping("role/update")
     public ResponseEntity<?> updateRole(@RequestBody List<Role> role) {
-        roleService.updateRole(role.get(0), role.get(1));
+        roleService.update(role.get(0));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @DeleteMapping("role/delete")
-    public ResponseEntity<?> deleteRole(@RequestBody int roleId) throws SQLDataException {
+    @DeleteMapping("role/delete/{roleId}")
+    public ResponseEntity<?> deleteRole(@PathVariable int roleId) throws SQLDataException {
         final Role roleFromDb = roleService.findByRoleId(roleId);
         if (roleFromDb == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Role with such id doesn't exist");
         }
-        roleService.deleteRole(roleFromDb);
+        roleService.delete(roleId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

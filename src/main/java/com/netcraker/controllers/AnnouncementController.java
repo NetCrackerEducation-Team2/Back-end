@@ -28,9 +28,11 @@ public class AnnouncementController {
     }
 
     @GetMapping
-    public Page<Announcement> getAnnouncements() {
-
-        return announcementService.getAnnouncements(0);
+    public ResponseEntity<Page<Announcement>> getAnnouncements(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        Page<Announcement> pagination = announcementService.getAnnouncementsPagination(page, pageSize);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

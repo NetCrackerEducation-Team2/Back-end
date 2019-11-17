@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookOverviewRepository extends BaseOptionalRepository<BookOverview> {
-    List<BookOverview> getByBook(int bookId);
+    int countByBook(int bookId);
+    List<BookOverview> getByBook(int bookId, int size, int offset);
     Optional<BookOverview> getPublishedByBook(int bookId);
 }

@@ -16,7 +16,7 @@ import java.io.*;
 
 @Service
 @PropertySource("classpath:path.properties")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class FileServiceImp implements FileService {
 
     private final @NonNull ResourceLoader resourceLoader;

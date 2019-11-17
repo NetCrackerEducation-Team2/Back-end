@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class GenreController {
 
-    private final @NonNull GenreService genreService;
+    private final GenreService genreService;
 
     @GetMapping("/genres")
     public ResponseEntity<List<Genre>> getGenres(){

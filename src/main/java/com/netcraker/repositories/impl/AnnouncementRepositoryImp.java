@@ -27,8 +27,8 @@ import java.util.Optional;
 
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
-    @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-    public class AnnouncementRepositoryImp implements AnnouncementRepository {
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
         private final JdbcTemplate jdbcTemplate;
         private final AnnouncementRowMapper announcementRowMapper;
@@ -117,7 +117,7 @@ import java.util.Optional;
             });
             return getById(entity.getAnnouncementId());
         } catch (DataAccessException e) {
-            System.out.println("AnnouncementReview::update entity: " + entity + ". Stack trace: ");
+            System.out.println("Announcement::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }

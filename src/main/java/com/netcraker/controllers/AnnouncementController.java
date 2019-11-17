@@ -5,6 +5,7 @@ import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Announcement;
 import com.netcraker.model.Page;
 import com.netcraker.services.AnnouncementService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping({"/api/announcements"})
 @CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+@RequiredArgsConstructor
 public class AnnouncementController {
 
     private final AnnouncementService announcementService;
-
-    @Autowired
-    public AnnouncementController(AnnouncementService announcementService) {
-        Assert.notNull(announcementService, "AnnouncementService must not be null!");
-        this.announcementService = announcementService;
-    }
 
     @GetMapping
     public ResponseEntity<Page<Announcement>> getAnnouncements(

@@ -25,7 +25,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.GET})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class RegistrationController {
 
     private final UserService userService;

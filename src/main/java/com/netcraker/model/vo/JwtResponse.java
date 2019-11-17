@@ -1,12 +1,13 @@
 package com.netcraker.model.vo;
 
+import com.netcraker.model.User;
 import lombok.*;
 
 @Getter
 @Setter
 public class JwtResponse {
     private String token;
-    private int userId;
+    private User user;
 
     public JwtResponse() {
     }

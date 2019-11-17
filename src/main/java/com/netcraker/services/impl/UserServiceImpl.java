@@ -1,6 +1,7 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
+import com.netcraker.exceptions.FindException;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
@@ -23,7 +24,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @PropertySource("classpath:email-messages.properties")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -105,6 +106,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User oldUser, User newUser) {
+        System.out.println(newUser + " to update");
         userRepository.update(newUser);
     }
 
@@ -113,4 +115,10 @@ public class UserServiceImpl implements UserService {
         userRoleRepository.updateUserRole(oldRole, newUser);
     }
 
+    @Override
+    public boolean equalsPassword(int userId, String password) {
+        final User fromDb = userRepository.getById(userId)
+                .orElseThrow(() -> new FindException("User doesn't exist with such id"));
+        return passwordEncoder.matches(password, fromDb.getPassword());
+    }
 }

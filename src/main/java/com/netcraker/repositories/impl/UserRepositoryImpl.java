@@ -43,7 +43,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        Object[] params = { email };
+        Object[] params = {email};
         List<User> users = jdbcTemplate.query(sqlFindByEmail, params, new UserRowMapper());
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
@@ -55,7 +55,7 @@ public class UserRepositoryImpl implements UserRepository {
             throw new FindException("User is not activated! User is not found.");
 
         User user = entity.get();
-        Object[] params = { true, user.getUserId(), user.getEmail(), user.getPassword() };
+        Object[] params = {true, user.getUserId(), user.getEmail(), user.getPassword()};
         int changedRowsCount = jdbcTemplate.update(sqlActivate, params);
 
         if (changedRowsCount == 0)
@@ -68,15 +68,15 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> getById(int id) {
-        Object[] params = { id };
+        Object[] params = {id};
         List<User> users = jdbcTemplate.query(sqlGetById, params, new UserRowMapper());
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     @Override
     public Optional<User> insert(User entity) {
-        Object[] params = { entity.getFullName(), entity.getPassword(), entity.getEmail(),
-                new Timestamp(System.currentTimeMillis()), false, entity.getPhotoPath() };
+        Object[] params = {entity.getFullName(), entity.getPassword(), entity.getEmail(),
+                new Timestamp(System.currentTimeMillis()), false, entity.getPhotoPath()};
         jdbcTemplate.update(sqlInsert, params);
 
         return findByEmail(entity.getEmail());
@@ -84,8 +84,10 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> update(User entity) {
-        Object[] params = { entity.getFullName(), entity.getPassword(), entity.getEmail(),
-                new Timestamp(System.currentTimeMillis()), entity.getEnabled(), entity.getPhotoPath(), entity.getUserId() };
+
+        Object[] params = {
+                entity.getFullName(), entity.getEmail(), entity.getEnabled(), entity.getPhotoPath(), entity.getUserId()};
+
         int changedRowsCount = jdbcTemplate.update(sqlUpdate, params);
 
         if (changedRowsCount == 0)
@@ -98,7 +100,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean delete(int id) {
-        Object[] params = { id };
+        Object[] params = {id};
         return jdbcTemplate.update(sqlDelete, params) == 1;
     }
 }

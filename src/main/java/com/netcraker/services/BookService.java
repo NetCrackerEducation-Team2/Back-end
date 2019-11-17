@@ -12,5 +12,6 @@ import java.util.Optional;
 public interface BookService {
       Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize);
       void downloadBook(String fileName, HttpServletResponse response);
+      Optional<Book> getBookById(int bookId);
       Optional<Book> getBookBySlug(String slug);
 }

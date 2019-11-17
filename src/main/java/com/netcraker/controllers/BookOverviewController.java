@@ -24,16 +24,16 @@ public class BookOverviewController {
 
     private final BookOverviewService bookOverviewService;
 
-    @GetMapping("/byBook")
+    @GetMapping("/by-book/{bookId}")
     public ResponseEntity<Page<BookOverview>> getBookOverviewsByBook(
-            @RequestParam int bookId,
+            @PathVariable int bookId,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "5") int pageSize){
         Page<BookOverview> pagination = bookOverviewService.getBookOverviewsByBook(bookId, page, pageSize);
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 
-    @GetMapping("/publishedByBook")
+    @GetMapping("/published-by-book")
     public ResponseEntity<BookOverview> getPublishedBookOverviewByBook(
             @RequestParam int bookId){
         Optional<BookOverview> optionalBookOverview = bookOverviewService.getPublishedBookOverviewByBook(bookId);

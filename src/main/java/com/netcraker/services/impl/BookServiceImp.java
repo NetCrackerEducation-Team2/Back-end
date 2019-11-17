@@ -53,6 +53,11 @@ public class BookServiceImp implements BookService {
     }
 
     @Override
+    public Optional<Book> getBookById(int bookId) {
+        return bookRepository.getById(bookId);
+    }
+
+    @Override
     public Optional<Book> getBookBySlug(String slug) {
         return bookRepository.getBySlug(slug);
     }

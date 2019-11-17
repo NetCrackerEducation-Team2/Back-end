@@ -5,10 +5,7 @@ import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
 import com.netcraker.services.BookService;
-import jdk.nashorn.internal.runtime.options.Option;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.Optional;
 
 @RestController
 @RequestMapping({"/api"})
 @CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class BookController {
 
-    private final @NonNull BookService bookService;
+    private final BookService bookService;
 
     @GetMapping("/books")
     public ResponseEntity<Page<Book>> getBooksPage(

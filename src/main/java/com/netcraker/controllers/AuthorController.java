@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthorController {
 
-    private final @NonNull AuthorService authorService;
+    private final AuthorService authorService;
 
     @GetMapping("/authors")
     public ResponseEntity<List<Author>> getAuthors(){

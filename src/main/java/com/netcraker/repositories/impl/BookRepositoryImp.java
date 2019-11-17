@@ -25,7 +25,7 @@ import java.util.*;
 
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class BookRepositoryImp implements BookRepository {
 
     private final @NonNull JdbcTemplate jdbcTemplate;
@@ -146,7 +146,7 @@ public class BookRepositoryImp implements BookRepository {
     public Optional<Book> getBySlug(String slug) {
         try{
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetBySlug,
-                    new BookRowMapper(genreRepository, authorRepository), sqlGetBySlug));
+                    new BookRowMapper(genreRepository, authorRepository), slug));
         }catch (DataAccessException e) {
             System.out.println("Book::getBySlug slug: " + slug + ". Stack trace: ");
             e.printStackTrace();

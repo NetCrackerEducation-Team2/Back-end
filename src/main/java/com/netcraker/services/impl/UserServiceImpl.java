@@ -1,7 +1,9 @@
 package com.netcraker.services.impl;
 
+import com.netcraker.exceptions.CreationException;
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.exceptions.FindException;
+import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
@@ -9,11 +11,11 @@ import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.UserRoleRepository;
-import com.netcraker.services.MailSender;
+import com.netcraker.services.EmailSenderService;
 import com.netcraker.services.UserService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,23 +26,23 @@ import java.util.Optional;
 
 @Service
 @Transactional
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@PropertySource("classpath:email-messages.properties")
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final @NonNull UserRepository userRepository;
-    private final @NonNull AuthorizationRepository authorizationRepository;
-    private final @NonNull RoleRepositoryImpl roleRepositoryImpl;
-    private final @NonNull UserRoleRepository userRoleRepository;
-    private final MailSender mailSender;
+    private final UserRepository userRepository;
+    private final AuthorizationRepository authorizationRepository;
+    private final RoleRepositoryImpl roleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailSenderService emailSender;
 
     @Override
     public User createUsualUser(User user) {
         final User registered = createUser(user);
-        final AuthorizationLinks authorizationLink =  authorizationRepository.creteAuthorizationLinks(registered);
-        System.out.println("created with id: " + authorizationLink.getUserId());
-        mailSender.send(user, "Activation code", authorizationLink);
-        return user;
+        final AuthorizationLinks authorizationLink = authorizationRepository.creteAuthorizationLinks(registered);
+        emailSender.sendActivationCode(user, authorizationLink);
+        return registered;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class UserServiceImpl implements UserService {
             return false;
         }
 
-        if (authorizationLinks == null) {
+        if (authorizationLinks == null || authorizationLinks.isUsed()) {
             return false;
         }
         System.out.println("Auth link has user's id:" + authorizationLinks.getUserId());
@@ -74,17 +76,18 @@ public class UserServiceImpl implements UserService {
     public User createAdminModerator(User user, List<Role> roles){
         final User registered = createUser(user);
         for (Role role:roles) {
-            Optional<Role> roleFromDB = roleRepositoryImpl.findByName(role.getName());
+            Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
             if(!roleFromDB.isPresent()){
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
             userRoleRepository.createUserRole(registered,roleFind);
         }
+
         return user;
     }
 
-    private User createUser(User user){
+    private User createUser(User user) {
         Optional<User> userFromDB = userRepository.findByEmail(user.getEmail());
         if (userFromDB.isPresent()) {
             throw new FailedToRegisterException("Email is already used");
@@ -92,13 +95,11 @@ public class UserServiceImpl implements UserService {
         //for hashing
         // user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Optional<User> registeredOpt = userRepository.insert(user);
-        if (!registeredOpt.isPresent()) {
-            throw new FailedToRegisterException("Error in creating user! Email is free, but creation query failure.");
-        }
-        User registered = registeredOpt.get();
+        final User registered = userRepository.insert(user)
+                .orElseThrow(() -> new FailedToRegisterException("Error in creating user! Email is free, but creation query failure."));
 
-        System.out.println("created with id: " + registered.getUserId());
+        System.out.println("user is created with id: " + registered.getUserId());
+
         return registered;
     }
 
@@ -115,6 +116,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User oldUser, User newUser) {
+        System.out.println(newUser + " to update");
         userRepository.update(newUser);
     }
 
@@ -122,7 +124,7 @@ public class UserServiceImpl implements UserService {
     public void updateAdminModerator(User newUser, List<Role> roles) {
         userRepository.update(newUser);
         for (Role role:roles) {
-            Optional<Role> roleFromDB = roleRepositoryImpl.findByName(role.getName());
+            Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
             if(!roleFromDB.isPresent()){
                 throw new FindException("Role not found");
             }
@@ -135,5 +137,24 @@ public class UserServiceImpl implements UserService {
     public void deleteAdminModerator(int id) {
         userRoleRepository.delete(id);
         userRepository.delete(id);
+    }
+
+    public boolean equalsPassword(User user, String rawPassword) {
+        System.out.println("Old password: " + user.getPassword() + " new password: " + rawPassword);
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    @Override
+    public User changePassword(int userId, String oldPass, String newPass) {
+        final User user = this.userRepository.getById(userId)
+                .orElseThrow(() -> new FindException("Cannot find user with such id"));
+
+        if (!equalsPassword(user, oldPass))
+            throw new UpdateException("Wrong entered old password");
+
+        user.setPassword(passwordEncoder.encode(newPass));
+
+        return userRepository.update(user)
+                .orElseThrow(() -> new UpdateException("Cannot update password"));
     }
 }

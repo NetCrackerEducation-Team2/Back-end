@@ -14,4 +14,6 @@ public interface UserService {
     void updateAdminModerator(User user, List<Role> roles);
     void deleteAdminModerator(int id);
     boolean activateUser(String code);
+    boolean equalsPassword(User user, String password);
+    User changePassword(int userId, String oldPass, String newPass);
 }

@@ -8,6 +8,6 @@ public interface RoleService {
     Role createRole(Role role);
     Role findByRoleId(int roleId);
     Role findByRoleName(String name);
-    void deleteRole(Role role) throws SQLDataException;
-    void updateRole(Role oldRole, Role newRole);
+//    void deleteRole(Role role) throws SQLDataException;
+//    void updateRole(Role oldRole, Role newRole);
 }

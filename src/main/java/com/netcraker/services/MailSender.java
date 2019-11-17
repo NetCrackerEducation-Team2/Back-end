@@ -32,10 +32,16 @@ public class MailSender {
         // https://netcracker2-front-end.herokuapp.com%s/%s"
         // for local
         // http://localhost:4200
+//        return String.format(
+//                "Hello, %s! \n" +
+//                        "Welcome to library. " +
+//                        "Please visit next link: https://netcracker2-front-end.herokuapp.com%s/%s",
+//                fullName, SecurityConstants.AUTH_ACTIVATION_URL, token
+//        );
         return String.format(
                 "Hello, %s! \n" +
                         "Welcome to library. " +
-                        "Please visit next link: https://netcracker2-front-end.herokuapp.com:4200%s/%s",
+                        "Please visit next link: http://localhost:4200%s/%s",
                 fullName, SecurityConstants.AUTH_ACTIVATION_URL, token
         );
     }

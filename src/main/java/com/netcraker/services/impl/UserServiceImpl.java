@@ -1,11 +1,12 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
+import com.netcraker.exceptions.FindException;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
-import com.netcraker.repositories.RoleRepository;
+import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.UserRoleRepository;
 import com.netcraker.services.MailSender;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     private final @NonNull UserRepository userRepository;
     private final @NonNull AuthorizationRepository authorizationRepository;
-    private final @NonNull RoleRepository roleRepository;
+    private final @NonNull RoleRepositoryImpl roleRepositoryImpl;
     private final @NonNull UserRoleRepository userRoleRepository;
     private final MailSender mailSender;
     private final PasswordEncoder passwordEncoder;
@@ -69,10 +71,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAdminModerator(User user, Role role){
+    public User createAdminModerator(User user, List<Role> roles){
         final User registered = createUser(user);
-        final Role userRole = roleRepository.findByName(role.getName());
-        userRoleRepository.createUserRole(registered,userRole);
+        for (Role role:roles) {
+            Optional<Role> roleFromDB = roleRepositoryImpl.findByName(role.getName());
+            if(!roleFromDB.isPresent()){
+                throw new FindException("Role not found");
+            }
+            Role roleFind = roleFromDB.get();
+            userRoleRepository.createUserRole(registered,roleFind);
+        }
         return user;
     }
 
@@ -109,11 +117,11 @@ public class UserServiceImpl implements UserService {
     public void updateUser(User oldUser, User newUser) {
         userRepository.update(newUser);
     }
-
-    @Override
-    public void updateUserRole(Role oldRole, User newUser) {
-        userRoleRepository.updateUserRole(oldRole, newUser);
-    }
+//
+//    @Override
+//    public void updateUserRole(Role oldRole, User newUser) {
+//        userRoleRepository.updateUserRole(oldRole, newUser);
+//    }
 
 //    @Override
 //    public void deleteAdminModerator(User user) {

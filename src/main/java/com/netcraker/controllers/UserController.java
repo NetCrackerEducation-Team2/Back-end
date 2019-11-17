@@ -38,13 +38,13 @@ public class UserController {
 
     @PostMapping("admins/create")
     public ResponseEntity<?> createAdminModerator(@RequestBody @Validated User user,
-                                      @RequestBody Role role,
                                       BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("User must have only valid properties");
         }
+        List<Role> role = user.getRoleList();
         userService.createAdminModerator(user, role);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

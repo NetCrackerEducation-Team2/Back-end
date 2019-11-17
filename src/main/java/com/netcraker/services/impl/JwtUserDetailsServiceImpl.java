@@ -1,4 +1,5 @@
 package com.netcraker.services.impl;
+
 import com.netcraker.repositories.impl.UserRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 import java.util.Collections;
 import java.util.Optional;
 
@@ -19,15 +21,14 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         final Optional<com.netcraker.model.User> userOptFromDb = userRepository.findByEmail(email);
-        if (userOptFromDb.isPresent()) {
-            com.netcraker.model.User userFromDb = userOptFromDb.get();
-            if (userFromDb.getEnabled()) {
-                return new User(userFromDb.getEmail(), userFromDb.getPassword(), Collections.emptyList());
-            }
-            else {
-                throw new UsernameNotFoundException(email);
-            }
+
+        final com.netcraker.model.User userFromDb = userOptFromDb
+                .orElseThrow(() -> new UsernameNotFoundException(email));
+
+        if (userFromDb.getEnabled()) {
+            return new User(userFromDb.getEmail(), userFromDb.getPassword(), Collections.emptyList());
         }
-         throw new UsernameNotFoundException(email);
+
+        throw new UsernameNotFoundException(email);
     }
 }

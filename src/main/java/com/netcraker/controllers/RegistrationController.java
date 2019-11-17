@@ -78,7 +78,7 @@ public class RegistrationController {
         boolean sent = recoveryService.sendRecoveryCode(email);
         if (sent)
             return ResponseEntity.status(HttpStatus.OK).body("Recovery link sent to your email");
-        throw new FindException("Recovery link was not sent");
+        throw new FindException("Recovery link was not sent. Try again");
     }
 
     @GetMapping("/recover/{code}")

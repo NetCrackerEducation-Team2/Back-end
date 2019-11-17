@@ -9,6 +9,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.Size;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
@@ -29,7 +30,8 @@ public class RecoveryServiceImpl implements RecoveryService {
         return true;
     }
 
-    @Transactional @Override
+    @Transactional
+    @Override
     public Optional<User> recoverPassword(String recoveryCode) throws NoSuchAlgorithmException {
         AuthorizationLinks linkFromDb;
         try {
@@ -42,10 +44,14 @@ public class RecoveryServiceImpl implements RecoveryService {
         if (linkFromDb == null || linkFromDb.isUsed())
             return Optional.empty();
 
-        linkFromDb.setUsed(true);
         final User userFromDb = userService.findByUserId(linkFromDb.getUserId());
-        userFromDb.setPassword(passGenerator.generatePassword());
+        final String newPassword = passGenerator.generatePassword();
+        userFromDb.setPassword(newPassword);
         userService.updateUser(userFromDb, userFromDb);
+        emailSender.sendNewGeneratedPassword(userFromDb, newPassword);
+
+
+        linkFromDb.setUsed(true);
         authRepo.updateAuthorizationLinks(linkFromDb);
 
         return Optional.of(userFromDb);

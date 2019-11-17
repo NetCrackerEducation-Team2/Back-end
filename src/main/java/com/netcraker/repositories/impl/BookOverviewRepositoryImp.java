@@ -40,6 +40,8 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     private String sqlInsert;
     @Value("${book_overviews.update}")
     private String sqlUpdate;
+    @Value("${book_overviews.delete]")
+    private String sqlDelete;
 
     @Override
     public int countByBook(int bookId) {
@@ -115,6 +117,6 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
     @Override
     public boolean delete(int id) {
-        return false;
+        return jdbcTemplate.update(sqlDelete, id) == 1;
     }
 }

@@ -3,7 +3,10 @@ package com.netcraker.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.exceptions.FailedToRegisterException;
+import com.netcraker.exceptions.FindException;
+import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.User;
+import com.netcraker.services.RecoveryService;
 import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +18,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Email;
+import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
+
 @RestController
+@RequestMapping("/auth")
 @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.GET})
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RegistrationController {
 
     private final UserService userService;
+    private final RecoveryService recoveryService;
 
-    @PostMapping("/auth/register")
+    @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Validated User user, BindingResult bindingResult)
             throws JsonProcessingException {
 
@@ -44,7 +53,7 @@ public class RegistrationController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/auth/activate/{code}")
+    @GetMapping("/activate/{code}")
     public ResponseEntity activate(@PathVariable String code) {
         boolean isActivated;
         try {
@@ -62,5 +71,26 @@ public class RegistrationController {
         System.out.println("Activation code is rejected");
 
         throw new FailedToRegisterException("Invalid activation code. Try to sign up again");
+    }
+
+    @GetMapping("/recovery-link/{email}")
+    public ResponseEntity<?> getRecoveryLink(@PathVariable String email) {
+        boolean sent = recoveryService.sendRecoveryCode(email);
+        if (sent)
+            return ResponseEntity.status(HttpStatus.OK).body("Recovery link sent to your email");
+        throw new FindException("Recovery link was not sent");
+    }
+
+    @GetMapping("/recover/{code}")
+    public ResponseEntity<?> getRecoveryPassword(@PathVariable String code) {
+        User user;
+        try {
+            user = recoveryService.recoverPassword(code)
+                    .orElseThrow(() -> new UpdateException("Try to recover password again."));
+        } catch (NoSuchAlgorithmException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to recover password. Try to recover password again.");
+        }
+        return ResponseEntity.ok(user);
     }
 }

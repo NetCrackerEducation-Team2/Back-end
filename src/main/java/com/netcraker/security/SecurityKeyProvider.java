@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @PropertySource("classpath:jwt.properties")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SecurityKeyProvider {
-    private final @NonNull Environment environment;
+    private final Environment environment;
 
     public String getKey(){
         return environment.getProperty("jwt.secretKey");

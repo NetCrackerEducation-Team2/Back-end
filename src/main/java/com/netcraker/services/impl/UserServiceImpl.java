@@ -8,11 +8,11 @@ import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.UserRoleRepository;
-import com.netcraker.services.MailSender;
+import com.netcraker.services.EmailSenderService;
 import com.netcraker.services.UserService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,23 +22,23 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@PropertySource("classpath:email-messages.properties")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceImpl implements UserService {
 
-    private final @NonNull UserRepository userRepository;
-    private final @NonNull AuthorizationRepository authorizationRepository;
-    private final @NonNull RoleRepository roleRepository;
-    private final @NonNull UserRoleRepository userRoleRepository;
-    private final MailSender mailSender;
+    private final UserRepository userRepository;
+    private final AuthorizationRepository authorizationRepository;
+    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailSenderService emailSender;
 
     @Override
     public User createUsualUser(User user) {
         final User registered = createUser(user);
-        final AuthorizationLinks authorizationLink =  authorizationRepository.creteAuthorizationLinks(registered);
-        System.out.println("created with id: " + authorizationLink.getUserId());
-        mailSender.send(user, "Activation code", authorizationLink);
-        return user;
+        final AuthorizationLinks authorizationLink = authorizationRepository.creteAuthorizationLinks(registered);
+        emailSender.sendActivationCode(user, authorizationLink);
+        return registered;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
             return false;
         }
 
-        if (authorizationLinks == null) {
+        if (authorizationLinks == null || authorizationLinks.isUsed()) {
             return false;
         }
         System.out.println("Auth link has user's id:" + authorizationLinks.getUserId());
@@ -69,14 +69,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAdminModerator(User user, Role role){
+    public User createAdminModerator(User user, Role role) {
         final User registered = createUser(user);
         final Role userRole = roleRepository.findByName(role.getName());
-        userRoleRepository.createUserRole(registered,userRole);
+        userRoleRepository.createUserRole(registered, userRole);
         return user;
     }
 
-    private User createUser(User user){
+    private User createUser(User user) {
         Optional<User> userFromDB = userRepository.findByEmail(user.getEmail());
         if (userFromDB.isPresent()) {
             throw new FailedToRegisterException("Email is already used");
@@ -84,13 +84,11 @@ public class UserServiceImpl implements UserService {
         //for hashing
         // user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Optional<User> registeredOpt = userRepository.insert(user);
-        if (!registeredOpt.isPresent()) {
-            throw new FailedToRegisterException("Error in creating user! Email is free, but creation query failure.");
-        }
-        User registered = registeredOpt.get();
+        final User registered = userRepository.insert(user)
+                .orElseThrow(() -> new FailedToRegisterException("Error in creating user! Email is free, but creation query failure."));
 
-        System.out.println("created with id: " + registered.getUserId());
+        System.out.println("user is created with id: " + registered.getUserId());
+
         return registered;
     }
 
@@ -115,7 +113,4 @@ public class UserServiceImpl implements UserService {
         userRoleRepository.updateUserRole(oldRole, newUser);
     }
 
-//    @Override
-//    public void deleteAdminModerator(User user) {
-//    }
 }

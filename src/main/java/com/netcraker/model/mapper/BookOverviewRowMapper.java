@@ -12,7 +12,7 @@ public class BookOverviewRowMapper implements RowMapper<BookOverview> {
     @Override
     public BookOverview mapRow(ResultSet resultSet, int i) throws SQLException {
         return BookOverview.builder()
-                .bookId(resultSet.getInt("book_overview_id"))
+                .bookOverviewId(resultSet.getInt("book_overview_id"))
                 .description(resultSet.getString("description"))
                 .userId(resultSet.getInt("user_id"))
                 .bookId(resultSet.getInt("book_id"))

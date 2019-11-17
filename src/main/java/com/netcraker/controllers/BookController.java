@@ -51,4 +51,10 @@ public class BookController {
         return ResponseEntity.ok().body(bookService.getBookBySlug(slug)
                 .orElseThrow(() -> new CreationException("Cannot find book by slug")));
     }
+
+    @GetMapping("/book-by-id/{bookId}")
+    public ResponseEntity<Book> getBookBySlug(@PathVariable int bookId){
+        return ResponseEntity.ok().body(bookService.getBookById(bookId)
+                .orElseThrow(() -> new CreationException("Cannot find book by bookId")));
+    }
 }

@@ -45,4 +45,9 @@ public class BookOverviewServiceImpl implements BookOverviewService {
     public Optional<BookOverview> updateBookOverview(BookOverview bookOverview) {
         return bookOverviewRepository.update(bookOverview);
     }
+
+    @Override
+    public boolean deleteBookOverview(int bookOverviewId) {
+        return bookOverviewRepository.delete(bookOverviewId);
+    }
 }

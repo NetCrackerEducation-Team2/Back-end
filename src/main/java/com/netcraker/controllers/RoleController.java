@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLDataException;
+import java.util.List;
 
 @RestController
 @CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
@@ -22,7 +23,7 @@ public class RoleController {
     private final @NonNull RoleService roleService;
 
     @PostMapping("/role/create")
-    public ResponseEntity<?> createUserRole(@RequestBody @Validated Role role, BindingResult bindingResult){
+    public ResponseEntity<?> createRole(@RequestBody @Validated Role role, BindingResult bindingResult){
 
         if (bindingResult.hasErrors()) {
             return ResponseEntity
@@ -34,7 +35,7 @@ public class RoleController {
     }
 
     @GetMapping("role/{roleId}")
-    public ResponseEntity<?> getUserRole(@PathVariable int roleId) {
+    public ResponseEntity<?> getRole(@PathVariable int roleId) {
         final Role roleFromDb = roleService.findByRoleId(roleId);
         if (roleFromDb == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Role with such id doesn't exist");
@@ -43,18 +44,18 @@ public class RoleController {
     }
 
     @PutMapping("role/update")
-    public ResponseEntity<?> updateUserRole(@RequestBody Role oldRole, @RequestBody Role newRole) {
-        roleService.updateRole(oldRole, newRole);
+    public ResponseEntity<?> updateRole(@RequestBody List<Role> role) {
+        roleService.update(role.get(0));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @DeleteMapping("role/delete")
-    public ResponseEntity<?> deleteUserRole(@RequestBody int roleId) throws SQLDataException {
+    @DeleteMapping("role/delete/{roleId}")
+    public ResponseEntity<?> deleteRole(@PathVariable int roleId) throws SQLDataException {
         final Role roleFromDb = roleService.findByRoleId(roleId);
         if (roleFromDb == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Role with such id doesn't exist");
         }
-        roleService.deleteRole(roleFromDb);
+        roleService.delete(roleId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -22,9 +22,9 @@ public class BookReviewServiceImpl implements BookReviewService {
     @Override
     public Optional<BookReview> createBookReview(BookReview bookReview) {
         // check for duplicate
-        if (bookReviewRepo.countByUserIdBookId(bookReview.getUserId(), bookReview.getBookId()) != 0) {
+        /*if (bookReviewRepo.countByUserIdBookId(bookReview.getUserId(), bookReview.getBookId()) != 0) {
             return Optional.empty();
-        }
+        }*/
 
         return bookReviewRepo.insert(bookReview);
     }

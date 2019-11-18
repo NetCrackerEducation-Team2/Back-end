@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 public interface BookService {
+      Optional<String> getBookTitleById(int bookId);
       Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize);
       void downloadBook(String fileName, HttpServletResponse response);
       Optional<Book> getBookById(int bookId);

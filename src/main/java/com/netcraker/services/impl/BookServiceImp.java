@@ -9,7 +9,6 @@ import com.netcraker.services.FileService;
 import com.netcraker.services.PageService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,11 @@ public class BookServiceImp implements BookService {
     private String booksDefaultImageName;
 
     @Override
+    public Optional<String> getBookTitleById(int bookId) {
+        return bookRepository.getTitleById(bookId);
+    }
+
+    @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize) {
         int total = bookRepository.countFiltered(filteringParams);
         int pagesCount = pageService.getPagesCount(total, pageSize);
@@ -53,13 +57,17 @@ public class BookServiceImp implements BookService {
     }
 
     @Override
-    public Optional<Book> getBookById(int bookId) {
-        return bookRepository.getById(bookId);
+    public Optional<Book> getBookBySlug(String slug) {
+        Optional<Book> optionalBook = bookRepository.getBySlug(slug);
+        optionalBook.ifPresent(this::insureBookPhoto);
+        return optionalBook;
     }
 
     @Override
-    public Optional<Book> getBookBySlug(String slug) {
-        return bookRepository.getBySlug(slug);
+    public Optional<Book> getBookById(int bookId) {
+        Optional<Book> optionalBook = bookRepository.getById(bookId);
+        optionalBook.ifPresent(this::insureBookPhoto);
+        return optionalBook;
     }
 
     private void insureBookPhoto(Book book){

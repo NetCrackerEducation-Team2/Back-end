@@ -33,9 +33,9 @@ public class BookOverviewController {
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 
-    @GetMapping("/published-by-book")
+    @GetMapping("/published-by-book/{bookId}")
     public ResponseEntity<BookOverview> getPublishedBookOverviewByBook(
-            @RequestParam int bookId){
+            @PathVariable int bookId){
         Optional<BookOverview> optionalBookOverview = bookOverviewService.getPublishedBookOverviewByBook(bookId);
         return new ResponseEntity<>(optionalBookOverview.orElse(null), HttpStatus.OK);
     }

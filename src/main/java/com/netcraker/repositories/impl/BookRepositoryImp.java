@@ -48,6 +48,8 @@ public class BookRepositoryImp implements BookRepository {
     private String sqlGetFiltered;
     @Value("${books.getBySlug}")
     private String sqlGetBySlug;
+    @Value("${books.getTitleById}")
+    private String sqlGetTitleById;
 
     @Override
     public Optional<Book> getById(int id) {
@@ -124,6 +126,17 @@ public class BookRepositoryImp implements BookRepository {
             return jdbcTemplate.update(sqlDelete, id) == 1;
         }
         return false;
+    }
+
+    @Override
+    public Optional<String> getTitleById(int id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetTitleById, new Object[]{id}, String.class));
+        }catch (DataAccessException e) {
+            System.out.println("Book::getTitleById id: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override

@@ -31,5 +31,6 @@ public class MailSender {
     @SuppressWarnings({"all"})
     private String createMessage(String messageCascade, String... params) {
         return String.format(messageCascade, params);
+
     }
 }

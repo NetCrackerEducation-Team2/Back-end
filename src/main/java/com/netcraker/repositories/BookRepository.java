@@ -9,6 +9,7 @@ import java.util.Optional;
 
 
 public interface BookRepository extends BaseOptionalRepository<Book> {
+    Optional<String> getTitleById(int id);
     int countFiltered(HashMap<BookFilteringParam, Object> filteringParams);
     List<Book> getFiltered(HashMap<BookFilteringParam, Object> filteringParams, int size, int offset);
     Optional<Book> getBySlug(String slug);

@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.security.NoSuchAlgorithmException;
+
 @ControllerAdvice
 public class ErrorHandlerController {
     @ExceptionHandler(FailedToRegisterException.class)
@@ -49,6 +51,14 @@ public class ErrorHandlerController {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(NoSuchAlgorithmException.class)
+    public ResponseEntity<?> handleNoSuchAlgorithmException(NoSuchAlgorithmException e) {
+        System.out.println("ErrorHandlerController is handling NoSuchAlgorithmException");
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(e.getMessage());
     }
 }

@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUsualUser(User user) {
+        user.setEnabled(false);
         final User registered = createUser(user);
         final AuthorizationLinks authorizationLink = authorizationRepository.creteAuthorizationLinks(registered);
         emailSender.sendActivationCode(user, authorizationLink);
@@ -74,6 +75,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createAdminModerator(User user, List<Role> roles){
+        user.setEnabled(true);
         final User registered = createUser(user);
         for (Role role:roles) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());

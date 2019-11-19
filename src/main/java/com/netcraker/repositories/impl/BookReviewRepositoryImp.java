@@ -23,7 +23,7 @@ import java.util.Optional;
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
 @RequiredArgsConstructor
-public class BookReviewRepositoryImpl implements BookReviewRepository {
+public class BookReviewRepositoryImp implements BookReviewRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final BookReviewRowMapper bookReviewRowMapper;

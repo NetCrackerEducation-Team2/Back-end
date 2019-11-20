@@ -16,7 +16,7 @@ public class ErrorHandlerController {
         System.out.println("ErrorHandlerController is handling FailedToRegisterException");
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(e.getMessage());
     }
 
@@ -59,6 +59,14 @@ public class ErrorHandlerController {
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
+        System.out.println("ErrorHandlerController is handling IllegalArgumentException");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
 }

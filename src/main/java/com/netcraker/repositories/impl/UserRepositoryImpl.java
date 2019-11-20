@@ -77,7 +77,7 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> insert(User entity) {
         System.out.println("trying to add user to db: " + entity);
         Object[] params = {entity.getFullName(), entity.getPassword(), entity.getEmail(),
-                new Timestamp(System.currentTimeMillis()), false, entity.getPhotoPath()};
+                new Timestamp(System.currentTimeMillis()), entity.getEnabled(), entity.getPhotoPath()};
         jdbcTemplate.update(sqlInsert, params);
 
         return findByEmail(entity.getEmail());

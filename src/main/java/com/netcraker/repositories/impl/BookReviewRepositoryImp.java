@@ -26,7 +26,6 @@ import java.util.Optional;
 public class BookReviewRepositoryImp implements BookReviewRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private final BookReviewRowMapper bookReviewRowMapper;
 
     @Value("${book_reviews.getById}")
     private String sqlGetById;
@@ -46,7 +45,7 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     @Override
     public Optional<BookReview> getById(int id) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, bookReviewRowMapper, id));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, new BookReviewRowMapper(), id));
         } catch (DataAccessException e) {
             System.out.println("BookReview::getById id: " + id + ". Stack trace: ");
             e.printStackTrace();
@@ -66,7 +65,7 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
 
     @Override
     public List<BookReview> getPage(int bookId, int pageSize, int offset) {
-        return jdbcTemplate.query(sqlGetPage, new Object[]{bookId, pageSize, offset}, bookReviewRowMapper);
+        return jdbcTemplate.query(sqlGetPage, new Object[]{bookId, pageSize, offset}, new BookReviewRowMapper());
     }
 
     @Override

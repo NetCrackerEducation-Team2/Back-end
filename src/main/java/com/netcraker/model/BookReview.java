@@ -14,11 +14,11 @@ public class BookReview {
     @NotNull @Min(1) @Max(10)
     private Integer rating;
     @NotBlank
-    private String description;
+        private String description;
     @NotNull @Min(1)
     private Integer userId;
     @NotNull @Min(1)
-    private Integer bookId;
+        private Integer bookId;
     private boolean published;
     private LocalDateTime creationTime;
 }

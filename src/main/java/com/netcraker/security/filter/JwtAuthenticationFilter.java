@@ -98,13 +98,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         User user = ((User) authentication.getPrincipal());
 
-        List<String> roles = new Vector<String>();
-        roles.add("superadmin");
-        roles.add("admin");
-//                user.getAuthorities()
-//                .stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
+        List<String> roles = user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
         String signingKey = SecurityConstants.SECRET_KEY;
 

@@ -76,7 +76,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> insert(User entity) {
         Object[] params = {entity.getFullName(), entity.getPassword(), entity.getEmail(),
-                new Timestamp(System.currentTimeMillis()), false, entity.getPhotoPath()};
+                new Timestamp(System.currentTimeMillis()), entity.getEnabled(), entity.getPhotoPath()};
         jdbcTemplate.update(sqlInsert, params);
 
         return findByEmail(entity.getEmail());

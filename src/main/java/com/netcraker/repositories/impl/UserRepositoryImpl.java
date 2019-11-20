@@ -70,7 +70,7 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> getById(int id) {
         Object[] params = {id};
         List<User> users = jdbcTemplate.query(sqlGetById, params, new UserRowMapper());
-        return Optional.ofNullable(users.get(0));
+        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     @Override

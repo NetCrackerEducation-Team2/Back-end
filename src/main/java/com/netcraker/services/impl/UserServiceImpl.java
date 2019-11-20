@@ -1,6 +1,5 @@
 package com.netcraker.services.impl;
 
-import com.netcraker.exceptions.CreationException;
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.exceptions.FindException;
 import com.netcraker.exceptions.UpdateException;
@@ -11,10 +10,9 @@ import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.UserRoleRepository;
-import com.netcraker.services.EmailSenderService;
+import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,7 +33,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepositoryImpl roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailSenderService emailSender;
+    private final AuthEmailSenderService emailSender;
 
     @Override
     public User createUsualUser(User user) {

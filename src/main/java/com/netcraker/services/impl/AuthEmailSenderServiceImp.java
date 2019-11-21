@@ -7,6 +7,7 @@ import com.netcraker.services.MailSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutorService;
@@ -35,26 +36,20 @@ public class AuthEmailSenderServiceImp implements AuthEmailSenderService {
     private String messageRecoveryPassword;
 
     @Override
+    @Async("mailThreadPoolTaskExecutor")
     public void sendActivationCode(User user, AuthorizationLinks links) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() ->
-                mailSender.send(user.getEmail(), subjectActivation, messageActivation, user.getFullName(), links.getToken()));
-        executorService.shutdownNow();
+        mailSender.send(user.getEmail(), subjectActivation, messageActivation, user.getFullName(), links.getToken());
     }
 
     @Override
+    @Async("mailThreadPoolTaskExecutor")
     public void sendRecoveryLink(User user, AuthorizationLinks links) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() ->
-                mailSender.send(user.getEmail(), subjectRecoveryLink, messageRecoveryLink, user.getFullName(), links.getToken()));
-        executorService.shutdownNow();
+        mailSender.send(user.getEmail(), subjectRecoveryLink, messageRecoveryLink, user.getFullName(), links.getToken());
     }
 
     @Override
+    @Async("mailThreadPoolTaskExecutor")
     public void sendNewGeneratedPassword(User user, String password) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() ->
-                mailSender.send(user.getEmail(), subjectRecoveryPassword, messageRecoveryPassword, password));
-        executorService.shutdownNow();
+        mailSender.send(user.getEmail(), subjectRecoveryPassword, messageRecoveryPassword, password);
     }
 }

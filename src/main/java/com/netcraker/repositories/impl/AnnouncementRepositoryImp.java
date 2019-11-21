@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -93,7 +94,7 @@ import java.util.Optional;
                 ps.setString(1, entity.getTitle());
                 ps.setString(2, entity.getDescription());
                 ps.setInt(3, entity.getUserId());
-                ps.setInt(4, entity.getBookId());
+                ps.setNull(4, Types.INTEGER);
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {

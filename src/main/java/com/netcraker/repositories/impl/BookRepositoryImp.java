@@ -1,26 +1,27 @@
 package com.netcraker.repositories.impl;
 
-import com.netcraker.model.*;
+import com.netcraker.model.Author;
+import com.netcraker.model.Book;
+import com.netcraker.model.BookFilteringParam;
+import com.netcraker.model.Genre;
 import com.netcraker.model.mapper.BookRowMapper;
 import com.netcraker.repositories.*;
-import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -36,6 +37,8 @@ public class BookRepositoryImp implements BookRepository {
 
     @Value("${books.getById}")
     private String sqlGetById;
+    @Value("${books.getBySlug}")
+    private String sqlGetBySlug;
     @Value("${books.insert}")
     private String sqlInsert;
     @Value("${books.update}")
@@ -121,21 +124,21 @@ public class BookRepositoryImp implements BookRepository {
         return jdbcTemplate.query(sqlGetFiltered, params.toArray(), new BookRowMapper(genreRepository, authorRepository));
     }
 
-    private void checkBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams){
-        if(!checkBookFilteringParamsTypes(filteringParams)){
+    private void checkBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams) {
+        if (!checkBookFilteringParamsTypes(filteringParams)) {
             throw new IllegalArgumentException("One or more filtering params have incorrect types");
         }
-        if(filteringParams.entrySet().size() != BookFilteringParam.values().length){
+        if (filteringParams.entrySet().size() != BookFilteringParam.values().length) {
             throw new IllegalArgumentException("Illegal number of filtering params");
         }
     }
 
-    private boolean checkBookFilteringParamsTypes(HashMap<BookFilteringParam, Object> filteringParams){
+    private boolean checkBookFilteringParamsTypes(HashMap<BookFilteringParam, Object> filteringParams) {
         return filteringParams.entrySet().stream().allMatch((entry) ->
                 entry.getValue() == null || entry.getKey().getClazz().isInstance(entry.getValue()));
     }
 
-    private List<Object> getBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams){
+    private List<Object> getBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams) {
         LocalDate localDate = (LocalDate) filteringParams.get(BookFilteringParam.ANNOUNCEMENT_DATE);
         Date date = localDate == null ? null : Date.valueOf(localDate);
         Object[] params = new Object[]{
@@ -146,5 +149,14 @@ public class BookRepositoryImp implements BookRepository {
         List<Object> list = new ArrayList<>();
         Collections.addAll(list, params);
         return list;
+    }
+
+    @Override
+    public Optional<Book> getBookBySlug(String slug) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetBySlug, new BookRowMapper(genreRepository, authorRepository), slug));
+        } catch (IncorrectResultSizeDataAccessException e) {
+            return Optional.empty();
+        }
     }
 }

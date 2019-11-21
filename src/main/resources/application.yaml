@@ -5,10 +5,9 @@ spring:
     password: netcracker234
     port: 465
     protocol: smtps
-#For deploy
   datasource:
-    url: ${JDBC_DATABASE_URL}
-    username: ${JDBC_DATABASE_USERNAME}
-    password: ${JDBC_DATABASE_PASSWORD}
+    url: 'jdbc:postgresql://localhost:5432/netcracker_project'
+    username: 'asem'
+    password: 'asem'
 server:
   port: 8081

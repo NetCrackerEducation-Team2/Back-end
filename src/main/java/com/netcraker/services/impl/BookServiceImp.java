@@ -1,5 +1,6 @@
 package com.netcraker.services.impl;
 
+import com.github.slugify.Slugify;
 import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 @Service
 @PropertySource({"classpath:path.properties"})
@@ -51,6 +53,16 @@ public class BookServiceImp implements BookService {
         fileService.downloadFile(booksContentPath + fileName, response);
     }
 
+    @Override
+    public Optional<Book> getBook(String slug) {
+        return bookRepository.getBookBySlug(slug);
+    }
+
+    @Override
+    public Optional<Book> getBookById(int id) {
+        return Optional.ofNullable(bookRepository.getById(id));
+    }
+
     private void insureBookPhoto(Book book){
         byte[] photo = fileService.getImage(booksImagePath + book.getPhotoPath());
         if(photo == null) {
@@ -59,5 +71,11 @@ public class BookServiceImp implements BookService {
         }else{
             book.setPhoto(photo);
         }
+    }
+
+    @Override
+    public Book createBook(Book book) {
+        book.setSlug(new Slugify().slugify(book.getTitle()));
+        return bookRepository.insert(book);
     }
 }

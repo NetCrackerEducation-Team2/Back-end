@@ -12,8 +12,8 @@ public class Announcement {
     private int announcementId;
     private @NonNull String title;
     private @NonNull String description;
-    private int userId;
+    private Integer userId;
     private boolean published;
     private LocalDateTime creationTime;
-    private int bookId;
+    private Integer bookId;
 }

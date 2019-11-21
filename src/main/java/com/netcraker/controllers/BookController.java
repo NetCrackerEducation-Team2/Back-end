@@ -10,15 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Optional;
 
 @RestController
 @RequestMapping({"/api"})
-@CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
+@CrossOrigin(methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookController {
 
@@ -32,7 +34,7 @@ public class BookController {
             @RequestParam(required = false) Integer genreId,
             @RequestParam(required = false) Integer authorId,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         HashMap<BookFilteringParam, Object> map = new HashMap<>();
         map.put(BookFilteringParam.TITLE, title);
         map.put(BookFilteringParam.GENRE, genreId);
@@ -43,7 +45,26 @@ public class BookController {
     }
 
     @GetMapping("/book/download")
-    public void downloadBook(@RequestParam String fileName, HttpServletResponse response){
+    public void downloadBook(@RequestParam String fileName, HttpServletResponse response) {
         bookService.downloadBook(fileName, response);
+    }
+
+    @CrossOrigin
+    @GetMapping("/book/{slug}")
+    public ResponseEntity<Book> getBookInfo(@PathVariable String slug) {
+        Optional<Book> bookOptional = bookService.getBook(slug);
+        return bookOptional.map(book -> new ResponseEntity<>(book, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+    }
+
+    @CrossOrigin
+    @GetMapping("/book/id/{id}")
+    public ResponseEntity<Book> getBookById(@PathVariable int id) {
+        Optional<Book> bookOptional = bookService.getBookById(id);
+        return bookOptional.map(book -> new ResponseEntity<Book>(book, HttpStatus.OK)).orElse(new ResponseEntity<Book>((Book) null, HttpStatus.NOT_FOUND));
+    }
+
+    @PostMapping("/book")
+    public void createBook(@RequestBody @Validated Book book) {
+        bookService.createBook(book);
     }
 }

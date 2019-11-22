@@ -1,30 +1,27 @@
 package com.netcraker.controllers;
 
+import com.netcraker.exceptions.CreationException;
 import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
 import com.netcraker.services.BookService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.Optional;
 
 @RestController
 @RequestMapping({"/api"})
 @CrossOrigin(methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class BookController {
 
-    private final @NonNull BookService bookService;
+    private final BookService bookService;
 
     @GetMapping("/books")
     public ResponseEntity<Page<Book>> getBooksPage(
@@ -49,22 +46,21 @@ public class BookController {
         bookService.downloadBook(fileName, response);
     }
 
-    @CrossOrigin
     @GetMapping("/book/{slug}")
-    public ResponseEntity<Book> getBookInfo(@PathVariable String slug) {
-        Optional<Book> bookOptional = bookService.getBook(slug);
-        return bookOptional.map(book -> new ResponseEntity<>(book, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+    public ResponseEntity<Book> getBookBySlug(@PathVariable String slug) {
+        return ResponseEntity.ok().body(bookService.getBookBySlug(slug)
+                .orElseThrow(() -> new CreationException("Cannot find book by slug")));
     }
 
-    @CrossOrigin
-    @GetMapping("/book/id/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable int id) {
-        Optional<Book> bookOptional = bookService.getBookById(id);
-        return bookOptional.map(book -> new ResponseEntity<Book>(book, HttpStatus.OK)).orElse(new ResponseEntity<Book>((Book) null, HttpStatus.NOT_FOUND));
+    @GetMapping("/book-by-id/{bookId}")
+    public ResponseEntity<Book> getBookById(@PathVariable int bookId) {
+        return ResponseEntity.ok().body(bookService.getBookById(bookId)
+                .orElseThrow(() -> new CreationException("Cannot find book by bookId")));
     }
 
-    @PostMapping("/book")
-    public void createBook(@RequestBody @Validated Book book) {
-        bookService.createBook(book);
+    @GetMapping("/book-title/{bookId}")
+    public ResponseEntity<String> getBookTitleById(@PathVariable int bookId) {
+        return ResponseEntity.ok().body(bookService.getBookTitleById(bookId)
+                .orElseThrow(() -> new CreationException("Cannot find book title by id")));
     }
 }

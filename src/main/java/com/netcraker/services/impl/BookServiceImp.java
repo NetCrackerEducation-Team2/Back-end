@@ -10,7 +10,6 @@ import com.netcraker.services.FileService;
 import com.netcraker.services.PageService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,7 @@ import java.util.Optional;
 
 @Service
 @PropertySource({"classpath:path.properties"})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class BookServiceImp implements BookService {
 
     private final @NonNull BookRepository bookRepository;
@@ -36,6 +35,11 @@ public class BookServiceImp implements BookService {
     private String booksImagePath;
     @Value("${books.defaultImageName}")
     private String booksDefaultImageName;
+
+    @Override
+    public Optional<String> getBookTitleById(int bookId) {
+        return bookRepository.getTitleById(bookId);
+    }
 
     @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize) {
@@ -54,13 +58,17 @@ public class BookServiceImp implements BookService {
     }
 
     @Override
-    public Optional<Book> getBook(String slug) {
-        return bookRepository.getBookBySlug(slug);
+    public Optional<Book> getBookBySlug(String slug) {
+        Optional<Book> optionalBook = bookRepository.getBySlug(slug);
+        optionalBook.ifPresent(this::insureBookPhoto);
+        return optionalBook;
     }
 
     @Override
-    public Optional<Book> getBookById(int id) {
-        return Optional.ofNullable(bookRepository.getById(id));
+    public Optional<Book> getBookById(int bookId) {
+        Optional<Book> optionalBook = bookRepository.getById(bookId);
+        optionalBook.ifPresent(this::insureBookPhoto);
+        return optionalBook;
     }
 
     private void insureBookPhoto(Book book){
@@ -74,7 +82,7 @@ public class BookServiceImp implements BookService {
     }
 
     @Override
-    public Book createBook(Book book) {
+    public Optional<Book> createBook(Book book) {
         book.setSlug(new Slugify().slugify(book.getTitle()));
         return bookRepository.insert(book);
     }

@@ -39,6 +39,15 @@ public class AuthorizationRepository {
         AuthorizationLinks authorizationLinks = findByActivationCode(token);
         return authorizationLinks;
     }
+
+    public AuthorizationLinks createRecoveryLink(User user) {
+        String token = UUID.randomUUID().toString();
+        Object[] param = {token, new Timestamp(System.currentTimeMillis()),
+                user.getUserId(), false, false};
+        jdbcTemplate.update(sqlCreateLink, param);
+        return findByActivationCode(token);
+    }
+
     public AuthorizationLinks findByActivationCode(String token) {
         Object[] param = {token};
         return jdbcTemplate.queryForObject(sqlFindLinkByToken, param, new LinkRowMapper());

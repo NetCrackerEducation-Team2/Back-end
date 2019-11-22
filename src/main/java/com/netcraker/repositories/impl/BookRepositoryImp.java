@@ -8,9 +8,9 @@ import com.netcraker.model.mapper.BookRowMapper;
 import com.netcraker.repositories.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -26,7 +26,7 @@ import java.util.*;
 
 @Repository
 @PropertySource("classpath:sqlQueries.properties")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class BookRepositoryImp implements BookRepository {
 
     private final @NonNull JdbcTemplate jdbcTemplate;
@@ -49,63 +49,95 @@ public class BookRepositoryImp implements BookRepository {
     private String sqlCountFiltered;
     @Value("${books.getFiltered}")
     private String sqlGetFiltered;
+    @Value("${books.getTitleById}")
+    private String sqlGetTitleById;
 
     @Override
-    public Book getById(int id) {
-        return jdbcTemplate.queryForObject(sqlGetById,
-                new BookRowMapper(genreRepository, authorRepository), id);
+    public Optional<Book> getById(int id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById,
+                    new BookRowMapper(genreRepository, authorRepository), id));
+        } catch (DataAccessException e) {
+            System.out.println("Book::getById id: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override
-    public Book insert(Book entity) {
+    public Optional<Book> insert(Book entity) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, entity.getTitle());
-            ps.setLong(2, entity.getIsbn());
-            ps.setDate(3, Date.valueOf(entity.getRelease()));
-            ps.setInt(4, entity.getPages());
-            ps.setString(5, entity.getFilePath());
-            ps.setString(6, entity.getPhotoPath());
-            ps.setString(7, entity.getPublishingHouse());
-            ps.setInt(8, entity.getRateSum());
-            ps.setInt(9, entity.getVotersCount());
-            ps.setString(10, entity.getSlug());
-            return ps;
-        }, keyHolder);
+        try {
+            jdbcTemplate.update(conn -> {
+                PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, entity.getTitle());
+                ps.setLong(2, entity.getIsbn());
+                ps.setDate(3, Date.valueOf(entity.getRelease()));
+                ps.setInt(4, entity.getPages());
+                ps.setString(5, entity.getFilePath());
+                ps.setString(6, entity.getPhotoPath());
+                ps.setString(7, entity.getPublishingHouse());
+                ps.setInt(8, entity.getRateSum());
+                ps.setInt(9, entity.getVotersCount());
+                ps.setString(10, entity.getSlug());
+                return ps;
+            }, keyHolder);
+        } catch (DataAccessException e) {
+            System.out.println("Book::insert entity: " + entity + ". Stack trace: ");
+            e.printStackTrace();
+            return Optional.empty();
+        }
         return getById((Integer) keyHolder.getKeys().get("book_id"));
     }
 
     @Override
-    public Book update(Book entity) {
-        jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
-            ps.setString(1, entity.getTitle());
-            ps.setLong(2, entity.getIsbn());
-            ps.setDate(3, Date.valueOf(entity.getRelease()));
-            ps.setInt(4, entity.getPages());
-            ps.setString(5, entity.getFilePath());
-            ps.setString(6, entity.getPhotoPath());
-            ps.setString(7, entity.getPublishingHouse());
-            ps.setInt(8, entity.getRateSum());
-            ps.setInt(9, entity.getVotersCount());
-            ps.setString(10, entity.getSlug());
-            ps.setInt(11, entity.getBookId());
-            return ps.execute();
-        });
+    public Optional<Book> update(Book entity) {
+        try {
+            jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
+                ps.setString(1, entity.getTitle());
+                ps.setLong(2, entity.getIsbn());
+                ps.setDate(3, Date.valueOf(entity.getRelease()));
+                ps.setInt(4, entity.getPages());
+                ps.setString(5, entity.getFilePath());
+                ps.setString(6, entity.getPhotoPath());
+                ps.setString(7, entity.getPublishingHouse());
+                ps.setInt(8, entity.getRateSum());
+                ps.setInt(9, entity.getVotersCount());
+                ps.setString(10, entity.getSlug());
+                ps.setInt(11, entity.getBookId());
+                return ps.execute();
+            });
+        } catch (DataAccessException e) {
+            System.out.println("Book::update entity: " + entity + ". Stack trace: ");
+            e.printStackTrace();
+            return Optional.empty();
+        }
         return getById(entity.getBookId());
     }
 
     @Override
     public boolean delete(int id) {
-        Book book = getById(id);
-        List<Author> authors = book.getAuthors();
-        List<Genre> genres = book.getGenres();
-        authors.forEach(author -> bookAuthorRepository.delete(id, author.getAuthorId()));
-        genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
-            ps.setInt(1, id);
-            return ps.execute();
-        });
+        Optional<Book> optionalBook = getById(id);
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
+            List<Author> authors = book.getAuthors();
+            List<Genre> genres = book.getGenres();
+            authors.forEach(author -> bookAuthorRepository.delete(id, author.getAuthorId()));
+            genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
+            return jdbcTemplate.update(sqlDelete, id) == 1;
+        }
+        return false;
+    }
+
+    @Override
+    public Optional<String> getTitleById(int id) {
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetTitleById, new Object[]{id}, String.class));
+        } catch (DataAccessException e) {
+            System.out.println("Book::getTitleById id: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -152,7 +184,7 @@ public class BookRepositoryImp implements BookRepository {
     }
 
     @Override
-    public Optional<Book> getBookBySlug(String slug) {
+    public Optional<Book> getBySlug(String slug) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetBySlug, new BookRowMapper(genreRepository, authorRepository), slug));
         } catch (IncorrectResultSizeDataAccessException e) {

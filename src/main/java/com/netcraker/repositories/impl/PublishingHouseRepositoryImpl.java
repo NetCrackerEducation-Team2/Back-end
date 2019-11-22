@@ -2,6 +2,7 @@ package com.netcraker.repositories.impl;
 
 import com.netcraker.model.PublishingHouse;
 import com.netcraker.model.mapper.GenreRowMapper;
+import com.netcraker.model.mapper.PublishingHouseRowMapper;
 import com.netcraker.repositories.PublishingHouseRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

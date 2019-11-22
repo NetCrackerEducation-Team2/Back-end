@@ -2,7 +2,8 @@ package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.model.Role;
-import com.netcraker.repositories.RoleRepository;
+import com.netcraker.repositories.UserRoleRepository;
+import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.services.RoleService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -12,50 +13,50 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLDataException;
+import java.util.Optional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RoleIServiceImpl implements RoleService {
 
-    private final @NonNull RoleRepository roleRepository;
+    private final @NonNull RoleRepositoryImpl roleRepositoryImpl;
+    private final UserRoleRepository userRoleRepository;
 
     @Override
     public Role createRole(Role role) {
+        Optional<Role> roleFromDB = roleRepositoryImpl.findByName(role.getName());
+        if (roleFromDB.isPresent()) {
+            throw new FailedToRegisterException("Role is already created");
+        }
+        Optional<Role> createdRoleOpt = roleRepositoryImpl.insert(role);
+        if (!createdRoleOpt.isPresent()) {
+            throw new FailedToRegisterException("Error in creating role! Creation query failure");
+        }
+        Role createdRole = createdRoleOpt.get();
 
-        Role roleFromDB = null;
-        try {
-            roleFromDB = roleRepository.findByName(role.getName());
-        } catch (DataAccessException ignored) {
-            // it's alright
-        }
-        if (roleFromDB != null) {
-            throw new FailedToRegisterException("Role is already used");
-        }
+        System.out.println("created with id: " + createdRole.getRoleId());
         return role;
     }
 
     @Override
     public Role findByRoleId(int roleId) {
-        return roleRepository.findById(roleId);
+        return roleRepositoryImpl.getById(roleId).orElse(null);
     }
 
     @Override
     public Role findByRoleName(String name) {
-        return roleRepository.findByName(name);
+        return roleRepositoryImpl.findByName(name).orElse(null);
     }
 
     @Override
-    public void updateRole(Role oldRole, Role newRole) {
-        roleRepository.updateRole(oldRole, newRole);
+    public void update(Role role) {
+        roleRepositoryImpl.update(role);
     }
 
     @Override
-    public void deleteRole(Role role) throws SQLDataException{
-
-        if(!roleRepository.deleteRole(role)){
-            throw new SQLDataException();
-        }
-
+    public void delete(int id) {
+        userRoleRepository.delete(id);
+        roleRepositoryImpl.delete(id);
     }
 }

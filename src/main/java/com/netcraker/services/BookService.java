@@ -5,15 +5,19 @@ import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
 
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Optional;
 
 public interface BookService {
-      Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize);
-      void downloadBook(String fileName, HttpServletResponse response);
-      Optional<Book> getBook(String slug);
-      Optional<Book> getBookById(int id);
+    Optional<String> getBookTitleById(int bookId);
 
-    Book createBook(Book book);
+    Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize);
+
+    void downloadBook(String fileName, HttpServletResponse response);
+
+    Optional<Book> createBook(Book book);
+
+    Optional<Book> getBookById(int bookId);
+
+    Optional<Book> getBookBySlug(String slug);
 }

@@ -8,7 +8,6 @@ import com.netcraker.services.PageService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +22,9 @@ public class AnnouncementServiceImp implements AnnouncementService {
     private final @NonNull AnnouncementRepository announcementRepository;
     private final @NonNull PageService pageService;
 
-    @Value("${announcements.pageSize}")
-    private int pageSize;
 
     @Override
-    public Page<Announcement> getAnnouncements(int page) {
+    public Page<Announcement> getAnnouncementsPagination(int page, int pageSize) {
         int total = announcementRepository.getCount();
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);

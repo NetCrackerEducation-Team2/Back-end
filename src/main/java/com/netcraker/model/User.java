@@ -6,11 +6,13 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class User {
     private int userId;
     @NotBlank
@@ -22,4 +24,5 @@ public class User {
     private Timestamp createdAt;
     private Boolean enabled;
     private String photoPath;
+    private List<Role> roles;
 }

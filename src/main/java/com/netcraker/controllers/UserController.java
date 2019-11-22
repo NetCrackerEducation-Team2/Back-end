@@ -1,24 +1,25 @@
 package com.netcraker.controllers;
 
+import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
-import com.netcraker.repositories.UserRepository;
+import com.netcraker.model.vo.ChangePassword;
 import com.netcraker.services.UserService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import java.sql.SQLDataException;
 import java.util.List;
 
 @RestController
-@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.PUT})
+@RequestMapping({"api"})
+@RequiredArgsConstructor
 public class UserController {
-    private final @NonNull UserService userService;
+    private final UserService userService;
 
     @GetMapping("profile/{userId}")
     public ResponseEntity<?> getUserProfile(@PathVariable int userId) {
@@ -36,16 +37,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PostMapping("admins/create")
-    public ResponseEntity<?> createAdminModerator(@RequestBody @Validated User user,
-                                      @RequestBody Role role,
-                                      BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("User must have only valid properties");
+    @PutMapping("profile/change-password/{userId}")
+    public ResponseEntity<?> changePassword(@PathVariable int userId,
+                                            @RequestBody @Validated ChangePassword changePassword,
+                                            BindingResult result) {
+        if(result.hasErrors()){
+            throw new UpdateException("Password must be valid");
         }
-        userService.createAdminModerator(user, role);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+
+        return ResponseEntity.ok(userService
+                .changePassword(userId, changePassword.getOldPassword(), changePassword.getNewPassword()));
     }
 }

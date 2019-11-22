@@ -50,7 +50,7 @@ public class UserRoleRepository {
     }
 
     public Optional<UserRole> update(User user, Role role) {
-        Object[] params = { user.getUserId(), role.getRoleId()};
+        Object[] params = {role.getRoleId() , user.getUserId()};
         int changedRowsCount = jdbcTemplate.update(sqlUpdateRoleUser, params);
 
         if (changedRowsCount == 0){

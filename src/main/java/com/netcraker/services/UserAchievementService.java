@@ -1,8 +1,8 @@
 package com.netcraker.services;
 
-import com.netcraker.model.UserAchievement;
+import org.springframework.lang.Nullable;
 
 public interface UserAchievementService {
     boolean addUserAchievement(int userId, int achievementId);
-    boolean deleteUserAchievement(int userId, int achievementId);
+    boolean deleteUserAchievement(@Nullable Integer userId, int achievementId);
 }

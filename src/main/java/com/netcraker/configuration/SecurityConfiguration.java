@@ -42,6 +42,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+
+                .antMatchers(HttpMethod.POST, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+                .antMatchers(HttpMethod.DELETE, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+                .antMatchers(HttpMethod.PUT, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+
                 .antMatchers(HttpMethod.GET, "/api/books", "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
                 // must-have
@@ -60,7 +65,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected PasswordEncoder passwordEncoder() {
         // Code below is only for test purpose
         // In production change to return an instance of BCryptPasswordEncoder
-       return NoOpPasswordEncoder.getInstance();
+        return NoOpPasswordEncoder.getInstance();
 //       return new BCryptPasswordEncoder();
     }
 

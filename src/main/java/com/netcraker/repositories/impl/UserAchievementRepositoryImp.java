@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 
@@ -27,7 +28,7 @@ public class UserAchievementRepositoryImp implements UserAchievementRepository {
     }
 
     @Override
-    public boolean delete(int userId, int achievementId) {
+    public boolean delete(@Nullable Integer userId, int achievementId) {
         return jdbcTemplate.update(sqlDelete, userId, achievementId) == 1;
     }
 }

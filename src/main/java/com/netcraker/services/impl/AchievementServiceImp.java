@@ -3,8 +3,10 @@ package com.netcraker.services.impl;
 import com.netcraker.model.Achievement;
 import com.netcraker.repositories.AchievementRepository;
 import com.netcraker.services.AchievementService;
+import com.netcraker.services.UserAchievementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -12,6 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AchievementServiceImp implements AchievementService {
     private final AchievementRepository achievementRepo;
+    private final UserAchievementService userAchievementService;
 
     @Override
     public Optional<Achievement> getAchievementById(int achievementId) {
@@ -39,12 +42,17 @@ public class AchievementServiceImp implements AchievementService {
         return achievementRepo.insert(achievement);
     }
 
+    @Transactional
     @Override
     public boolean deleteAchievement(int achievementId) {
         final Optional<Achievement> fromDb = getAchievementById(achievementId);
         if (!fromDb.isPresent()) {
             return false;
         }
+
+        // delete needed achievement from user_achievement table
+        userAchievementService.deleteUserAchievement(null, achievementId);
+
         return achievementRepo.delete(achievementId);
     }
 

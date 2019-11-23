@@ -1,0 +1,46 @@
+﻿create table entity_types
+(
+    entity_type_id serial       not null
+        constraint entity_types_pk
+            primary key,
+    name  varchar(255)            not null
+);
+
+create table notification_actions
+(
+    notification_action_id serial       not null
+        constraint notification_actions_pk
+            primary key,
+    description  varchar(255)            not null
+);
+
+create table notification_objects
+(
+    notification_object_id serial       not null
+        constraint notification_objects_pk
+            primary key,
+    entity_type_id          integer not null
+        constraint notification_objects_entity_types
+            references entity_types,
+    entity_id          integer not null,
+    user_id          integer not null
+        constraint notifications_objects_user
+            references users,
+    notification_action_id          integer not null
+        constraint notification_objects_notification_actions
+            references notification_actions,
+    creation_time   timestamp default now() not null
+);
+create table notifications
+(
+    notification_id serial       not null
+        constraint notifications_pk
+            primary key,
+    notification_object_id          integer not null
+        constraint notifications_notification_object
+            references notification_objects,
+    notifier_id          integer not null
+        constraint notifications_notifier
+            references users,
+    status  boolean   default false not null
+);

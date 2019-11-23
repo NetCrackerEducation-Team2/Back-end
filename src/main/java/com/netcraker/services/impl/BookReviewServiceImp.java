@@ -15,17 +15,12 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class BookReviewServiceImpl implements BookReviewService {
+public class BookReviewServiceImp implements BookReviewService {
     private final BookReviewRepository bookReviewRepo;
     private final PageService pageService;
 
     @Override
     public Optional<BookReview> createBookReview(BookReview bookReview) {
-        // check for duplicate
-        /*if (bookReviewRepo.countByUserIdBookId(bookReview.getUserId(), bookReview.getBookId()) != 0) {
-            return Optional.empty();
-        }*/
-
         return bookReviewRepo.insert(bookReview);
     }
 
@@ -55,6 +50,6 @@ public class BookReviewServiceImpl implements BookReviewService {
                 bookReviewRepo.countByUserIdBookId(null, bookId), pageSize);
 
         List<BookReview> list = bookReviewRepo.getPage(bookId, pageSize, page * pageSize - pageSize);
-        return new Page<>(page, pages, list);
+        return new Page<>(page, pages, pageSize, list);
     }
 }

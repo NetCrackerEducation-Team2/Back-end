@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
         private final JdbcTemplate jdbcTemplate;
@@ -45,9 +45,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
         @Value("${announcements.unPublish}")
         private String sqlUnPublish;
 
-
-
-        @Override
+    @Override
     public List<Announcement> getAll() {
         return jdbcTemplate.query(sqlGetAnnouncements, new Object[]{ 5, 0}, announcementRowMapper);
     }
@@ -69,13 +67,8 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
     @Override
     public Optional<Announcement> getById(int id) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, announcementRowMapper, id));
-        } catch (DataAccessException e) {
-            System.out.println("Announcement::getById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<Announcement> announcements= jdbcTemplate.query(sqlGetById, announcementRowMapper, id);
+        return announcements.isEmpty() ? Optional.empty() : Optional.of(announcements.get(0));
     }
 
     @Override

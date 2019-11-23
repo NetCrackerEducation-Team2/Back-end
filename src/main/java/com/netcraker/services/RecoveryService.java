@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface RecoveryService {
     boolean sendRecoveryCode(String email);
-    Optional<User> recoverPassword(String recoveryCode) throws NoSuchAlgorithmException;
+    Optional<User> recoverPassword(String recoveryCode);
 }

@@ -2,14 +2,11 @@ package com.netcraker.repositories.impl;
 
 import com.netcraker.model.Announcement;
 import com.netcraker.model.mapper.AnnouncementRowMapper;
-import com.netcraker.model.mapper.BookReviewRowMapper;
 import com.netcraker.repositories.AnnouncementRepository;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -17,17 +14,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
         private final JdbcTemplate jdbcTemplate;
@@ -50,9 +45,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
         @Value("${announcements.unPublish}")
         private String sqlUnPublish;
 
-
-
-        @Override
+    @Override
     public List<Announcement> getAll() {
         return jdbcTemplate.query(sqlGetAnnouncements, new Object[]{ 5, 0}, announcementRowMapper);
     }
@@ -74,13 +67,8 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
     @Override
     public Optional<Announcement> getById(int id) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, announcementRowMapper, id));
-        } catch (DataAccessException e) {
-            System.out.println("Announcement::getById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<Announcement> announcements= jdbcTemplate.query(sqlGetById, announcementRowMapper, id);
+        return announcements.isEmpty() ? Optional.empty() : Optional.of(announcements.get(0));
     }
 
     @Override

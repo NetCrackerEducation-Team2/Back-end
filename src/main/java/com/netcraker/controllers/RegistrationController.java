@@ -55,13 +55,7 @@ public class RegistrationController {
 
     @GetMapping("/activate/{code}")
     public ResponseEntity activate(@PathVariable String code) {
-        boolean isActivated;
-        try {
-            isActivated = userService.activateUser(code);
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-            throw new FailedToRegisterException("Invalid activation code. Try to sign up again");
-        }
+        boolean isActivated = userService.activateUser(code);
 
         if (isActivated) {
             System.out.println("Activation code is admitted");
@@ -69,28 +63,22 @@ public class RegistrationController {
         }
 
         System.out.println("Activation code is rejected");
-
-        throw new FailedToRegisterException("Invalid activation code. Try to sign up again");
+        throw new UpdateException("Invalid activation code. Try to sign up again");
     }
 
     @GetMapping("/recovery-link/{email}")
     public ResponseEntity<?> getRecoveryLink(@PathVariable String email) {
         boolean sent = recoveryService.sendRecoveryCode(email);
-        if (sent)
+        if (sent) {
             return new ResponseEntity<>(HttpStatus.OK);
+        }
         throw new FindException("Recovery link was not sent. Try again");
     }
 
     @GetMapping("/recover/{code}")
     public ResponseEntity<?> getRecoveryPassword(@PathVariable String code) {
-        User user;
-        try {
-            user = recoveryService.recoverPassword(code)
-                    .orElseThrow(() -> new UpdateException("Try to recover password again."));
-        } catch (NoSuchAlgorithmException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to recover password. Try to recover password again.");
-        }
+        User user = recoveryService.recoverPassword(code)
+                .orElseThrow(() -> new UpdateException("Try to recover password again."));
         return ResponseEntity.ok(user);
     }
 }

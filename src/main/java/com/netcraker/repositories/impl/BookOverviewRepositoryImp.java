@@ -26,7 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Value("${book_overviews.getById}")
     private String sqlGetById;
@@ -55,26 +55,16 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
     @Override
     public Optional<BookOverview> getPublishedByBook(int bookId) {
-        try{
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetPublishedByBook,
-                    new BookOverviewRowMapper(), bookId));
-        }catch (DataAccessException e) {
-            System.out.println("BookOverview::getPublishedByBook bookId: " + bookId + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<BookOverview> bookOverviews = jdbcTemplate.query(sqlGetPublishedByBook,
+                new BookOverviewRowMapper(), bookId);
+        return bookOverviews.isEmpty() ? Optional.empty() : Optional.of(bookOverviews.get(0));
     }
 
     @Override
     public Optional<BookOverview> getById(int id) {
-        try{
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById,
-                    new BookOverviewRowMapper(), id));
-        }catch (DataAccessException e) {
-            System.out.println("BookOverview::getById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<BookOverview> bookOverviews = jdbcTemplate.query(sqlGetById,
+                new BookOverviewRowMapper(), id);
+        return bookOverviews.isEmpty() ? Optional.empty() : Optional.of(bookOverviews.get(0));
     }
 
     @Override

@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthorServiceImp implements AuthorService {
 
-    private final @NonNull AuthorRepository authorRepository;
+    private final AuthorRepository authorRepository;
 
     @Override
     public List<Author> getAuthors() {

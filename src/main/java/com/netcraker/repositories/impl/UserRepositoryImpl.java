@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 @PropertySource("classpath:sqlQueries.properties")
 public class UserRepositoryImpl implements UserRepository {
 

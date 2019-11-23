@@ -25,4 +25,9 @@ public class AuthorController {
         List<Author> authors = authorService.getAuthors();
         return new ResponseEntity<>(authors, HttpStatus.OK);
     }
+
+    @GetMapping("/authors/searchByNameStartsWith")
+    public List<Author> searchByNameStartsWith(@RequestParam(value = "startsWith") String authorFullNameStartsWith) {
+        return authorService.searchByNameStartsWith(authorFullNameStartsWith);
+    }
 }

@@ -20,4 +20,9 @@ public class AuthorServiceImp implements AuthorService {
     public List<Author> getAuthors() {
         return authorRepository.getAll();
     }
+
+    @Override
+    public List<Author> searchByNameStartsWith(String authorFullNameStartsWith) {
+        return authorRepository.searchByNameStarsWith(authorFullNameStartsWith);
+    }
 }

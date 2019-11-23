@@ -7,4 +7,5 @@ import java.util.List;
 public interface GenreRepository extends BaseOptionalRepository<Genre> {
     List<Genre> getAll();
     List<Genre> getByBook(int bookId);
+    List<Genre> findByNameStartsWith(String genreNameStartsWith);
 }

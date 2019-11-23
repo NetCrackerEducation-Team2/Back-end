@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface GenreService {
     List<Genre> getGenres();
+
+    List<Genre> searchByNameStartsWith(String genreNameStartsWith);
 }

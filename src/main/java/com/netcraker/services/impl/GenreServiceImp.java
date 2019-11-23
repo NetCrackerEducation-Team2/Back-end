@@ -20,4 +20,9 @@ public class GenreServiceImp implements GenreService {
     public List<Genre> getGenres() {
         return genreRepository.getAll();
     }
+
+    @Override
+    public List<Genre> searchByNameStartsWith(String genreNameStartsWith) {
+        return genreRepository.findByNameStartsWith(genreNameStartsWith);
+    }
 }

@@ -41,6 +41,8 @@ public class AuthorRepositoryImp implements AuthorRepository {
     private String sqlGetAll;
     @Value("${authors.getByBook}")
     private String sqlGetByBook;
+    @Value("${authors.searchByFullNameStartsWith}")
+    private String sqlSearchByFullNameStartsWith;
 
     @Override
     public Optional<Author> getById(int id) {
@@ -102,5 +104,10 @@ public class AuthorRepositoryImp implements AuthorRepository {
     @Override
     public List<Author> getByBook(int bookId) {
         return jdbcTemplate.query(sqlGetByBook, new AuthorRowMapper(), bookId);
+    }
+
+    @Override
+    public List<Author> searchByNameStarsWith(String authorFullNameStartsWith) {
+        return jdbcTemplate.query(sqlSearchByFullNameStartsWith, new AuthorRowMapper(), authorFullNameStartsWith.trim() + "%");
     }
 }

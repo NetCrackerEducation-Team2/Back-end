@@ -25,4 +25,9 @@ public class GenreController {
         List<Genre> genres = genreService.getGenres();
         return new ResponseEntity<>(genres, HttpStatus.OK);
     }
+
+    @GetMapping("/genres/searchByNameStartsWith")
+    public List<Genre> searchByNameStartsWith(@RequestParam(name = "startsWith") String genreNameStartsWith) {
+        return genreService.searchByNameStartsWith(genreNameStartsWith);
+    }
 }

@@ -39,6 +39,8 @@ public class GenreRepositoryImp implements GenreRepository {
     private String sqlGetAll;
     @Value("${genres.getByBook}")
     private String sqlGetByBook;
+    @Value("${genres.searchByNameStartsWith}")
+    private String sqlSearchByNameStartsWith;
 
     @Override
     public Optional<Genre> getById(int id) {
@@ -99,5 +101,10 @@ public class GenreRepositoryImp implements GenreRepository {
     @Override
     public List<Genre> getByBook(int bookId) {
         return jdbcTemplate.query(sqlGetByBook, new GenreRowMapper(), bookId);
+    }
+
+    @Override
+    public List<Genre> findByNameStartsWith(String genreNameStartsWith) {
+        return jdbcTemplate.query(sqlSearchByNameStartsWith, new GenreRowMapper(), genreNameStartsWith.trim() + "%");
     }
 }

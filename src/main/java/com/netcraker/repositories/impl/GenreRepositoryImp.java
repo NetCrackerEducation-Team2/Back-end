@@ -25,7 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GenreRepositoryImp implements GenreRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Value("${genres.getById}")
     private String sqlGetById;

@@ -29,11 +29,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BookRepositoryImp implements BookRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
-    private final @NonNull GenreRepository genreRepository;
-    private final @NonNull AuthorRepository authorRepository;
-    private final @NonNull BookGenreRepository bookGenreRepository;
-    private final @NonNull BookAuthorRepository bookAuthorRepository;
+    private final JdbcTemplate jdbcTemplate;
+    private final GenreRepository genreRepository;
+    private final AuthorRepository authorRepository;
+    private final BookGenreRepository bookGenreRepository;
+    private final BookAuthorRepository bookAuthorRepository;
 
     @Value("${books.getById}")
     private String sqlGetById;

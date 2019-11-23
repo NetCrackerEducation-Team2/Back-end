@@ -18,9 +18,9 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class RoleController {
-    private final @NonNull RoleService roleService;
+    private final RoleService roleService;
 
     @PostMapping("/role/create")
     public ResponseEntity<?> createRole(@RequestBody @Validated Role role, BindingResult bindingResult){

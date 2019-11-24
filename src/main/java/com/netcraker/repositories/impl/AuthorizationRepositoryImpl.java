@@ -1,4 +1,4 @@
-package com.netcraker.repositories;
+package com.netcraker.repositories.impl;
 
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
-public class AuthorizationRepository {
+public class AuthorizationRepositoryImpl {
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${authorizationLink.create}")

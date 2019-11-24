@@ -30,29 +30,31 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
-        private final JdbcTemplate jdbcTemplate;
-        private final AnnouncementRowMapper announcementRowMapper;
+    private final JdbcTemplate jdbcTemplate;
+    private final AnnouncementRowMapper announcementRowMapper;
 
-        @Value("${announcements.getById}")
-        private String sqlGetById;
-        @Value("${announcements.select}")
-        private String sqlGetAnnouncements;
-        @Value("${announcements.count}")
-        private String sqlGetAnnouncementsCount;
-        @Value("${announcements.insert}")
-        private String sqlInsert;
-        @Value("${announcements.update}")
-        private String sqlUpdate;
-        @Value("${announcements.delete}")
-        private String sqlDelete;
-        @Value("${announcements.publish}")
-        private String sqlPublish;
-        @Value("${announcements.unPublish}")
-        private String sqlUnPublish;
+    @Value("${announcements.getById}")
+    private String sqlGetById;
+    @Value("${announcements.select}")
+    private String sqlGetAnnouncements;
+    @Value("${announcements.count}")
+    private String sqlGetAnnouncementsCount;
+    @Value("${announcements.insert}")
+    private String sqlInsert;
+    @Value("${announcements.update}")
+    private String sqlUpdate;
+    @Value("${announcements.delete}")
+    private String sqlDelete;
+    @Value("${announcements.publish}")
+    private String sqlPublish;
+    @Value("${announcements.countPublished}")
+    private String sqlGetPublishAnnouncementsCount;
+    @Value("${announcements.selectAllPublished}")
+    private String sqlGetPublishedAnnouncements;
+    @Value("${announcements.unPublish}")
+    private String sqlUnPublish;
 
-
-
-        @Override
+    @Override
     public List<Announcement> getAll() {
         return jdbcTemplate.query(sqlGetAnnouncements, new Object[]{ 5, 0}, announcementRowMapper);
     }
@@ -63,8 +65,17 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
     }
 
     @Override
+    public List<Announcement> getPublishedAnnouncements(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetPublishedAnnouncements, new Object[]{ limit, offset}, announcementRowMapper);
+    }
+
+    @Override
     public int getCount() {
         return jdbcTemplate.queryForObject(sqlGetAnnouncementsCount, int.class);
+    }
+    @Override
+    public int getPublishedCount() {
+        return jdbcTemplate.queryForObject(sqlGetPublishAnnouncementsCount, int.class);
     }
 
     @Override

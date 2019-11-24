@@ -19,8 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AnnouncementServiceImp implements AnnouncementService {
 
-    private final @NonNull AnnouncementRepository announcementRepository;
-    private final @NonNull PageService pageService;
+    private final AnnouncementRepository announcementRepository;
+    private final PageService pageService;
 
 
     @Override
@@ -30,6 +30,15 @@ public class AnnouncementServiceImp implements AnnouncementService {
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
         ArrayList<Announcement> list = (ArrayList<Announcement>) announcementRepository.getAnnouncements(pageSize,offset);
+        return new Page<>(currentPage, pagesCount, list);
+    }
+    @Override
+    public Page<Announcement> getPublishAnnouncementsPagination(int page, int pageSize) {
+        int totalPublish = announcementRepository.getPublishedCount();
+        int pagesCount = pageService.getPagesCount(totalPublish, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        ArrayList<Announcement> list = (ArrayList<Announcement>) announcementRepository.getPublishedAnnouncements(pageSize,offset);
         return new Page<>(currentPage, pagesCount, list);
     }
 

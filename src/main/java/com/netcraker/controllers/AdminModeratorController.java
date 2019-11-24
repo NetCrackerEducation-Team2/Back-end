@@ -16,7 +16,7 @@ import java.sql.SQLDataException;
 import java.util.List;
 
 @RestController
-@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
+@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.PUT, RequestMethod.DELETE})
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AdminModeratorController {
     private final @NonNull UserService userService;

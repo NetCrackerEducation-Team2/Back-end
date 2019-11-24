@@ -12,7 +12,9 @@ public class BookOverview {
     private int bookOverviewId;
     private @NonNull String description;
     private int bookId;
+    private Book book;
     private int userId;
+    private User user;
     private boolean published;
     private LocalDateTime creationTime;
 }

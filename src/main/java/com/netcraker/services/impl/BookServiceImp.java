@@ -1,5 +1,6 @@
 package com.netcraker.services.impl;
 
+import com.github.slugify.Slugify;
 import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
@@ -78,5 +79,11 @@ public class BookServiceImp implements BookService {
         }else{
             book.setPhoto(photo);
         }
+    }
+
+    @Override
+    public Optional<Book> createBook(Book book) {
+        book.setSlug(new Slugify().slugify(book.getTitle()));
+        return bookRepository.insert(book);
     }
 }

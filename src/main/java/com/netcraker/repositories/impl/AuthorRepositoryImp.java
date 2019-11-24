@@ -27,7 +27,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthorRepositoryImp implements AuthorRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Value("${authors.getById}")
     private String sqlGetById;

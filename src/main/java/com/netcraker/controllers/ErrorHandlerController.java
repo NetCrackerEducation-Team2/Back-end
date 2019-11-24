@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.security.NoSuchAlgorithmException;
+
 @ControllerAdvice
 public class ErrorHandlerController {
     @ExceptionHandler(FailedToRegisterException.class)
@@ -14,7 +16,7 @@ public class ErrorHandlerController {
         System.out.println("ErrorHandlerController is handling FailedToRegisterException");
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(e.getMessage());
     }
 
@@ -46,6 +48,22 @@ public class ErrorHandlerController {
     @ExceptionHandler(FindException.class)
     public ResponseEntity<?> handleFindException(FindException e) {
         System.out.println("ErrorHandlerController is handling FindException");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(NoSuchAlgorithmException.class)
+    public ResponseEntity<?> handleNoSuchAlgorithmException(NoSuchAlgorithmException e) {
+        System.out.println("ErrorHandlerController is handling NoSuchAlgorithmException");
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
+        System.out.println("ErrorHandlerController is handling IllegalArgumentException");
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

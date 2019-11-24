@@ -27,7 +27,7 @@ public class BookOverviewServiceImpl implements BookOverviewService {
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        ArrayList<BookOverview> bookOverviews = new ArrayList<>(bookOverviewRepository.getByBook(bookId, pageSize, offset));
+        List<BookOverview> bookOverviews = bookOverviewRepository.getByBook(bookId, pageSize, offset);
         return new Page<>(currentPage, pagesCount, pageSize, bookOverviews);
     }
 

@@ -24,9 +24,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookServiceImp implements BookService {
 
-    private final @NonNull BookRepository bookRepository;
-    private final @NonNull PageService pageService;
-    private final @NonNull FileService fileService;
+    private final BookRepository bookRepository;
+    private final PageService pageService;
+    private final FileService fileService;
 
     @Value("${books.contentPath}")
     private String booksContentPath;

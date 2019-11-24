@@ -6,19 +6,20 @@ import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.Size;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
-public class RecoveryServiceImpl implements RecoveryService {
-    private final EmailSenderService emailSender;
+public class RecoveryServiceImp implements RecoveryService {
+    private final AuthEmailSenderService emailSender;
     private final AuthorizationRepository authRepo;
     private final UserService userService;
+    private final PasswordEncoder encoder;
     private final PasswordGenerator passGenerator;
 
     @Override
@@ -30,8 +31,9 @@ public class RecoveryServiceImpl implements RecoveryService {
         return true;
     }
 
-    @Transactional @Override
-    public Optional<User> recoverPassword(String recoveryCode) throws NoSuchAlgorithmException {
+    @Transactional
+    @Override
+    public Optional<User> recoverPassword(String recoveryCode) {
         AuthorizationLinks linkFromDb;
         try {
             linkFromDb = authRepo.findByActivationCode(recoveryCode);
@@ -40,14 +42,18 @@ public class RecoveryServiceImpl implements RecoveryService {
             e.printStackTrace();
             return Optional.empty();
         }
-        if (linkFromDb == null || linkFromDb.isUsed())
+
+        if (linkFromDb == null || linkFromDb.isUsed()) {
             return Optional.empty();
+        }
 
         final User userFromDb = userService.findByUserId(linkFromDb.getUserId());
-        final String newPassword = passGenerator.generatePassword();
-        new Thread(() -> emailSender.sendNewGeneratedPassword(userFromDb, newPassword)).start();
 
-        userFromDb.setPassword(newPassword);
+        final String newPassword = passGenerator.generatePassword();
+
+        emailSender.sendNewGeneratedPassword(userFromDb, newPassword);
+
+        userFromDb.setPassword(encoder.encode(newPassword));
         userService.updateUser(userFromDb, userFromDb);
 
         linkFromDb.setUsed(true);

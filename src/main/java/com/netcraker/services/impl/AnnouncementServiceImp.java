@@ -16,6 +16,7 @@ import java.util.Optional;
 @PropertySource({"classpath:view.properties"})
 @RequiredArgsConstructor
 public class AnnouncementServiceImp implements AnnouncementService {
+
     private final AnnouncementRepository announcementRepository;
     private final PageService pageService;
 
@@ -26,6 +27,15 @@ public class AnnouncementServiceImp implements AnnouncementService {
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
         List<Announcement> list = announcementRepository.getAnnouncements(pageSize,offset);
+        return new Page<>(currentPage, pagesCount, list);
+    }
+    @Override
+    public Page<Announcement> getPublishAnnouncementsPagination(int page, int pageSize) {
+        int totalPublish = announcementRepository.getPublishedCount();
+        int pagesCount = pageService.getPagesCount(totalPublish, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        List<Announcement> list = announcementRepository.getPublishedAnnouncements(pageSize,offset);
         return new Page<>(currentPage, pagesCount, list);
     }
 

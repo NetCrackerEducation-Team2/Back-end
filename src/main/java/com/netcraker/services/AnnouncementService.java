@@ -13,4 +13,5 @@ public interface AnnouncementService {
     Optional<Announcement> updateAnnouncement(Announcement announcement);
     boolean deleteAnnouncement(int id);
     Page<Announcement> getPaginations(int page, int count);
+    Page<Announcement> getPublishAnnouncementsPagination(int page, int pageSize);
 }

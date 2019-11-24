@@ -1,6 +1,10 @@
 package com.netcraker.configuration;
 
 
+import com.netcraker.repositories.RoleRepository;
+import com.netcraker.repositories.UserRoleRepository;
+import com.netcraker.repositories.impl.RoleRepositoryImpl;
+import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.security.filter.JwtAuthenticationFilter;
 import com.netcraker.security.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -6,9 +6,9 @@ spring:
     port: 465
     protocol: smtps
 #For deploy
- datasource:
-   url: ${JDBC_DATABASE_URL}
-   username: ${JDBC_DATABASE_USERNAME}
-   password: ${JDBC_DATABASE_PASSWORD}
+  datasource:
+    url: ${JDBC_DATABASE_URL}
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
 server:
   port: 8081

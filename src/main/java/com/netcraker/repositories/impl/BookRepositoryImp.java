@@ -127,8 +127,11 @@ public class BookRepositoryImp implements BookRepository {
     }
 
     @Override
-    public void loadReferences(int id) {
-
+    public void loadReferences(Book book) {
+        List<Author> authors = authorRepository.getByBook(book.getBookId());
+        List<Genre> genres = genreRepository.getByBook(book.getBookId());
+        book.setAuthors(authors);
+        book.setGenres(genres);
     }
 
     @Override

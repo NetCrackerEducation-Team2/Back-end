@@ -25,8 +25,8 @@ public class BookController {
 
     @GetMapping("/books")
     public ResponseEntity<Page<Book>> getBooksPage(
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "5") int pageSize,
+            @RequestParam int page,
+            @RequestParam int pageSize,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Integer genreId,
             @RequestParam(required = false) Integer authorId,

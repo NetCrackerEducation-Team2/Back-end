@@ -27,8 +27,8 @@ public class BookOverviewController {
     @GetMapping("/by-book/{bookId}")
     public ResponseEntity<Page<BookOverview>> getBookOverviewsByBook(
             @PathVariable int bookId,
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "5") int pageSize){
+            @RequestParam int page,
+            @RequestParam int pageSize){
         Page<BookOverview> pagination = bookOverviewService.getBookOverviewsByBook(bookId, page, pageSize);
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }

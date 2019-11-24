@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -41,7 +42,8 @@ public class BookServiceImp implements BookService {
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        ArrayList<Book> books = new ArrayList<>(bookRepository.getFiltered(filteringParams, pageSize, offset));
+        List<Book> books = bookRepository.getFiltered(filteringParams, pageSize, offset);
+        books.forEach(bookRepository::loadReferences);
         books.forEach(this::insureBookPhoto);
         return new Page<>(currentPage, pagesCount, pageSize, books);
     }
@@ -54,6 +56,7 @@ public class BookServiceImp implements BookService {
     @Override
     public Optional<Book> getBookBySlug(String slug) {
         Optional<Book> optionalBook = bookRepository.getBySlug(slug);
+        optionalBook.ifPresent(bookRepository::loadReferences);
         optionalBook.ifPresent(this::insureBookPhoto);
         return optionalBook;
     }
@@ -61,6 +64,7 @@ public class BookServiceImp implements BookService {
     @Override
     public Optional<Book> getBookById(int bookId) {
         Optional<Book> optionalBook = bookRepository.getById(bookId);
+        optionalBook.ifPresent(bookRepository::loadReferences);
         optionalBook.ifPresent(this::insureBookPhoto);
         return optionalBook;
     }

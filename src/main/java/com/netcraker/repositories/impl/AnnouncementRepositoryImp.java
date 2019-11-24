@@ -42,6 +42,12 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
     private String sqlDelete;
     @Value("${announcements.publish}")
     private String sqlPublish;
+
+    @Value("${announcements.countPublished}")
+    private String sqlGetPublishAnnouncementsCount;
+    @Value("${announcements.selectAllPublished}")
+    private String sqlGetPublishedAnnouncements;
+
     @Value("${announcements.unPublish}")
     private String sqlUnPublish;
 
@@ -56,8 +62,17 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
     }
 
     @Override
+    public List<Announcement> getPublishedAnnouncements(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetPublishedAnnouncements, new Object[]{ limit, offset}, announcementRowMapper);
+    }
+
+    @Override
     public int getCount() {
         return jdbcTemplate.queryForObject(sqlGetAnnouncementsCount, int.class);
+    }
+    @Override
+    public int getPublishedCount() {
+        return jdbcTemplate.queryForObject(sqlGetPublishAnnouncementsCount, int.class);
     }
 
     @Override

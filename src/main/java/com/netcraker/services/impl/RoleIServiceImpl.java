@@ -2,17 +2,14 @@ package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.model.Role;
-import com.netcraker.repositories.UserRoleRepository;
+import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.services.RoleService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLDataException;
 import java.util.Optional;
 
 @Service
@@ -20,8 +17,8 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RoleIServiceImpl implements RoleService {
 
-    private final @NonNull RoleRepositoryImpl roleRepositoryImpl;
-    private final UserRoleRepository userRoleRepository;
+    private final RoleRepositoryImpl roleRepositoryImpl;
+    private final UserRoleRepositoryImpl userRoleRepositoryImpl;
 
     @Override
     public Role createRole(Role role) {
@@ -56,7 +53,7 @@ public class RoleIServiceImpl implements RoleService {
 
     @Override
     public void delete(int id) {
-        userRoleRepository.delete(id);
+        userRoleRepositoryImpl.delete(id);
         roleRepositoryImpl.delete(id);
     }
 }

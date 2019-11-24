@@ -48,14 +48,12 @@ public class BookRepositoryImp implements BookRepository {
     private String sqlGetFiltered;
     @Value("${books.getBySlug}")
     private String sqlGetBySlug;
-    @Value("${books.getTitleById}")
-    private String sqlGetTitleById;
 
     @Override
     public Optional<Book> getById(int id) {
         try{
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById,
-                    new BookRowMapper(genreRepository, authorRepository), id));
+                    new BookRowMapper(), id));
         }catch (DataAccessException e) {
             System.out.println("Book::getById id: " + id + ". Stack trace: ");
             e.printStackTrace();
@@ -119,8 +117,8 @@ public class BookRepositoryImp implements BookRepository {
         Optional<Book> optionalBook = getById(id);
         if(optionalBook.isPresent()) {
             Book book = optionalBook.get();
-            List<Author> authors = book.getAuthors();
-            List<Genre> genres = book.getGenres();
+            List<Author> authors = authorRepository.getByBook(book.getBookId());
+            List<Genre> genres = genreRepository.getByBook(book.getBookId());
             authors.forEach(author -> bookAuthorRepository.delete(id, author.getAuthorId()));
             genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
             return jdbcTemplate.update(sqlDelete, id) == 1;
@@ -129,14 +127,8 @@ public class BookRepositoryImp implements BookRepository {
     }
 
     @Override
-    public Optional<String> getTitleById(int id) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetTitleById, new Object[]{id}, String.class));
-        }catch (DataAccessException e) {
-            System.out.println("Book::getTitleById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+    public void loadReferences(int id) {
+
     }
 
     @Override
@@ -152,14 +144,14 @@ public class BookRepositoryImp implements BookRepository {
         List<Object> params = getBookFilteringParams(filteringParams);
         params.add(size);
         params.add(offset);
-        return jdbcTemplate.query(sqlGetFiltered, params.toArray(), new BookRowMapper(genreRepository, authorRepository));
+        return jdbcTemplate.query(sqlGetFiltered, params.toArray(), new BookRowMapper());
     }
 
     @Override
     public Optional<Book> getBySlug(String slug) {
         try{
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetBySlug,
-                    new BookRowMapper(genreRepository, authorRepository), slug));
+                    new BookRowMapper(), slug));
         }catch (DataAccessException e) {
             System.out.println("Book::getBySlug slug: " + slug + ". Stack trace: ");
             e.printStackTrace();
@@ -193,4 +185,6 @@ public class BookRepositoryImp implements BookRepository {
         Collections.addAll(list, params);
         return list;
     }
+
+
 }

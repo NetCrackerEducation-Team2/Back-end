@@ -36,11 +36,6 @@ public class BookServiceImp implements BookService {
     private String booksDefaultImageName;
 
     @Override
-    public Optional<String> getBookTitleById(int bookId) {
-        return bookRepository.getTitleById(bookId);
-    }
-
-    @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize) {
         int total = bookRepository.countFiltered(filteringParams);
         int pagesCount = pageService.getPagesCount(total, pageSize);

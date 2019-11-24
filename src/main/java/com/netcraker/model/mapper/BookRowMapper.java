@@ -14,9 +14,6 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class BookRowMapper implements RowMapper<Book> {
 
-    private final @NonNull GenreRepository genreRepository;
-    private final @NonNull AuthorRepository authorRepository;
-
     @Override
     public Book mapRow(ResultSet resultSet, int i) throws SQLException {
         Book book = Book.builder()
@@ -32,8 +29,6 @@ public class BookRowMapper implements RowMapper<Book> {
                 .votersCount(resultSet.getInt(("voters_count")))
                 .creationTime(resultSet.getTimestamp("creation_time").toLocalDateTime())
                 .slug(resultSet.getString("slug"))
-                .authors(new ArrayList<>(authorRepository.getByBook(resultSet.getInt("book_id"))))
-                .genres(new ArrayList<>(genreRepository.getByBook(resultSet.getInt("book_id"))))
                 .build();
         return book;
     }

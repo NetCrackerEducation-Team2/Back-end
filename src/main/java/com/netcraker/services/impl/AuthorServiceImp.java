@@ -3,9 +3,7 @@ package com.netcraker.services.impl;
 import com.netcraker.model.Author;
 import com.netcraker.repositories.AuthorRepository;
 import com.netcraker.services.AuthorService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +20,7 @@ public class AuthorServiceImp implements AuthorService {
     }
 
     @Override
-    public List<Author> searchByNameStartsWith(String authorFullNameStartsWith) {
-        return authorRepository.searchByNameStarsWith(authorFullNameStartsWith);
+    public List<Author> searchByNameContains(String authorFullNameStartsWith) {
+        return authorRepository.searchByNameContains(authorFullNameStartsWith);
     }
 }

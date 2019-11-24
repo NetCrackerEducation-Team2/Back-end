@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface AuthorService {
     List<Author> getAuthors();
-    List<Author> searchByNameStartsWith(String authorFullNameStartsWith);
+    List<Author> searchByNameContains(String authorFullNameStartsWith);
 }

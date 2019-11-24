@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -36,11 +37,14 @@ public class UserBookRepositoryImpl implements UserBookRepository {
     @Value("${user_book.getPage}")
     private String sqlGetPage;
 
+    @Value("${user_book.countByUserId}")
+    private String sqlCountByUserId;
+
     @Override
     public Optional<UserBook> getById(int id) {
         Object[] params = { id };
-        List<UserBook> users = jdbcTemplate.query(sqlGetById, params, new UserBookRowMapper());
-        return Optional.ofNullable(users.get(0));
+        List<UserBook> usersBook = jdbcTemplate.query(sqlGetById, params, new UserBookRowMapper());
+        return usersBook.isEmpty() ? Optional.empty() : Optional.of(usersBook.get(0));
     }
 
     @Override
@@ -86,5 +90,10 @@ public class UserBookRepositoryImpl implements UserBookRepository {
     public List<UserBook> getPage(int userId, int pageSize, int offset) {
         Object[] params = { userId, pageSize, offset };
         return jdbcTemplate.query(sqlGetPage, params, new UserBookRowMapper());
+    }
+
+    @Override
+    public int countByUserId(int userId) {
+        return Objects.requireNonNull(jdbcTemplate.queryForObject(sqlCountByUserId, Integer.class, userId));
     }
 }

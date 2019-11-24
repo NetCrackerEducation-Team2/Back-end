@@ -50,6 +50,6 @@ public class BookReviewServiceImp implements BookReviewService {
                 bookReviewRepo.countByUserIdBookId(null, bookId), pageSize);
 
         List<BookReview> list = bookReviewRepo.getPage(bookId, pageSize, page * pageSize - pageSize);
-        return new Page<>(page, pages, list);
+        return new Page<>(page, pages, pageSize, list);
     }
 }

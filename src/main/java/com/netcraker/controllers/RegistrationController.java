@@ -63,7 +63,7 @@ public class RegistrationController {
         }
 
         System.out.println("Activation code is rejected");
-        throw new FailedToRegisterException("Invalid activation code. Try to sign up again");
+        throw new UpdateException("Invalid activation code. Try to sign up again");
     }
 
     @GetMapping("/recovery-link/{email}")

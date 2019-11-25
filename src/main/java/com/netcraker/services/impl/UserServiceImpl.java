@@ -6,10 +6,11 @@ import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
-import com.netcraker.repositories.AuthorizationRepository;
+import com.netcraker.model.UserRole;
+import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.repositories.UserRepository;
-import com.netcraker.repositories.UserRoleRepository;
+import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,9 +31,9 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final AuthorizationRepository authorizationRepository;
+    private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
     private final RoleRepositoryImpl roleRepository;
-    private final UserRoleRepository userRoleRepository;
+    private final UserRoleRepositoryImpl userRoleRepositoryImpl;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
 
@@ -39,7 +41,7 @@ public class UserServiceImpl implements UserService {
     public User createUsualUser(User user) {
         user.setEnabled(false);
         final User registered = createUser(user);
-        final AuthorizationLinks authorizationLink = authorizationRepository.creteAuthorizationLinks(registered);
+        final AuthorizationLinks authorizationLink = authorizationRepositoryImpl.creteAuthorizationLinks(registered);
         emailSender.sendActivationCode(user, authorizationLink);
         return registered;
     }
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService {
     public boolean activateUser(String token) {
         AuthorizationLinks authorizationLinks;
         try {
-            authorizationLinks = authorizationRepository.findByActivationCode(token);
+            authorizationLinks = authorizationRepositoryImpl.findByActivationCode(token);
         } catch (DataAccessException e) {
             e.printStackTrace();
             return false;
@@ -67,7 +69,7 @@ public class UserServiceImpl implements UserService {
         authorizationLinks.setUsed(true);
         user.setEnabled(true);
         userRepository.update(user);
-        authorizationRepository.updateAuthorizationLinks(authorizationLinks);
+        authorizationRepositoryImpl.updateAuthorizationLinks(authorizationLinks);
         return true;
     }
 
@@ -81,7 +83,7 @@ public class UserServiceImpl implements UserService {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepository.createUserRole(registered,roleFind);
+            userRoleRepositoryImpl.insert(registered,roleFind);
         }
 
         return user;
@@ -111,7 +113,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findByEmail(email).orElse(null);
+        assert user != null;
+        final List<Role> roles= roleRepository.getAllRoleById(user.getUserId());
+        user.setRoles(roles);
+        return user;
     }
 
     @Override
@@ -129,13 +135,12 @@ public class UserServiceImpl implements UserService {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepository.update(newUser, roleFind);
+            userRoleRepositoryImpl.update(newUser, roleFind);
         }
     }
 
     @Override
     public void deleteAdminModerator(int id) {
-        userRoleRepository.delete(id);
         userRepository.delete(id);
     }
 

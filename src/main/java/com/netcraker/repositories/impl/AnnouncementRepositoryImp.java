@@ -4,7 +4,6 @@ import com.netcraker.model.Announcement;
 import com.netcraker.model.mapper.AnnouncementRowMapper;
 import com.netcraker.repositories.AnnouncementRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -16,50 +15,64 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
-        private final JdbcTemplate jdbcTemplate;
-        private final AnnouncementRowMapper announcementRowMapper;
+    private final JdbcTemplate jdbcTemplate;
+    private final AnnouncementRowMapper announcementRowMapper;
 
-        @Value("${announcements.getById}")
-        private String sqlGetById;
-        @Value("${announcements.select}")
-        private String sqlGetAnnouncements;
-        @Value("${announcements.count}")
-        private String sqlGetAnnouncementsCount;
-        @Value("${announcements.insert}")
-        private String sqlInsert;
-        @Value("${announcements.update}")
-        private String sqlUpdate;
-        @Value("${announcements.delete}")
-        private String sqlDelete;
-        @Value("${announcements.publish}")
-        private String sqlPublish;
-        @Value("${announcements.unPublish}")
-        private String sqlUnPublish;
+    @Value("${announcements.getById}")
+    private String sqlGetById;
+    @Value("${announcements.select}")
+    private String sqlGetAnnouncements;
+    @Value("${announcements.count}")
+    private String sqlGetAnnouncementsCount;
+    @Value("${announcements.insert}")
+    private String sqlInsert;
+    @Value("${announcements.update}")
+    private String sqlUpdate;
+    @Value("${announcements.delete}")
+    private String sqlDelete;
+    @Value("${announcements.publish}")
+    private String sqlPublish;
 
+    @Value("${announcements.countPublished}")
+    private String sqlGetPublishAnnouncementsCount;
+    @Value("${announcements.selectAllPublished}")
+    private String sqlGetPublishedAnnouncements;
 
+    @Value("${announcements.unPublish}")
+    private String sqlUnPublish;
 
-        @Override
+    @Override
     public List<Announcement> getAll() {
-        return jdbcTemplate.query(sqlGetAnnouncements, new Object[]{ 5, 0}, announcementRowMapper);
+        return jdbcTemplate.query(sqlGetAnnouncements, new Object[]{5, 0}, announcementRowMapper);
     }
 
     @Override
     public List<Announcement> getAnnouncements(int limit, int offset) {
-        return jdbcTemplate.query(sqlGetAnnouncements, new Object[]{ limit, offset}, announcementRowMapper);
+        return jdbcTemplate.query(sqlGetAnnouncements, new Object[]{limit, offset}, announcementRowMapper);
+    }
+
+    @Override
+    public List<Announcement> getPublishedAnnouncements(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetPublishedAnnouncements, new Object[]{ limit, offset}, announcementRowMapper);
     }
 
     @Override
     public int getCount() {
         return jdbcTemplate.queryForObject(sqlGetAnnouncementsCount, int.class);
+    }
+    @Override
+    public int getPublishedCount() {
+        return jdbcTemplate.queryForObject(sqlGetPublishAnnouncementsCount, int.class);
     }
 
     @Override
@@ -69,13 +82,8 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
     @Override
     public Optional<Announcement> getById(int id) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, announcementRowMapper, id));
-        } catch (DataAccessException e) {
-            System.out.println("Announcement::getById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<Announcement> announcements = jdbcTemplate.query(sqlGetById, announcementRowMapper, id);
+        return announcements.isEmpty() ? Optional.empty() : Optional.of(announcements.get(0));
     }
 
     @Override
@@ -88,7 +96,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
                 ps.setString(1, entity.getTitle());
                 ps.setString(2, entity.getDescription());
                 ps.setInt(3, entity.getUserId());
-                ps.setInt(4, entity.getBookId());
+                ps.setNull(4, Types.INTEGER);
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
@@ -120,7 +128,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatementCallback<Boolean>) ps -> {
+        return jdbcTemplate.execute(sqlDelete, (PreparedStatement ps) -> {
             ps.setInt(1, id);
             return ps.execute();
         });

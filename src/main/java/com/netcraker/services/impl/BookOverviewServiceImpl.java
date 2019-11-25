@@ -20,10 +20,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class BookOverviewServiceImpl implements BookOverviewService {
-
-    private final @NonNull BookOverviewRepository bookOverviewRepository;
-    private final @NonNull PageService pageService;
     private final ApplicationEventPublisher eventPublisher;
+    private final BookOverviewRepository bookOverviewRepository;
+    private final PageService pageService;
 
     @Override
     public Page<BookOverview> getBookOverviewsByBook(int bookId, int page, int pageSize) {
@@ -31,19 +30,23 @@ public class BookOverviewServiceImpl implements BookOverviewService {
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        ArrayList<BookOverview> bookOverviews = new ArrayList<>(bookOverviewRepository.getByBook(bookId, pageSize, offset));
+        List<BookOverview> bookOverviews = bookOverviewRepository.getByBook(bookId, pageSize, offset);
+        bookOverviews.forEach(bookOverviewRepository::loadReferences);
         return new Page<>(currentPage, pagesCount, pageSize, bookOverviews);
     }
 
     @Override
     public Optional<BookOverview> getPublishedBookOverviewByBook(int bookId) {
-        return bookOverviewRepository.getPublishedByBook(bookId);
+        Optional<BookOverview> optionalBookOverview =  bookOverviewRepository.getPublishedByBook(bookId);
+        optionalBookOverview.ifPresent(bookOverviewRepository::loadReferences);
+        return optionalBookOverview;
     }
 
     @Override
     public Optional<BookOverview> addBookOverview(BookOverview bookOverview) {
+        final Optional<BookOverview> inserted = bookOverviewRepository.insert(bookOverview);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_OVERVIEWS,bookOverview.getUserId()));
-        return bookOverviewRepository.insert(bookOverview);
+        return inserted;
     }
 
     @Override

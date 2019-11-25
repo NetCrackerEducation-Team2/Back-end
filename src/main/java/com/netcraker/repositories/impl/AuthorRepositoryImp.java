@@ -3,10 +3,7 @@ package com.netcraker.repositories.impl;
 import com.netcraker.model.Author;
 import com.netcraker.model.mapper.AuthorRowMapper;
 import com.netcraker.repositories.AuthorRepository;
-import io.jsonwebtoken.lang.Assert;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -17,7 +14,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthorRepositoryImp implements AuthorRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Value("${authors.getById}")
     private String sqlGetById;
@@ -41,6 +37,8 @@ public class AuthorRepositoryImp implements AuthorRepository {
     private String sqlGetAll;
     @Value("${authors.getByBook}")
     private String sqlGetByBook;
+    @Value("${authors.searchByFullNameContains}")
+    private String sqlSearchByNameContains;
 
     @Override
     public Optional<Author> getById(int id) {
@@ -102,5 +100,10 @@ public class AuthorRepositoryImp implements AuthorRepository {
     @Override
     public List<Author> getByBook(int bookId) {
         return jdbcTemplate.query(sqlGetByBook, new AuthorRowMapper(), bookId);
+    }
+
+    @Override
+    public List<Author> searchByNameContains(String authorFullNameContains) {
+        return jdbcTemplate.query(sqlSearchByNameContains, new AuthorRowMapper(), "%" + authorFullNameContains.trim() + "%");
     }
 }

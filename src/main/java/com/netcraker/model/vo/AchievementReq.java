@@ -1,7 +1,7 @@
 package com.netcraker.model.vo;
 
 import com.netcraker.model.constants.TableName;
-import com.netcraker.model.constants.achievements.Verb;
+import com.netcraker.model.constants.Verb;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

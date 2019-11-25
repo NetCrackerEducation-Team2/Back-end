@@ -25,8 +25,9 @@ public class BookReviewServiceImp implements BookReviewService {
 
     @Override
     public Optional<BookReview> createBookReview(BookReview bookReview) {
+        final Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
-        return bookReviewRepo.insert(bookReview);
+        return inserted;
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.netcraker.configuration;
 
 
-//import com.netcraker.security.filter.JwtAuthenticationFilter;
-//import com.netcraker.security.filter.JwtAuthorizationFilter;
+import com.netcraker.security.filter.JwtAuthenticationFilter;
+import com.netcraker.security.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -24,42 +25,41 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-//    private final UserDetailsService userDetailsService;
-//
-//    @Autowired
-//    public SecurityConfiguration(@Qualifier("jwtUserDetailsServiceImpl")
-//                                         UserDetailsService userDetailsService) {
-//        this.userDetailsService = userDetailsService;
-//    }
+    private final UserDetailsService userDetailsService;
+
+    @Autowired
+    public SecurityConfiguration(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .authorizeRequests().anyRequest().permitAll();
+                .authorizeRequests()
+//                .antMatchers(HttpMethod.POST, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+//                .antMatchers(HttpMethod.DELETE, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+//                .antMatchers(HttpMethod.PUT, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+                // for test, in production uncomment upper comments
+                .antMatchers("api/achievement").permitAll()
 
-////                .antMatchers(HttpMethod.POST, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
-////                .antMatchers(HttpMethod.DELETE, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
-////                .antMatchers(HttpMethod.PUT, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
-//                .antMatchers("api/achievement").permitAll()//for test
-//
-//                .antMatchers(HttpMethod.GET, "/api/books", "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
-//                .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
-//                // must-have
-//                .antMatchers(HttpMethod.OPTIONS, "/auth/**", "**").permitAll()
-//                //pages that can be showing without authentication
-//                .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .addFilter(new JwtAuthenticationFilter(authenticationManager(), passwordEncoder()))
-//                .addFilter(new JwtAuthorizationFilter((authenticationManager())))
-//                .sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .antMatchers(HttpMethod.GET, "/api/books", "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                // must-have
+                .antMatchers(HttpMethod.OPTIONS, "/auth/**", "**").permitAll()
+                //pages that can be showing without authentication
+                .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), passwordEncoder()))
+                .addFilter(new JwtAuthorizationFilter((authenticationManager())))
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Bean

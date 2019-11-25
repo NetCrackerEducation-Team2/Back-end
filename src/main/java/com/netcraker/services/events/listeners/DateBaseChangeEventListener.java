@@ -30,9 +30,9 @@ public class DateBaseChangeEventListener {
         final TableName tableName = event.getAffectedTable();
         final int userId = event.getUserId().intValue();
 //        System.out.println("DBCEListener: Changed in table : " + tableName + " userId: " + event.getUserId());
-        achievementService.getAchievementsByTableName(event.getAffectedTable())
+        achievementService.getAchievementsByTableName(tableName)
                 .forEach(a -> {
-                    // add check if achievement was complete
+                    // add checking if achievement was complete
                     if (Objects.requireNonNull(jdbcTemplate.queryForObject(a.getRequirement(), Boolean.class, userId))) {
                         if (userAchievementService.addUserAchievement(userId, a.getAchievementId())) {
                             simpMessagingTemplate

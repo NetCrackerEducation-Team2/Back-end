@@ -23,8 +23,9 @@ public class ReviewCommentServiceImp implements ReviewCommentService {
 
     @Override
     public Optional<ReviewComment> createReviewComment(ReviewComment comment) {
+        final Optional<ReviewComment> inserted = commentRepo.insert(comment);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.REVIEW_COMMENTS, comment.getUserId()));
-        return commentRepo.insert(comment);
+        return inserted;
     }
 
     @Override

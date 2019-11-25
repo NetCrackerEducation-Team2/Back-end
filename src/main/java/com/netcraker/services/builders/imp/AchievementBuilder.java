@@ -3,7 +3,7 @@ package com.netcraker.services.builders.imp;
 import com.netcraker.exceptions.CreationException;
 import com.netcraker.model.Achievement;
 import com.netcraker.model.constants.TableName;
-import com.netcraker.model.constants.achievements.Verb;
+import com.netcraker.model.constants.Verb;
 import com.netcraker.model.vo.AchievementReq;
 import com.netcraker.services.builders.Builder;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,12 +15,14 @@ import org.springframework.stereotype.Service;
 @PropertySource("classpath:achievement-templates.properties")
 public class AchievementBuilder implements Builder<AchievementReq, Achievement> {
 
-    @Value("${hasCount}")
+    @Value("${common.hasCount}")
     private String countTemplate;
-    @Value("${hasRead}")
+    @Value("${common.hasRead}")
     private String readTemplate;
-    @Value("${hasWrite}")
+    @Value("${common.hasWrite}")
     private String writeTemplate;
+    @Value("${books.withGenre}")
+    private String readGenreTemplate;
 
     @Override
     public Achievement build(AchievementReq achievementReq) {
@@ -42,7 +44,7 @@ public class AchievementBuilder implements Builder<AchievementReq, Achievement> 
             case READ:
                 query = createSql(readTemplate, count, subject.getTableName());
                 break;
-            case WRITE:
+            case PUBLISH:
                 query = createSql(writeTemplate, count, subject.getTableName());
                 break;
             default:
@@ -70,7 +72,7 @@ public class AchievementBuilder implements Builder<AchievementReq, Achievement> 
                 }
             case READ:
                 return TableName.BOOKS == tableName;
-            case WRITE:
+            case PUBLISH:
                 switch (tableName) {
                     case BOOK_REVIEWS:
                     case ANNOUNCEMENTS:

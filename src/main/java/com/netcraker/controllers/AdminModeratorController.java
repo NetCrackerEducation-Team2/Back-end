@@ -16,10 +16,10 @@ import java.sql.SQLDataException;
 import java.util.List;
 
 @RestController
-@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.PUT, RequestMethod.DELETE})
+@RequiredArgsConstructor
 public class AdminModeratorController {
-    private final @NonNull UserService userService;
+    private final UserService userService;
 
     @PostMapping("admins/create")
     public ResponseEntity<?> createAdminModerator(@RequestBody @Validated User user,

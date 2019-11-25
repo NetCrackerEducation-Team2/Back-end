@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 @PropertySource("classpath:sqlQueries.properties")
 public class UserRepositoryImpl implements UserRepository {
 
@@ -99,7 +99,7 @@ public class UserRepositoryImpl implements UserRepository {
             throw new UpdateException("User is not found!");
         if (changedRowsCount > 1)
             throw new UpdateException("Multiple update! Only one user can be changed!");
-
+        Optional<User> user = getById(entity.getUserId());
         return getById(entity.getUserId());
     }
 

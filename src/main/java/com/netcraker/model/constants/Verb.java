@@ -1,10 +1,10 @@
-package com.netcraker.model.constants.achievements;
+package com.netcraker.model.constants;
 
 
 public enum Verb {
     HAS("has"),
     READ("read"),
-    WRITE("write");
+    PUBLISH("publish");
 
     private String verb;
 

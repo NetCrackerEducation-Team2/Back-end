@@ -31,6 +31,14 @@ public class AnnouncementController {
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 
+    @GetMapping("/published")
+    public ResponseEntity<Page<Announcement>> getPublishAnnouncements(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        Page<Announcement> pagination = announcementService.getPublishAnnouncementsPagination(page, pageSize);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Announcement> getAnnouncementById(@PathVariable int id){
         return ResponseEntity.ok().body(announcementService.getAnnouncementById(id)

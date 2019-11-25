@@ -7,7 +7,6 @@ import com.netcraker.repositories.BookRepository;
 import com.netcraker.services.BookService;
 import com.netcraker.services.FileService;
 import com.netcraker.services.PageService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -15,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,9 +23,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookServiceImp implements BookService {
 
-    private final @NonNull BookRepository bookRepository;
-    private final @NonNull PageService pageService;
-    private final @NonNull FileService fileService;
+    private final BookRepository bookRepository;
+    private final PageService pageService;
+    private final FileService fileService;
 
     @Value("${books.contentPath}")
     private String booksContentPath;
@@ -36,17 +35,13 @@ public class BookServiceImp implements BookService {
     private String booksDefaultImageName;
 
     @Override
-    public Optional<String> getBookTitleById(int bookId) {
-        return bookRepository.getTitleById(bookId);
-    }
-
-    @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize) {
         int total = bookRepository.countFiltered(filteringParams);
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        ArrayList<Book> books = new ArrayList<>(bookRepository.getFiltered(filteringParams, pageSize, offset));
+        List<Book> books = bookRepository.getFiltered(filteringParams, pageSize, offset);
+        books.forEach(bookRepository::loadReferences);
         books.forEach(this::insureBookPhoto);
         return new Page<>(currentPage, pagesCount, pageSize, books);
     }
@@ -59,6 +54,7 @@ public class BookServiceImp implements BookService {
     @Override
     public Optional<Book> getBookBySlug(String slug) {
         Optional<Book> optionalBook = bookRepository.getBySlug(slug);
+        optionalBook.ifPresent(bookRepository::loadReferences);
         optionalBook.ifPresent(this::insureBookPhoto);
         return optionalBook;
     }
@@ -66,6 +62,7 @@ public class BookServiceImp implements BookService {
     @Override
     public Optional<Book> getBookById(int bookId) {
         Optional<Book> optionalBook = bookRepository.getById(bookId);
+        optionalBook.ifPresent(bookRepository::loadReferences);
         optionalBook.ifPresent(this::insureBookPhoto);
         return optionalBook;
     }
@@ -78,5 +75,11 @@ public class BookServiceImp implements BookService {
         }else{
             book.setPhoto(photo);
         }
+    }
+
+    @Override
+    public Optional<Book> createBook(Book book) {
+//        book.setSlug(new Slugify().slugify(book.getTitle()));
+        return bookRepository.insert(book);
     }
 }

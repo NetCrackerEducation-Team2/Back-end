@@ -18,4 +18,6 @@ public interface BookService {
     Optional<Book> getBookById(int bookId);
 
     Optional<Book> getBookBySlug(String slug);
+
+    void insureBookPhoto(Book book);
 }

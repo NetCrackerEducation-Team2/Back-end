@@ -1,7 +1,6 @@
 package com.netcraker.repositories.impl;
 
 import com.netcraker.model.BookReview;
-import com.netcraker.model.Page;
 import com.netcraker.model.mapper.BookReviewRowMapper;
 import com.netcraker.repositories.BookReviewRepository;
 import lombok.RequiredArgsConstructor;

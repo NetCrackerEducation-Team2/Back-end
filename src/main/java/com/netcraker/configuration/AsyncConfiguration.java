@@ -12,9 +12,15 @@ import java.util.concurrent.Executors;
 public class AsyncConfiguration {
 
     private final int MAIL_POOL_SIZE = 3;
+    private final int ACHIEVEMENT_POOL_SIZE = 1;
 
-    @Bean(name="mailThreadPoolTaskExecutor")
-    public Executor mailThreadPoolTaskExecutor(){
+    @Bean(name = "mailThreadPoolTaskExecutor")
+    public Executor mailThreadPoolTaskExecutor() {
         return Executors.newFixedThreadPool(MAIL_POOL_SIZE);
+    }
+
+    @Bean(name = "achievementThreadPoolTaskExecutor")
+    public Executor achievementThreadPoolTaskExecutor() {
+        return Executors.newFixedThreadPool(ACHIEVEMENT_POOL_SIZE);
     }
 }

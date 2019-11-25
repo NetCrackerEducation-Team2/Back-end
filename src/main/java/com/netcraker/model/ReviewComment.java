@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class ReviewComment {
     int commentId;
-    @NotNull @Min(1) Integer authorId;
+    @NotNull @Min(1) Integer userId;
     @NotNull @Min(1) Integer bookReviewId;
     @NotBlank String content;
     private LocalDateTime creationTime;

@@ -57,7 +57,7 @@ public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
             keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(conn -> {
                 PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-                ps.setInt(1, entity.getAuthorId());
+                ps.setInt(1, entity.getUserId());
                 ps.setInt(2, entity.getBookReviewId());
                 ps.setString(3, entity.getContent());
                 ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
@@ -75,7 +75,7 @@ public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
     public Optional<ReviewComment> update(ReviewComment entity) {
         try {
             jdbcTemplate.execute(Objects.requireNonNull(sqlUpdate), (PreparedStatementCallback<Boolean>) ps -> {
-                ps.setInt(1, entity.getAuthorId());
+                ps.setInt(1, entity.getUserId());
                 ps.setInt(2, entity.getBookReviewId());
                 ps.setString(3, entity.getContent());
                 ps.setInt(4, entity.getCommentId());

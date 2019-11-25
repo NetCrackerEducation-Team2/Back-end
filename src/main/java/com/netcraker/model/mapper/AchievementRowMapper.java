@@ -2,6 +2,7 @@ package com.netcraker.model.mapper;
 
 import com.netcraker.model.Achievement;
 import com.netcraker.model.Announcement;
+import com.netcraker.model.constants.TableName;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -14,6 +15,7 @@ public class AchievementRowMapper implements RowMapper<Achievement> {
                 .achievementId(resultSet.getInt("achievement_id"))
                 .name(resultSet.getString("name"))
                 .requirement(resultSet.getString("requirment"))
+                .tableName(TableName.valueOf(resultSet.getString("table_name").toUpperCase()))
                 .build();
     }
 }

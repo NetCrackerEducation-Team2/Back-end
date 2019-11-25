@@ -19,7 +19,6 @@ public class MailSenderImp implements com.netcraker.services.MailSender {
         String message = createMessage(messageCascade, params);
 
         mailMessage.setFrom(username);
-
         mailMessage.setTo(email);
         mailMessage.setText(message);
         mailMessage.setSubject(subject);
@@ -30,6 +29,5 @@ public class MailSenderImp implements com.netcraker.services.MailSender {
     @SuppressWarnings({"all"})
     private String createMessage(String messageCascade, String... params) {
         return String.format(messageCascade, params);
-
     }
 }

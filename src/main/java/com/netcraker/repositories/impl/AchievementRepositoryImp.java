@@ -1,10 +1,13 @@
 package com.netcraker.repositories.impl;
 
 import com.netcraker.model.Achievement;
+import com.netcraker.model.constants.TableName;
 import com.netcraker.model.mapper.AchievementRowMapper;
 import com.netcraker.repositories.AchievementRepository;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,6 +28,7 @@ import java.util.Optional;
 public class AchievementRepositoryImp implements AchievementRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${achievements.getById}")
     private String sqlGetById;
@@ -36,7 +40,8 @@ public class AchievementRepositoryImp implements AchievementRepository {
     private String sqlDelete;
     @Value("${achievements.getByName}")
     private String sqlGetByName;
-
+    @Value("${achievements.getByTableName}")
+    private String sqlGetByTableName;
 
     @Override
     public Optional<Achievement> getById(int id) {
@@ -45,13 +50,21 @@ public class AchievementRepositoryImp implements AchievementRepository {
     }
 
     @Override
+    public List<Achievement> getByTableName(TableName tableName) {
+        return jdbcTemplate.query(sqlGetByTableName, new Object[]{tableName.getTableName()}, new AchievementRowMapper());
+    }
+
+    @Override
     public Optional<Achievement> insert(Achievement entity) {
+        System.out.println(entity);
+
         KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
             jdbcTemplate.update(conn -> {
                 PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, entity.getName());
                 ps.setString(2, entity.getRequirement());
+                ps.setString(3, entity.getTableName().getTableName()); // can change to entity.getTableName().name()
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {

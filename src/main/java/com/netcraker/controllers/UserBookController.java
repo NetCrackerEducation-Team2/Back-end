@@ -2,11 +2,9 @@ package com.netcraker.controllers;
 
 import com.netcraker.model.Page;
 import com.netcraker.model.UserBook;
-import com.netcraker.repositories.UserBookRepository;
 import com.netcraker.services.UserBookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +16,6 @@ public class UserBookController {
 
     @Autowired
     private UserBookService userBookService;
-    @Autowired
-    private UserBookRepository userBookRepository;
-
-    @GetMapping("/by-id/{id}")
-    public ResponseEntity<UserBook> testGetById(@PathVariable int id) {
-        return new ResponseEntity<>(userBookRepository.getById(id).orElse(null), HttpStatus.OK);
-    }
 
     @GetMapping("/get-page-by-user/{userId}")
     public ResponseEntity<Page<UserBook>> getUsersBooksPageByUser(

@@ -1,5 +1,6 @@
 package com.netcraker.services.impl;
 
+import com.netcraker.exceptions.FindException;
 import com.netcraker.model.Page;
 import com.netcraker.model.UserBook;
 import com.netcraker.repositories.UserBookRepository;
@@ -24,5 +25,25 @@ public class UserBooksServiceImpl implements UserBookService {
 
         List<UserBook> list = userBookRepository.getPage(userId, pageSize, page * pageSize - pageSize);
         return new Page<>(page, pages, pageSize, list);
+    }
+
+    @Override
+    public void setReadMark(int usersBookId, boolean value) {
+        UserBook userBook = userBookRepository
+                .getById(usersBookId)
+                .orElseThrow(() -> new FindException("UserBook is not found"));
+
+        userBook.setReadMark(value);
+        userBookRepository.update(userBook);
+    }
+
+    @Override
+    public void setFavoriteMark(int usersBookId, boolean value) {
+        UserBook userBook = userBookRepository
+                .getById(usersBookId)
+                .orElseThrow(() -> new FindException("UserBook is not found"));
+
+        userBook.setFavoriteMark(value);
+        userBookRepository.update(userBook);
     }
 }

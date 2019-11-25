@@ -128,6 +128,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateAdminModerator(User newUser, List<Role> roles) {
+        newUser.setEnabled(true);
         userRepository.update(newUser);
         for (Role role:roles) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
@@ -140,8 +141,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteAdminModerator(int id) {
-        userRepository.delete(id);
+    public void deleteAdminModerator(String email) {
+        userRepository.deleteByEmail(email);
     }
 
     public boolean equalsPassword(User user, String rawPassword) {

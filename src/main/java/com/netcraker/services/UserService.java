@@ -12,7 +12,7 @@ public interface UserService {
     User findByEmail(String email);
     void updateUser(User oldUser, User newUser);
     void updateAdminModerator(User user, List<Role> roles);
-    void deleteAdminModerator(int id);
+    void deleteAdminModerator(String email);
     boolean activateUser(String code);
     boolean equalsPassword(User user, String password);
     User changePassword(int userId, String oldPass, String newPass);

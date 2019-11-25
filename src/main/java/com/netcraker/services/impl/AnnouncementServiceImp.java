@@ -8,6 +8,7 @@ import com.netcraker.services.PageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,10 @@ public class AnnouncementServiceImp implements AnnouncementService {
     }
 
     @Override
+    @Transactional
     public Optional<Announcement> addAnnouncement(Announcement announcement) {
+        int announcementAuthorId = announcement.getUserId();
+        // TODO asem
         return announcementRepository.insert(announcement);
     }
 

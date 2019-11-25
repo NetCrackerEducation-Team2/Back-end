@@ -4,6 +4,7 @@ import com.netcraker.model.Role;
 import com.netcraker.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
     User createUsualUser(User user);
@@ -16,4 +17,5 @@ public interface UserService {
     boolean activateUser(String code);
     boolean equalsPassword(User user, String password);
     User changePassword(int userId, String oldPass, String newPass);
+    List<User> searchUser(String searchExpression, Optional<User> currentUser);
 }

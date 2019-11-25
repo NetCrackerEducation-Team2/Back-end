@@ -67,6 +67,4 @@ public class AnnouncementController {
     public ResponseEntity<?> deleteAnnouncement(@PathVariable int id){
         return ResponseEntity.ok().body(announcementService.deleteAnnouncement(id));
     }
-
-
 }

@@ -2,11 +2,11 @@ package com.netcraker.repositories.impl;
 
 import com.netcraker.exceptions.FindException;
 import com.netcraker.exceptions.UpdateException;
+import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.model.mapper.UserRowMapper;
 import com.netcraker.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,6 +43,12 @@ public class UserRepositoryImpl implements UserRepository {
     @Value("${user.delete}")
     private String sqlDelete;
 
+    @Value("${user.findByEmailOrFullNameFilterByRole}")
+    private String sqlFindByEmailOrFullNameFilterByRole;
+
+    @Value("${user.findByEmailOrFullNameFilterByRoleWithout}")
+    private String sqlFindByEmailOrFullNameFilterByRoleWithout;
+
     @Override
     public Optional<User> findByEmail(String email) {
         Object[] params = {email};
@@ -64,6 +72,26 @@ public class UserRepositoryImpl implements UserRepository {
             throw new UpdateException("User is not activated! Multiple update! Only one user can be changed.");
 
         return entity;
+    }
+
+    @Override
+    public List<User> findByEmailOrFullNameFilterByRole(String searchExpression, Role roleFiltering) {
+        return jdbcTemplate.query(sqlFindByEmailOrFullNameFilterByRole,
+                new UserRowMapper(),
+                roleFiltering.getRoleId(),
+                searchExpression,
+                searchExpression
+                );
+    }
+
+    @Override
+    public List<User> findByEmailOrFullNameFilterByRoleWithout(String searchExpression, Role roleWithout) {
+        return jdbcTemplate.query(sqlFindByEmailOrFullNameFilterByRoleWithout,
+                new UserRowMapper(),
+                roleWithout.getRoleId(),
+                searchExpression,
+                searchExpression
+        );
     }
 
     @Override

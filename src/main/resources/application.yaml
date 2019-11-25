@@ -7,8 +7,8 @@ spring:
     protocol: smtps
 #For deploy
   datasource:
-    url: ${JDBC_DATABASE_URL}
-    username: ${JDBC_DATABASE_USERNAME}
-    password: ${JDBC_DATABASE_PASSWORD}
+    url: 'jdbc:postgresql://localhost:5432/test_db_big'
+    username: asem
+    password: asem
 server:
   port: 8081

@@ -38,6 +38,10 @@ public class RoleRepositoryImpl implements RoleRepository {
     @Value("${role.findByUserId}")
     private String sqlSelectByUserId;
 
+    @Value("${role.sqlGetAll}")
+    private String sqlGetAll;
+
+
     public Optional<Role> findByName(String name) {
         Object[] params = { name };
         List<Role> roles = jdbcTemplate.query(sqlSelectRoleName, params, new RoleRowMapper());
@@ -51,6 +55,11 @@ public class RoleRepositoryImpl implements RoleRepository {
         Object[] params = { roleId };
         List<Role> roles =  jdbcTemplate.query(sqlSelectRoleId, params, new RoleRowMapper());
         return roles.isEmpty() ? Optional.empty() : Optional.of(roles.get(0));
+    }
+
+    @Override
+    public List<Role> getAllRoles() {
+        return jdbcTemplate.query(sqlGetAll, new RoleRowMapper());
     }
 
     public Optional<Role> insert(Role entity) {

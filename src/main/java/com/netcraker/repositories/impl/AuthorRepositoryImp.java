@@ -42,13 +42,8 @@ public class AuthorRepositoryImp implements AuthorRepository {
 
     @Override
     public Optional<Author> getById(int id) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, new AuthorRowMapper()));
-        }catch (DataAccessException e) {
-            System.out.println("Author::getById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<Author> authors = jdbcTemplate.query(sqlGetById, new AuthorRowMapper(), id);
+        return authors.isEmpty() ? Optional.empty() : Optional.of(authors.get(0));
     }
 
     @Override
@@ -88,8 +83,13 @@ public class AuthorRepositoryImp implements AuthorRepository {
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.update(sqlDelete, id) == 1;
-
+        try {
+            return jdbcTemplate.update(sqlDelete, id) == 1;
+        }catch (DataAccessException e){
+            System.out.println("Author::delete entityId: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

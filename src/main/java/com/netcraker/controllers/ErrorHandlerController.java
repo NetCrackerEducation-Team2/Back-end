@@ -1,6 +1,8 @@
 package com.netcraker.controllers;
 
 import com.netcraker.exceptions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -10,10 +12,10 @@ import java.security.NoSuchAlgorithmException;
 
 @ControllerAdvice
 public class ErrorHandlerController {
+    private static final Logger logger = LoggerFactory.getLogger(ErrorHandlerController.class);
     @ExceptionHandler(FailedToRegisterException.class)
     public ResponseEntity<?> handleFailedToRegisterException(FailedToRegisterException e) {
-
-        System.out.println("ErrorHandlerController is handling FailedToRegisterException");
+        logger.error("ErrorHandlerController is handling FailedToRegisterException");
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
@@ -22,7 +24,7 @@ public class ErrorHandlerController {
 
     @ExceptionHandler(FailedToLoginException.class)
     public ResponseEntity<?> handleFailedToLoginException(FailedToLoginException e){
-        System.out.println("ErrorHandlerController is handling FailedToRegisterException");
+        logger.error("ErrorHandlerController is handling FailedToRegisterException");
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
@@ -31,7 +33,7 @@ public class ErrorHandlerController {
 
     @ExceptionHandler(CreationException.class)
     public ResponseEntity<?> handleCreationException(CreationException e) {
-        System.out.println("ErrorHandlerController is handling CreationException");
+        logger.error("ErrorHandlerController is handling CreationException");
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -39,7 +41,7 @@ public class ErrorHandlerController {
     }
     @ExceptionHandler(UpdateException.class)
     public ResponseEntity<?> handleUpdateException(UpdateException e) {
-        System.out.println("ErrorHandlerController is handling CreationException");
+        logger.error("ErrorHandlerController is handling CreationException");
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -47,7 +49,7 @@ public class ErrorHandlerController {
     }
     @ExceptionHandler(FindException.class)
     public ResponseEntity<?> handleFindException(FindException e) {
-        System.out.println("ErrorHandlerController is handling FindException");
+        logger.error("ErrorHandlerController is handling FindException");
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -55,15 +57,14 @@ public class ErrorHandlerController {
     }
     @ExceptionHandler(NoSuchAlgorithmException.class)
     public ResponseEntity<?> handleNoSuchAlgorithmException(NoSuchAlgorithmException e) {
-        System.out.println("ErrorHandlerController is handling NoSuchAlgorithmException");
-
+        logger.error("ErrorHandlerController is handling NoSuchAlgorithmException");
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(e.getMessage());
     }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
-        System.out.println("ErrorHandlerController is handling IllegalArgumentException");
+        logger.error("ErrorHandlerController is handling IllegalArgumentException");
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

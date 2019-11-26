@@ -2,6 +2,7 @@ package com.netcraker.security.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netcraker.controllers.RegistrationController;
 import com.netcraker.exceptions.FailedToLoginException;
 import com.netcraker.model.Role;
 import com.netcraker.model.UserRole;
@@ -17,6 +18,8 @@ import com.netcraker.services.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +40,7 @@ import java.util.stream.Collectors;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
 
@@ -46,15 +50,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.passwordEncoder = passwordEncoder;
         setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
 
-        System.out.println("JwtAuthenticationFilter constructed ");
+        logger.info("JwtAuthenticationFilter constructed ");
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
 
-        System.out.println("Attempt to authenticate");
+        logger.info("Attempt to authenticate");
 
-        System.out.println("Method: " + request.getMethod());
+        logger.info("Method: " + request.getMethod());
 
         if (!request.getMethod().equalsIgnoreCase("POST")
                 && !request.getMethod().equalsIgnoreCase("OPTIONS")) {
@@ -76,21 +80,20 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         if (password != null && email != null && password.length() != 0 && email.length() != 0) {
 
-            System.out.println("email: " + jwtRequest.getEmail());
-            System.out.println("password: " + jwtRequest.getPassword());
+            logger.info("email: " + jwtRequest.getEmail());
+            logger.info("password: " + jwtRequest.getPassword());
 
             Authentication authenticationToken =
                     new UsernamePasswordAuthenticationToken(email, password);
 
 
-            System.out.println("encoded password: " + passwordEncoder.encode(password));
+            logger.info("encoded password: " + passwordEncoder.encode(password));
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
 
             try {
-                System.out.println("authentication in json: " +
+                logger.info("authentication in json: " +
                         new ObjectMapper().writeValueAsString(authenticationToken));
-                System.out.println();
-                System.out.println("authenticate in json: " +
+                logger.info("authenticate in json: " +
                         new ObjectMapper().writeValueAsString(authenticate));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -103,7 +106,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain filterChain, Authentication authentication) {
-        System.out.println("Successful authentication");
+        logger.info("Successful authentication");
         User user = ((User) authentication.getPrincipal());
         final UserService userService = getUserServiceFromContext(request);
         final com.netcraker.model.User userFromDb = userService.findByEmail(user.getUsername());

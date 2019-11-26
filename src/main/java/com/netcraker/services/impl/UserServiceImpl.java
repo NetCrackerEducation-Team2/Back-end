@@ -14,6 +14,8 @@ import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,7 +38,7 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepositoryImpl userRoleRepositoryImpl;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
-
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Override
     public User createUsualUser(User user) {
         user.setEnabled(false);
@@ -59,7 +61,7 @@ public class UserServiceImpl implements UserService {
         if (authorizationLinks == null || authorizationLinks.isUsed()) {
             return false;
         }
-        System.out.println("Auth link has user's id:" + authorizationLinks.getUserId());
+        logger.info("Auth link has user's id:" + authorizationLinks.getUserId());
         Optional<User> userOpt = userRepository.getById(authorizationLinks.getUserId());
 
         if (!userOpt.isPresent()) {
@@ -100,7 +102,7 @@ public class UserServiceImpl implements UserService {
         final User registered = userRepository.insert(user)
                 .orElseThrow(() -> new FailedToRegisterException("Error in creating user! Email is free, but creation query failure."));
 
-        System.out.println("user is created with id: " + registered.getUserId());
+        logger.info("user is created with id: " + registered.getUserId());
 
         return registered;
     }
@@ -122,7 +124,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User oldUser, User newUser) {
-        System.out.println(newUser + " to update");
+        logger.info(newUser + " to update");
         userRepository.update(newUser);
     }
 
@@ -146,7 +148,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public boolean equalsPassword(User user, String rawPassword) {
-        System.out.println("Old password: " + user.getPassword() + " new password: " + rawPassword);
+        logger.info("Old password: " + user.getPassword() + " new password: " + rawPassword);
         return passwordEncoder.matches(rawPassword, user.getPassword());
     }
 

@@ -102,7 +102,6 @@ local.properties
 .#*
 .*.md.html
 
-application.yaml
 .recommenders
 /code
 MANIFEST.MF

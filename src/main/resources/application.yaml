@@ -11,8 +11,8 @@ spring:
     username: ${JDBC_DATABASE_USERNAME}
     password: ${JDBC_DATABASE_PASSWORD}
 #  datasource:
-#    url: jdbc:postgresql://localhost:5432/test
+#    url: jdbc:postgresql://localhost:5432/postgres
 #    username: postgres
-#    password: 12345678
+#    password: postgres
 server:
   port: 8081

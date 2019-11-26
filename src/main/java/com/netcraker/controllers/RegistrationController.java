@@ -68,8 +68,11 @@ public class RegistrationController {
 
     @GetMapping("/recovery-link/{email}")
     public ResponseEntity<?> getRecoveryLink(@PathVariable String email) {
+        long start = System.currentTimeMillis();
+
         boolean sent = recoveryService.sendRecoveryCode(email);
         if (sent) {
+            System.out.println("Time spent to mail recovery link: " + (System.currentTimeMillis() - start));
             return new ResponseEntity<>(HttpStatus.OK);
         }
         throw new FindException("Recovery link was not sent. Try again");

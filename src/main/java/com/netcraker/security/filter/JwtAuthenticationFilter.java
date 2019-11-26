@@ -3,12 +3,21 @@ package com.netcraker.security.filter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.exceptions.FailedToLoginException;
+import com.netcraker.model.Role;
+import com.netcraker.model.UserRole;
 import com.netcraker.model.vo.JwtRequest;
 import com.netcraker.model.vo.JwtResponse;
+import com.netcraker.repositories.RoleRepository;
+import com.netcraker.repositories.UserRoleRepository;
+import com.netcraker.repositories.impl.RoleRepositoryImpl;
+import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.security.SecurityConstants;
+import com.netcraker.services.UserRoleService;
 import com.netcraker.services.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,10 +40,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
+                                   PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
-
         setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
 
         System.out.println("JwtAuthenticationFilter constructed ");
@@ -95,18 +104,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain filterChain, Authentication authentication) {
         System.out.println("Successful authentication");
-
         User user = ((User) authentication.getPrincipal());
-
-        List<String> roles = user.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+        final UserService userService = getUserServiceFromContext(request);
+        final com.netcraker.model.User userFromDb = userService.findByEmail(user.getUsername());
+        List<String> roles = new ArrayList<>();
+        userFromDb.getRoles().forEach(role -> roles.add(role.getName()));
+//                user.getAuthorities()
+//                .stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .collect(Collectors.toList());
 
         String signingKey = SecurityConstants.SECRET_KEY;
 
-        final UserService userService = getUserServiceFromContext(request);
-        final com.netcraker.model.User userFromDb = userService.findByEmail(user.getUsername());
+
 
         Map<String, Object> claims = new HashMap<>();
 

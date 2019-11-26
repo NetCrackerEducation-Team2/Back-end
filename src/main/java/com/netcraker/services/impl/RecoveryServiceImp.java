@@ -2,7 +2,7 @@ package com.netcraker.services.impl;
 
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
-import com.netcraker.repositories.AuthorizationRepository;
+import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -17,7 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RecoveryServiceImp implements RecoveryService {
     private final AuthEmailSenderService emailSender;
-    private final AuthorizationRepository authRepo;
+    private final AuthorizationRepositoryImpl authRepo;
     private final UserService userService;
     private final PasswordEncoder encoder;
     private final PasswordGenerator passGenerator;

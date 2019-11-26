@@ -3,9 +3,7 @@ package com.netcraker.repositories.impl;
 import com.netcraker.model.Genre;
 import com.netcraker.model.mapper.GenreRowMapper;
 import com.netcraker.repositories.GenreRepository;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -25,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GenreRepositoryImp implements GenreRepository {
 
-    private final @NonNull JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Value("${genres.getById}")
     private String sqlGetById;
@@ -39,16 +37,13 @@ public class GenreRepositoryImp implements GenreRepository {
     private String sqlGetAll;
     @Value("${genres.getByBook}")
     private String sqlGetByBook;
+    @Value("${genres.searchByNameContains}")
+    private String sqlSearchByNameContains;
 
     @Override
     public Optional<Genre> getById(int id) {
-        try{
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, new GenreRowMapper()));
-        } catch (DataAccessException e) {
-            System.out.println("Genre::getById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<Genre> genres = jdbcTemplate.query(sqlGetById, new GenreRowMapper(), id);
+        return genres.isEmpty() ? Optional.empty() : Optional.of(genres.get(0));
     }
 
     @Override
@@ -88,7 +83,13 @@ public class GenreRepositoryImp implements GenreRepository {
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.update(sqlDelete, id) == 1;
+        try {
+            return jdbcTemplate.update(sqlDelete, id) == 1;
+        }catch (DataAccessException e){
+            System.out.println("Genre::delete entityId: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
@@ -99,5 +100,10 @@ public class GenreRepositoryImp implements GenreRepository {
     @Override
     public List<Genre> getByBook(int bookId) {
         return jdbcTemplate.query(sqlGetByBook, new GenreRowMapper(), bookId);
+    }
+
+    @Override
+    public List<Genre> findByNameContains(String genreNameContains) {
+        return jdbcTemplate.query(sqlSearchByNameContains, new GenreRowMapper(), "%" + genreNameContains.trim() + "%");
     }
 }

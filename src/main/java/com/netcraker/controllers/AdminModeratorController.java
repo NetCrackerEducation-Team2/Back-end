@@ -16,10 +16,10 @@ import java.sql.SQLDataException;
 import java.util.List;
 
 @RestController
-@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS})
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.PUT, RequestMethod.DELETE})
+@RequiredArgsConstructor
 public class AdminModeratorController {
-    private final @NonNull UserService userService;
+    private final UserService userService;
 
     @PostMapping("admins/create")
     public ResponseEntity<?> createAdminModerator(@RequestBody @Validated User user,
@@ -41,21 +41,21 @@ public class AdminModeratorController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("admins/{userId}")
-    public ResponseEntity<?> getAdminModeratorProfile(@PathVariable int userId) {
-        final User userFromDb = userService.findByUserId(userId);
+    @GetMapping("admins/{email}")
+    public ResponseEntity<?> getAdminModeratorProfile(@PathVariable String email) {
+        final User userFromDb = userService.findByEmail(email);
         if (userFromDb == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with such id doesn't exist");
         }
         return ResponseEntity.status(HttpStatus.OK).body(userFromDb);
     }
-    @DeleteMapping("admins/delete/{userId}")
-    public ResponseEntity<?> deleteAdminModerator(@PathVariable int userId) throws SQLDataException {
-        final User userFromDb = userService.findByUserId(userId);
+    @DeleteMapping("admins/delete/{email}")
+    public ResponseEntity<?> deleteAdminModerator(@PathVariable String email) throws SQLDataException {
+        final User userFromDb = userService.findByEmail(email);
         if (userFromDb == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with such id doesn't exist");
         }
-        userService.deleteAdminModerator(userId);
+        userService.deleteAdminModerator(email);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

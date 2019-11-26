@@ -1,6 +1,10 @@
 package com.netcraker.configuration;
 
 
+import com.netcraker.repositories.RoleRepository;
+import com.netcraker.repositories.UserRoleRepository;
+import com.netcraker.repositories.impl.RoleRepositoryImpl;
+import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.security.filter.JwtAuthenticationFilter;
 import com.netcraker.security.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +47,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/books", "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/**", "/api/searching-history/**").permitAll()
                 // must-have
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "**").permitAll()
                 //pages that can be showing without authentication

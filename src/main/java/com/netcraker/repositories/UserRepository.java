@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface UserRepository extends BaseOptionalRepository<User> {
     Optional<User> findByEmail(String email);
     Optional<User> activateUser(String email);
+    boolean deleteByEmail(String email);
 }

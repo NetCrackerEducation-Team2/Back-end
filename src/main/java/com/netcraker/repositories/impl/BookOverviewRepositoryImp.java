@@ -123,6 +123,12 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.update(sqlDelete, id) == 1;
+        try {
+            return jdbcTemplate.update(sqlDelete, id) == 1;
+        }catch (DataAccessException e){
+            System.out.println("BookOverview::delete entityId: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return false;
+        }
     }
 }

@@ -51,14 +51,8 @@ public class BookRepositoryImp implements BookRepository {
 
     @Override
     public Optional<Book> getById(int id) {
-        try{
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById,
-                    new BookRowMapper(), id));
-        }catch (DataAccessException e) {
-            System.out.println("Book::getById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<Book> books = jdbcTemplate.query(sqlGetById, new BookRowMapper(), id);
+        return books.isEmpty() ? Optional.empty() : Optional.of(books.get(0));
     }
 
     @Override
@@ -116,12 +110,18 @@ public class BookRepositoryImp implements BookRepository {
     public boolean delete(int id) {
         Optional<Book> optionalBook = getById(id);
         if(optionalBook.isPresent()) {
-            Book book = optionalBook.get();
-            List<Author> authors = authorRepository.getByBook(book.getBookId());
-            List<Genre> genres = genreRepository.getByBook(book.getBookId());
-            authors.forEach(author -> bookAuthorRepository.delete(id, author.getAuthorId()));
-            genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
-            return jdbcTemplate.update(sqlDelete, id) == 1;
+            try{
+                Book book = optionalBook.get();
+                List<Author> authors = authorRepository.getByBook(book.getBookId());
+                List<Genre> genres = genreRepository.getByBook(book.getBookId());
+                authors.forEach(author -> bookAuthorRepository.delete(id, author.getAuthorId()));
+                genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
+                return jdbcTemplate.update(sqlDelete, id) == 1;
+            }catch (DataAccessException e){
+                System.out.println("Book::delete entityId: " + id + ". Stack trace: ");
+                e.printStackTrace();
+                return false;
+            }
         }
         return false;
     }
@@ -152,14 +152,8 @@ public class BookRepositoryImp implements BookRepository {
 
     @Override
     public Optional<Book> getBySlug(String slug) {
-        try{
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetBySlug,
-                    new BookRowMapper(), slug));
-        }catch (DataAccessException e) {
-            System.out.println("Book::getBySlug slug: " + slug + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<Book> books = jdbcTemplate.query(sqlGetBySlug, new BookRowMapper(), slug);
+        return books.isEmpty() ? Optional.empty() : Optional.of(books.get(0));
     }
 
     private void checkBookFilteringParams(HashMap<BookFilteringParam, Object> filteringParams){

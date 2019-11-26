@@ -42,13 +42,8 @@ public class GenreRepositoryImp implements GenreRepository {
 
     @Override
     public Optional<Genre> getById(int id) {
-        try{
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, new GenreRowMapper()));
-        } catch (DataAccessException e) {
-            System.out.println("Genre::getById id: " + id + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        List<Genre> genres = jdbcTemplate.query(sqlGetById, new GenreRowMapper(), id);
+        return genres.isEmpty() ? Optional.empty() : Optional.of(genres.get(0));
     }
 
     @Override
@@ -88,7 +83,13 @@ public class GenreRepositoryImp implements GenreRepository {
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.update(sqlDelete, id) == 1;
+        try {
+            return jdbcTemplate.update(sqlDelete, id) == 1;
+        }catch (DataAccessException e){
+            System.out.println("Genre::delete entityId: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

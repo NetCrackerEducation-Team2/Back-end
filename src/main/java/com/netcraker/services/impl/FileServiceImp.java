@@ -19,7 +19,7 @@ import java.io.*;
 @RequiredArgsConstructor
 public class FileServiceImp implements FileService {
 
-    private final @NonNull ResourceLoader resourceLoader;
+    private final ResourceLoader resourceLoader;
 
     @Override
     public void downloadFile(String filePath, HttpServletResponse response) {

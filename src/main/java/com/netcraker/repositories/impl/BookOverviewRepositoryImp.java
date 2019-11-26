@@ -1,8 +1,12 @@
 package com.netcraker.repositories.impl;
 
+import com.netcraker.model.Book;
 import com.netcraker.model.BookOverview;
+import com.netcraker.model.User;
 import com.netcraker.model.mapper.BookOverviewRowMapper;
 import com.netcraker.repositories.BookOverviewRepository;
+import com.netcraker.repositories.BookRepository;
+import com.netcraker.repositories.UserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,12 @@ import java.util.Optional;
 public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
     private final JdbcTemplate jdbcTemplate;
+<<<<<<< HEAD
+=======
+    private final UserRepository userRepository;
+    private final BookRepository bookRepository;
+
+>>>>>>> 284983730fa06073bc9fcb0ed10828cd59b4a74e
     @Value("${book_overviews.getById}")
     private String sqlGetById;
     @Value("${book_overviews.countByBook}")
@@ -45,6 +55,16 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     private String sqlPublish;
     @Value("${book_overviews.unpublish}")
     private String sqlUnpublish;
+
+    @Override
+    public void loadReferences(BookOverview bookOverview) {
+        Optional<User> optionalUser = userRepository.getById(bookOverview.getUserId());
+        Optional<Book> optionalBook = bookRepository.getById(bookOverview.getBookId());
+        if(optionalBook.isPresent() && optionalUser.isPresent()){
+            bookOverview.setBook(optionalBook.get());
+            bookOverview.setUser(optionalUser.get());
+        }
+    }
 
     @Override
     public int countByBook(int bookId) {

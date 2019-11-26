@@ -24,15 +24,18 @@ public class NotificationRepositoryImp implements NotificationRepository {
     @Value("${notifications.getById}")
     private String sqlGetById;
 
+    @Value("${notifications.count}")
+    private String sqlGetCount;
+
     @Override
-    public Optional<List<Notification>> getUserNotifications(int id, int limit, int offset) {
-        List<Notification> notifications =  jdbcTemplate.query(sqlGetById, notificationRowMapper, id);
+    public Optional<List<Notification>> getUserNotifications(int user_id, int limit, int offset) {
+        List<Notification> notifications =  jdbcTemplate.query(sqlGetById, notificationRowMapper, new Object[] {user_id, limit, offset});
         return notifications.isEmpty() ? Optional.empty() : Optional.of(notifications);
     }
 
     @Override
-    public Optional<Notification> getById(int id) {
-        List<Notification> notifications =  jdbcTemplate.query(sqlGetById, notificationRowMapper, id);
+    public Optional<Notification> getById(int user_id) {
+        List<Notification> notifications =  jdbcTemplate.query(sqlGetById, notificationRowMapper, user_id);
         return notifications.isEmpty() ? Optional.empty() : Optional.of(notifications.get(0));
     }
 
@@ -49,5 +52,10 @@ public class NotificationRepositoryImp implements NotificationRepository {
     @Override
     public boolean delete(int id) {
         return false;
+    }
+
+    @Override
+    public int getCount(int user_id) {
+        return jdbcTemplate.queryForObject(sqlGetCount, new Object[] { user_id }, int.class);
     }
 }

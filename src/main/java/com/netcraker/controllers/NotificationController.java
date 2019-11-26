@@ -2,13 +2,14 @@ package com.netcraker.controllers;
 
 import com.netcraker.exceptions.CreationException;
 import com.netcraker.model.Notification;
+import com.netcraker.model.Page;
+import com.netcraker.model.vo.NotificationMessage;
 import com.netcraker.services.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping({"/api/notifications"})
@@ -19,10 +20,11 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<List<Notification>> getAnnouncements(
+    public ResponseEntity<Page<NotificationMessage>> getNotificationMessages(
+            @RequestParam int userId,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "5") int pageSize) {
-        return ResponseEntity.ok().body(notificationService.getUserNotification(1)
-                .orElseThrow(() -> new CreationException("Cannot find announcement by id")));
+        Page<NotificationMessage> pagination = notificationService.getUserNotification(userId, page, pageSize);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 }

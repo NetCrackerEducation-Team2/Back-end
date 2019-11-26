@@ -14,4 +14,11 @@ public class Notification {
     private NotificationObject notificationObject;
     private int notifierId;
     private boolean isRead;
+
+    public String getNotificationMessage() {
+        String action = notificationObject.getAction().getDescription();
+        String entity = notificationObject.getEntityType().getName();
+        String actor = notificationObject.getUser().getFullName();
+        return actor + " " + action + " " + entity;
+    }
 }

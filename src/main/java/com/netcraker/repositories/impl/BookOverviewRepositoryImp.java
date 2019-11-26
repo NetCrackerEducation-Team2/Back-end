@@ -27,7 +27,6 @@ import java.util.Optional;
 public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
     private final JdbcTemplate jdbcTemplate;
-
     @Value("${book_overviews.getById}")
     private String sqlGetById;
     @Value("${book_overviews.countByBook}")
@@ -42,6 +41,10 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     private String sqlUpdate;
     @Value("${book_overviews.delete]")
     private String sqlDelete;
+    @Value("${book_overviews.publish}")
+    private String sqlPublish;
+    @Value("${book_overviews.unpublish}")
+    private String sqlUnpublish;
 
     @Override
     public int countByBook(int bookId) {
@@ -108,5 +111,19 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.update(sqlDelete, id) == 1;
+    }
+
+    @Override
+    public void publish(int id) {
+        Object[] params = {id};
+        jdbcTemplate.update(sqlPublish, params);
+
+    }
+
+    @Override
+    public void unpublish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlUnpublish, params);
+
     }
 }

@@ -14,4 +14,6 @@ public interface BookOverviewService {
     Optional<BookOverview> addBookOverview(BookOverview bookOverview);
     Optional<BookOverview> updateBookOverview(BookOverview bookOverview);
     boolean deleteBookOverview(int bookOverviewId);
+    public void publishBookOverview(int id);
+    public void unpublishBookOverview(int id);
 }

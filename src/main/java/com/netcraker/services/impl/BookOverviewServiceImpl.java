@@ -50,4 +50,15 @@ public class BookOverviewServiceImpl implements BookOverviewService {
     public boolean deleteBookOverview(int bookOverviewId) {
         return bookOverviewRepository.delete(bookOverviewId);
     }
+
+    @Override
+    public void publishBookOverview(int id) {
+        bookOverviewRepository.publish(id);
+    }
+
+    @Override
+    public void unpublishBookOverview(int id) {
+        bookOverviewRepository.unpublish(id);
+    }
+
 }

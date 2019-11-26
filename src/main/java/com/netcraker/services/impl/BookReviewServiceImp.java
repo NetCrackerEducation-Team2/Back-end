@@ -52,4 +52,15 @@ public class BookReviewServiceImp implements BookReviewService {
         List<BookReview> list = bookReviewRepo.getPage(bookId, pageSize, page * pageSize - pageSize);
         return new Page<>(page, pages, pageSize, list);
     }
+
+    @Override
+    public void publishBookReview(int id) {
+        bookReviewRepo.publish(id);
+    }
+
+    @Override
+    public void unpublishBookReview(int id) {
+        bookReviewRepo.unpublish(id);
+    }
+
 }

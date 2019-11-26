@@ -8,4 +8,6 @@ public interface BookReviewRepository extends BaseOptionalRepository<BookReview>
     double getAverageRating(int bookId);
     int countByUserIdBookId(Integer userId, Integer bookId);
     List<BookReview> getPage(int bookId, int pageSize, int offset);
+    void publish(int id);
+    void unpublish(int id);
 }

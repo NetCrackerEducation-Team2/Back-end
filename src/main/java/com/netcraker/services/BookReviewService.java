@@ -12,4 +12,6 @@ public interface BookReviewService {
     boolean delete(int bookId);
     Page<BookReview> getPage(int bookId, int page, int pageSize);
     double getAverageRating(int bookId);
+    public void publishBookReview(int id);
+    public void unpublishBookReview(int id);
 }

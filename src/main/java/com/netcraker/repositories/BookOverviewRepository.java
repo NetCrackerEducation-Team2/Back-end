@@ -9,4 +9,6 @@ public interface BookOverviewRepository extends BaseOptionalRepository<BookOverv
     int countByBook(int bookId);
     List<BookOverview> getByBook(int bookId, int size, int offset);
     Optional<BookOverview> getPublishedByBook(int bookId);
+    void publish(int id);
+    void unpublish(int id);
 }

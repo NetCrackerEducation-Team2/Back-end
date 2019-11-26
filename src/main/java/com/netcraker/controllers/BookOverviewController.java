@@ -58,6 +58,18 @@ public class BookOverviewController {
                         .orElseThrow(() -> new UpdateException("Cannot update book overview")));
     }
 
+    @PutMapping("/publish/{id}")
+    public ResponseEntity<?> publishBookOverview(@PathVariable int id){
+        bookOverviewService.publishBookOverview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/unpublish/{id}")
+    public ResponseEntity<?> unpublishBookOverview(@PathVariable int id){
+        bookOverviewService.unpublishBookOverview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @DeleteMapping("{bookOverviewId}")
     public ResponseEntity<?> deleteBookOverview(@PathVariable int bookOverviewId) {
         return ResponseEntity.ok().body(bookOverviewService.deleteBookOverview(bookOverviewId));

@@ -97,6 +97,22 @@ public class BookReviewController {
                 .body(reviewCommentService.updateReviewComment(comment)
                         .orElseThrow(() -> new UpdateException("Cannot create review comment")));
     }
+
+    @PutMapping("/publish/{id}")
+    public ResponseEntity<?> publishBookReview(@PathVariable int id){
+        bookReviewService.publishBookReview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/unpublish/{id}")
+    public ResponseEntity<?> unpublishBookReview(@PathVariable int id){
+        bookReviewService.unpublishBookReview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+
+
+
     @GetMapping("/comment/all/{bookReviewId}")
     public ResponseEntity<Page<ReviewComment>> getReviewComments(
             @PathVariable("bookReviewId") int bookReviewId,

@@ -41,6 +41,10 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     private String sqlGetPage;
     @Value("${book_reviews.countByUserIdBookId}")
     private String sqlCountByUserIdBookId;
+    @Value("${book_reviews.publish}")
+    private String sqlPublish;
+    @Value("${book_reviews.unpublish}")
+    private String sqlUnpublish;
 
     @Override
     public Optional<BookReview> getById(int id) {
@@ -111,5 +115,19 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     @Override
     public int countByUserIdBookId(Integer userId, Integer bookId) {
         return Objects.requireNonNull(jdbcTemplate.queryForObject(sqlCountByUserIdBookId, Integer.class, userId, bookId));
+    }
+
+    @Override
+    public void publish(int id) {
+        Object[] params = {id};
+        jdbcTemplate.update(sqlPublish, params);
+
+    }
+
+    @Override
+    public void unpublish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlUnpublish, params);
+
     }
 }

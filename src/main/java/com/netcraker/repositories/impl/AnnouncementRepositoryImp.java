@@ -42,14 +42,13 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
     private String sqlDelete;
     @Value("${announcements.publish}")
     private String sqlPublish;
-
+    @Value("${announcements.unPublish}")
+    private String sqlUnpublish;
     @Value("${announcements.countPublished}")
     private String sqlGetPublishAnnouncementsCount;
     @Value("${announcements.selectAllPublished}")
     private String sqlGetPublishedAnnouncements;
 
-    @Value("${announcements.unPublish}")
-    private String sqlUnPublish;
 
     @Override
     public List<Announcement> getAll() {
@@ -114,7 +113,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
                 ps.setString(1, entity.getTitle());
                 ps.setString(2, entity.getDescription());
                 ps.setInt(3, entity.getUserId());
-                ps.setInt(4, entity.getBookId());
+                ps.setInt(4, entity.getBookId());       
                 ps.setInt(5, entity.getAnnouncementId());
                 return ps.execute();
             });
@@ -132,5 +131,19 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
             ps.setInt(1, id);
             return ps.execute();
         });
+    }
+
+    @Override
+    public void publish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlPublish, params);
+
+    }
+
+    @Override
+    public void unpublish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlUnpublish, params);
+
     }
 }

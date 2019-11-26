@@ -3,7 +3,8 @@ package com.netcraker.repositories;
 import com.netcraker.model.Notification;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationRepository extends BaseOptionalRepository<Notification> {
-    List<Notification> getUserNotifications(int limit, int offset);
+    Optional<List<Notification>> getUserNotifications(int id, int limit, int offset);
 }

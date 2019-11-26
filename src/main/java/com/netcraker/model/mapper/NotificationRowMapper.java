@@ -1,9 +1,6 @@
 package com.netcraker.model.mapper;
 
-import com.netcraker.model.EntityType;
-import com.netcraker.model.Notification;
-import com.netcraker.model.NotificationAction;
-import com.netcraker.model.NotificationObject;
+import com.netcraker.model.*;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +11,7 @@ import java.sql.SQLException;
 public class NotificationRowMapper implements RowMapper<Notification> {
     @Override
     public Notification mapRow(ResultSet resultSet, int i) throws SQLException {
-        Notification announcement = Notification.builder()
+        return Notification.builder()
                 .notificationId(resultSet.getInt("NOTIFICATION_ID"))
                 .notificationObject(NotificationObject.builder()
                         .notificationObjectId(resultSet.getInt("NOTIFICATION_OBJECT_ID"))
@@ -27,12 +24,14 @@ public class NotificationRowMapper implements RowMapper<Notification> {
                                 .notificationActionId(resultSet.getInt("NOTIFICATION_ACTION_ID"))
                                 .description(resultSet.getString("DESCRIPTION"))
                                 .build())
-                        .userId(resultSet.getInt("USER_ID"))
+                        .user(User.builder()
+                                .userId(resultSet.getInt("USER_ID"))
+                                .fullName(resultSet.getString("FULL_NAME"))
+                                .build())
                         .creationTime(resultSet.getTimestamp("CREATION_TIME").toLocalDateTime())
                         .build())
-                .notifierId(resultSet.getInt("NOTIFICATION_NOTIFIER_ID"))
+                .notifierId(resultSet.getInt("NOTIFIER_ID"))
                 .isRead(resultSet.getBoolean("STATUS"))
                 .build();
-        return  announcement;
     }
 }

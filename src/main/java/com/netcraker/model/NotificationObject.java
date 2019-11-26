@@ -17,5 +17,5 @@ public class NotificationObject {
     private int entityId;
     private NotificationAction action;
     private LocalDateTime creationTime;
-    private int userId;
+    private User user;
 }

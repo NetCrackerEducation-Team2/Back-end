@@ -3,9 +3,7 @@ package com.netcraker.repositories.impl;
 import com.netcraker.model.Genre;
 import com.netcraker.model.mapper.GenreRowMapper;
 import com.netcraker.repositories.GenreRepository;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -39,6 +37,8 @@ public class GenreRepositoryImp implements GenreRepository {
     private String sqlGetAll;
     @Value("${genres.getByBook}")
     private String sqlGetByBook;
+    @Value("${genres.searchByNameContains}")
+    private String sqlSearchByNameContains;
 
     @Override
     public Optional<Genre> getById(int id) {
@@ -99,5 +99,10 @@ public class GenreRepositoryImp implements GenreRepository {
     @Override
     public List<Genre> getByBook(int bookId) {
         return jdbcTemplate.query(sqlGetByBook, new GenreRowMapper(), bookId);
+    }
+
+    @Override
+    public List<Genre> findByNameContains(String genreNameContains) {
+        return jdbcTemplate.query(sqlSearchByNameContains, new GenreRowMapper(), "%" + genreNameContains.trim() + "%");
     }
 }

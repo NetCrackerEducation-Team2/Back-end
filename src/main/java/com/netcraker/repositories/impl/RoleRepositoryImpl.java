@@ -35,12 +35,18 @@ public class RoleRepositoryImpl implements RoleRepository {
     @Value("${role.delete}")
     private String sqlDeleteRole;
 
+    @Value("${role.findByUserId}")
+    private String sqlSelectByUserId;
+
     public Optional<Role> findByName(String name) {
         Object[] params = { name };
         List<Role> roles = jdbcTemplate.query(sqlSelectRoleName, params, new RoleRowMapper());
         return roles.isEmpty() ? Optional.empty() : Optional.of(roles.get(0));
     }
-
+    public List<Role> getAllRoleById(int userId) {
+        Object[] params = { userId };
+        return jdbcTemplate.query(sqlSelectByUserId, params, new RoleRowMapper());
+    }
     public Optional<Role> getById(int roleId) {
         Object[] params = { roleId };
         List<Role> roles =  jdbcTemplate.query(sqlSelectRoleId, params, new RoleRowMapper());

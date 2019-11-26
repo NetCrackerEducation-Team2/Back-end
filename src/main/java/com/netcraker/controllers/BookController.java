@@ -17,7 +17,7 @@ import java.util.HashMap;
 
 @RestController
 @RequestMapping({"/api"})
-@CrossOrigin(methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
+@CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
 @RequiredArgsConstructor
 public class BookController {
 
@@ -25,13 +25,13 @@ public class BookController {
 
     @GetMapping("/books")
     public ResponseEntity<Page<Book>> getBooksPage(
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "5") int pageSize,
+            @RequestParam int page,
+            @RequestParam int pageSize,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Integer genreId,
             @RequestParam(required = false) Integer authorId,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
         HashMap<BookFilteringParam, Object> map = new HashMap<>();
         map.put(BookFilteringParam.TITLE, title);
         map.put(BookFilteringParam.GENRE, genreId);
@@ -42,25 +42,19 @@ public class BookController {
     }
 
     @GetMapping("/book/download")
-    public void downloadBook(@RequestParam String fileName, HttpServletResponse response) {
+    public void downloadBook(@RequestParam String fileName, HttpServletResponse response){
         bookService.downloadBook(fileName, response);
     }
 
     @GetMapping("/book/{slug}")
-    public ResponseEntity<Book> getBookBySlug(@PathVariable String slug) {
+    public ResponseEntity<Book> getBookBySlug(@PathVariable String slug){
         return ResponseEntity.ok().body(bookService.getBookBySlug(slug)
                 .orElseThrow(() -> new CreationException("Cannot find book by slug")));
     }
 
     @GetMapping("/book-by-id/{bookId}")
-    public ResponseEntity<Book> getBookById(@PathVariable int bookId) {
+    public ResponseEntity<Book> getBookById(@PathVariable int bookId){
         return ResponseEntity.ok().body(bookService.getBookById(bookId)
                 .orElseThrow(() -> new CreationException("Cannot find book by bookId")));
-    }
-
-    @GetMapping("/book-title/{bookId}")
-    public ResponseEntity<String> getBookTitleById(@PathVariable int bookId) {
-        return ResponseEntity.ok().body(bookService.getBookTitleById(bookId)
-                .orElseThrow(() -> new CreationException("Cannot find book title by id")));
     }
 }

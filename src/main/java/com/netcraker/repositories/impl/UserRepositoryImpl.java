@@ -41,6 +41,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Value("${user.delete}")
     private String sqlDelete;
 
+    @Value("${user.deleteByEmail}")
+    private String sqlDeleteByEmail;
+
     @Override
     public Optional<User> findByEmail(String email) {
         Object[] params = {email};
@@ -101,6 +104,12 @@ public class UserRepositoryImpl implements UserRepository {
             throw new UpdateException("Multiple update! Only one user can be changed!");
         Optional<User> user = getById(entity.getUserId());
         return getById(entity.getUserId());
+    }
+
+    @Override
+    public boolean deleteByEmail(String email) {
+        Object[] params = {email};
+        return jdbcTemplate.update(sqlDeleteByEmail, params) == 1;
     }
 
     @Override

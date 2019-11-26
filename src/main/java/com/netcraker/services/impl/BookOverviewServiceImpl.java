@@ -18,8 +18,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookOverviewServiceImpl implements BookOverviewService {
 
-    private final @NonNull BookOverviewRepository bookOverviewRepository;
-    private final @NonNull PageService pageService;
+    private final BookOverviewRepository bookOverviewRepository;
+    private final PageService pageService;
 
     @Override
     public Page<BookOverview> getBookOverviewsByBook(int bookId, int page, int pageSize) {
@@ -28,12 +28,15 @@ public class BookOverviewServiceImpl implements BookOverviewService {
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
         List<BookOverview> bookOverviews = bookOverviewRepository.getByBook(bookId, pageSize, offset);
+        bookOverviews.forEach(bookOverviewRepository::loadReferences);
         return new Page<>(currentPage, pagesCount, pageSize, bookOverviews);
     }
 
     @Override
     public Optional<BookOverview> getPublishedBookOverviewByBook(int bookId) {
-        return bookOverviewRepository.getPublishedByBook(bookId);
+        Optional<BookOverview> optionalBookOverview =  bookOverviewRepository.getPublishedByBook(bookId);
+        optionalBookOverview.ifPresent(bookOverviewRepository::loadReferences);
+        return optionalBookOverview;
     }
 
     @Override

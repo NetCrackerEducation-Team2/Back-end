@@ -105,7 +105,6 @@ local.properties
 .#*
 .*.md.html
 
-
 .recommenders
 /code
 MANIFEST.MF

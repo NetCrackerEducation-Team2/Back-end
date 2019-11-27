@@ -46,6 +46,14 @@ public class BookReviewController {
         return ResponseEntity.ok().body(bookReviewService.getPage(bookId, page, pageSize));
     }
 
+    @GetMapping
+    public ResponseEntity<Page<BookReview>> getBookReviews(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        Page<BookReview> pagination = bookReviewService.getBookReviewsPagination(page, pageSize);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
+    }
+
     @PutMapping
     public ResponseEntity<BookReview> updateBookReview(@RequestBody BookReview bookReview) {
         return ResponseEntity.ok()

@@ -29,6 +29,8 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
 
     @Value("${book_reviews.getById}")
     private String sqlGetById;
+    @Value("${book_reviews.getAll}")
+    private String sqlGetReviews;
     @Value("${book_reviews.insert}")
     private String sqlInsert;
     @Value("${book_reviews.update}")
@@ -45,6 +47,8 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     private String sqlPublish;
     @Value("${book_reviews.unpublish}")
     private String sqlUnpublish;
+    @Value("${book_reviews.count}")
+    private String sqlGetBookReviewsCount;
 
     @Override
     public Optional<BookReview> getById(int id) {
@@ -55,6 +59,11 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    @Override
+    public int getCount() {
+        return jdbcTemplate.queryForObject(sqlGetBookReviewsCount, int.class);
     }
 
     @Override
@@ -92,6 +101,11 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
             return Optional.empty();
         }
         return getById((Integer) keyHolder.getKeys().get("book_review_id"));
+    }
+
+    @Override
+    public List<BookReview> getBookReviews(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetReviews, new Object[]{limit, offset}, new BookReviewRowMapper());
     }
 
     @Override

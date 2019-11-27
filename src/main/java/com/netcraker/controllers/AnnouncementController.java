@@ -71,6 +71,7 @@ public class AnnouncementController {
 
     @PutMapping("/publish/{id}")
     public ResponseEntity<?> publishAnnouncement(@PathVariable int id){
+        System.out.println(id);
         announcementService.publishAnnouncement(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

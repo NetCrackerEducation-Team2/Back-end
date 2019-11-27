@@ -31,6 +31,15 @@ public class BookOverviewServiceImpl implements BookOverviewService {
         bookOverviews.forEach(bookOverviewRepository::loadReferences);
         return new Page<>(currentPage, pagesCount, pageSize, bookOverviews);
     }
+    @Override
+    public Page<BookOverview> getBookOverviewsPagination(int page, int pageSize) {
+        int total = bookOverviewRepository.getCount();
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        List<BookOverview> list = bookOverviewRepository.getBookOverviews(pageSize,offset);
+        return new Page<>(currentPage, pagesCount, list);
+    }
 
     @Override
     public Optional<BookOverview> getPublishedBookOverviewByBook(int bookId) {

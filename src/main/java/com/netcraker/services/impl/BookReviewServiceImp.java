@@ -54,6 +54,16 @@ public class BookReviewServiceImp implements BookReviewService {
     }
 
     @Override
+    public Page<BookReview> getBookReviewsPagination(int page, int pageSize) {
+        int total = bookReviewRepo.getCount();
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        List<BookReview> list = bookReviewRepo.getBookReviews(pageSize,offset);
+        return new Page<>(currentPage, pagesCount, list);
+    }
+
+    @Override
     public void publishBookReview(int id) {
         bookReviewRepo.publish(id);
     }

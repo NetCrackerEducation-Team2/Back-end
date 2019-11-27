@@ -13,7 +13,8 @@ public interface BookOverviewService {
     Optional<BookOverview> getPublishedBookOverviewByBook(int bookId);
     Optional<BookOverview> addBookOverview(BookOverview bookOverview);
     Optional<BookOverview> updateBookOverview(BookOverview bookOverview);
+    Page<BookOverview> getBookOverviewsPagination(int page, int pageSize);
     boolean deleteBookOverview(int bookOverviewId);
-    public void publishBookOverview(int id);
-    public void unpublishBookOverview(int id);
+    void publishBookOverview(int id);
+    void unpublishBookOverview(int id);
 }

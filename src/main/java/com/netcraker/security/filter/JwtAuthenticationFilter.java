@@ -63,7 +63,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
             response.addHeader("Access-Control-Allow-Origin", "*");
-            response.addHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS");
+            response.addHeader("Access-Control-Allow-Methods", "DELETE, POST, GET, PUT, OPTIONS");
             response.addHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
             return null;
         }

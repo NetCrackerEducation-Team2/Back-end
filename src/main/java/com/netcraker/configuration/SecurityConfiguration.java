@@ -46,11 +46,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/books", "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
-                // must-have
-                .antMatchers(HttpMethod.OPTIONS, "/auth/**", "**").permitAll()
-                //pages that can be showing without authentication
+                .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**,", "/api/book-review/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**","**").permitAll()
                 .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

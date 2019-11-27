@@ -32,6 +32,14 @@ public class BookOverviewController {
         Page<BookOverview> pagination = bookOverviewService.getBookOverviewsByBook(bookId, page, pageSize);
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
+
+    @GetMapping
+    public ResponseEntity<Page<BookOverview>> getBookOverviews(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        Page<BookOverview> pagination = bookOverviewService.getBookOverviewsPagination(page, pageSize);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
+    }
 //refactoring
     @GetMapping("/published-by-book/{bookId}")
     public ResponseEntity<BookOverview> getPublishedBookOverviewByBook(

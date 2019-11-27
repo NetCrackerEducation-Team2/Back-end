@@ -5,6 +5,8 @@ import com.netcraker.model.Page;
 import com.netcraker.model.mapper.BookReviewRowMapper;
 import com.netcraker.repositories.BookReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -25,6 +27,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookReviewRepositoryImp implements BookReviewRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(BookReviewRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${book_reviews.getById}")
@@ -55,7 +58,7 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, new BookReviewRowMapper(), id));
         } catch (DataAccessException e) {
-            System.out.println("BookReview::getById id: " + id + ". Stack trace: ");
+            logger.info("BookReview::getById id: " + id + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -96,7 +99,7 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
-            System.out.println("BookReview::insert entity: " + entity + ". Stack trace: ");
+            logger.info("BookReview::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -120,7 +123,7 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
             });
             return getById(entity.getBookReviewId());
         } catch (DataAccessException e) {
-            System.out.println("BookReview::update entity: " + entity + ". Stack trace: ");
+            logger.info("BookReview::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }

@@ -7,6 +7,8 @@ import com.netcraker.model.mapper.ReviewCommentRowMapper;
 import com.netcraker.repositories.ReviewCommentRepository;
 import com.netcraker.services.PageService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -28,6 +30,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReviewCommentRepository.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${review_comments.getById}")
@@ -64,7 +67,7 @@ public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
-            System.out.println("ReviewComment::insert entity: " + entity + ". Stack trace: ");
+            logger.info("ReviewComment::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -83,7 +86,7 @@ public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
             });
             return getById(entity.getCommentId());
         } catch (DataAccessException e) {
-            System.out.println("BookReview::update entity: " + entity + ". Stack trace: ");
+            logger.info("BookReview::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }

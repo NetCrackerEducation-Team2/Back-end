@@ -9,6 +9,8 @@ import com.netcraker.repositories.BookRepository;
 import com.netcraker.repositories.UserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -30,6 +32,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(BookOverviewRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
@@ -115,7 +118,7 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
-            System.out.println("Book Overview::insert entity: " + entity + ". Stack trace: ");
+            logger.info("Book Overview::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -134,7 +137,7 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
             });
             return getById(entity.getBookOverviewId());
         } catch (DataAccessException e) {
-            System.out.println("Book Overview::update entity: " + entity + ". Stack trace: ");
+            logger.info("Book Overview::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -145,7 +148,7 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
         try {
             return jdbcTemplate.update(sqlDelete, id) == 1;
         }catch (DataAccessException e){
-            System.out.println("BookOverview::delete entityId: " + id + ". Stack trace: ");
+            logger.info("BookOverview::delete entityId: " + id + ". Stack trace: ");
             e.printStackTrace();
             return false;
         }

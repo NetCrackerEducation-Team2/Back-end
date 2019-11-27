@@ -6,6 +6,8 @@ import com.netcraker.model.User;
 import com.netcraker.model.mapper.UserRowMapper;
 import com.netcraker.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -21,6 +23,7 @@ import java.util.Optional;
 @PropertySource("classpath:sqlQueries.properties")
 public class UserRepositoryImpl implements UserRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserRepositoryImpl.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${user.findByEmail}")
@@ -78,7 +81,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> insert(User entity) {
-        System.out.println("trying to add user to db: " + entity);
+        logger.info("trying to add user to db: " + entity);
         Object[] params = {entity.getFullName(), entity.getPassword(), entity.getEmail(),
                 new Timestamp(System.currentTimeMillis()), entity.getEnabled(), entity.getPhotoPath()};
         jdbcTemplate.update(sqlInsert, params);

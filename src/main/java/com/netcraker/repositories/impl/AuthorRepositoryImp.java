@@ -1,9 +1,12 @@
 package com.netcraker.repositories.impl;
 
+import com.netcraker.controllers.AnnouncementController;
 import com.netcraker.model.Author;
 import com.netcraker.model.mapper.AuthorRowMapper;
 import com.netcraker.repositories.AuthorRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -23,6 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthorRepositoryImp implements AuthorRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthorRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${authors.getById}")
@@ -57,7 +61,7 @@ public class AuthorRepositoryImp implements AuthorRepository {
                 return ps;
             }, keyHolder);
         }catch (DataAccessException e){
-            System.out.println("Author::insert entity: " + entity + ". Stack trace: ");
+            logger.info("Author::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -74,7 +78,7 @@ public class AuthorRepositoryImp implements AuthorRepository {
                 return ps.execute();
             });
         }catch (DataAccessException e){
-            System.out.println("Author::update entity: " + entity + ". Stack trace: ");
+            logger.info("Author::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -86,7 +90,7 @@ public class AuthorRepositoryImp implements AuthorRepository {
         try {
             return jdbcTemplate.update(sqlDelete, id) == 1;
         }catch (DataAccessException e){
-            System.out.println("Author::delete entityId: " + id + ". Stack trace: ");
+            logger.info("Author::delete entityId: " + id + ". Stack trace: ");
             e.printStackTrace();
             return false;
         }

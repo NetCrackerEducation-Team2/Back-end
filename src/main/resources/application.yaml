@@ -6,13 +6,13 @@ spring:
     port: 465
     protocol: smtps
 #For deploy
- datasource:
-   url: ${JDBC_DATABASE_URL}
-   username: ${JDBC_DATABASE_USERNAME}
-   password: ${JDBC_DATABASE_PASSWORD}
-  # datasource:
-  #   url: jdbc:postgresql://localhost:5432/test
-  #   username: postgres
-  #   password: 12345678
+# datasource:
+#   url: ${JDBC_DATABASE_URL}
+#   username: ${JDBC_DATABASE_USERNAME}
+#   password: ${JDBC_DATABASE_PASSWORD}
+  datasource:
+    url: jdbc:postgresql://localhost:5432/test
+    username: postgres
+    password: 12345678
 server:
   port: 8081

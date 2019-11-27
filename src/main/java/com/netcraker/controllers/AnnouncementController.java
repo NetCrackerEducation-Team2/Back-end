@@ -7,6 +7,8 @@ import com.netcraker.model.Page;
 import com.netcraker.services.AnnouncementService;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 @RequiredArgsConstructor
 public class AnnouncementController {
+
 
     final private AnnouncementService announcementService;
 
@@ -71,14 +74,12 @@ public class AnnouncementController {
 
     @PutMapping("/publish/{id}")
     public ResponseEntity<?> publishAnnouncement(@PathVariable int id){
-        System.out.println(id);
         announcementService.publishAnnouncement(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PutMapping("/unpublish/{id}")
     public ResponseEntity<?> unpublishAnnouncement(@PathVariable int id){
-        System.out.println(id);
         announcementService.unpublishAnnouncement(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

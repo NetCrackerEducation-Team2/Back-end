@@ -4,6 +4,8 @@ import com.netcraker.model.Announcement;
 import com.netcraker.model.mapper.AnnouncementRowMapper;
 import com.netcraker.repositories.AnnouncementRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -25,6 +27,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(AnnouncementRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
     private final AnnouncementRowMapper announcementRowMapper;
 
@@ -99,7 +102,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
-            System.out.println("Announcement::insert entity: " + entity + ". Stack trace: ");
+            logger.info("Announcement::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -119,7 +122,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
             });
             return getById(entity.getAnnouncementId());
         } catch (DataAccessException e) {
-            System.out.println("Announcement::update entity: " + entity + ". Stack trace: ");
+           logger.info("Announcement::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }

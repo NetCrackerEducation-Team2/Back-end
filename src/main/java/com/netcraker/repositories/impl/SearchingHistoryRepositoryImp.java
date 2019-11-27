@@ -3,6 +3,8 @@ package com.netcraker.repositories.impl;
 import com.netcraker.model.SearchingHistory;
 import com.netcraker.repositories.SearchingHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -20,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchingHistoryRepositoryImp implements SearchingHistoryRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(SearchingHistoryRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${searchingHistory.insert}")
@@ -40,7 +43,7 @@ public class SearchingHistoryRepositoryImp implements SearchingHistoryRepository
                 }
             });
         }catch (DataAccessException e){
-            System.out.println("SearchingHistory::insert. Stack trace: ");
+            logger.info("SearchingHistory::insert. Stack trace: ");
             e.printStackTrace();
         }
     }

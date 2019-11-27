@@ -6,6 +6,8 @@ import com.netcraker.repositories.*;
 import io.jsonwebtoken.lang.Assert;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -28,6 +30,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BookRepositoryImp implements BookRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(BookRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
     private final GenreRepository genreRepository;
     private final AuthorRepository authorRepository;
@@ -74,7 +77,7 @@ public class BookRepositoryImp implements BookRepository {
                 return ps;
             }, keyHolder);
         }catch (DataAccessException e){
-            System.out.println("Book::insert entity: " + entity + ". Stack trace: ");
+            logger.info("Book::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -99,7 +102,7 @@ public class BookRepositoryImp implements BookRepository {
                 return ps.execute();
             });
         }catch (DataAccessException e){
-            System.out.println("Book::update entity: " + entity + ". Stack trace: ");
+            logger.info("Book::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -118,7 +121,7 @@ public class BookRepositoryImp implements BookRepository {
                 genres.forEach(genre -> bookGenreRepository.delete(id, genre.getGenreId()));
                 return jdbcTemplate.update(sqlDelete, id) == 1;
             }catch (DataAccessException e){
-                System.out.println("Book::delete entityId: " + id + ". Stack trace: ");
+                logger.info("Book::delete entityId: " + id + ". Stack trace: ");
                 e.printStackTrace();
                 return false;
             }

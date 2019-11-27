@@ -53,6 +53,15 @@ public class AnnouncementServiceImp implements AnnouncementService {
     public Optional<Announcement> updateAnnouncement(Announcement announcement) {
         return announcementRepository.update(announcement);
     }
+    @Override
+    public void publishAnnouncement(int id) {
+        announcementRepository.publish(id);
+    }
+
+    @Override
+    public void unpublishAnnouncement(int id) {
+        announcementRepository.unpublish(id);
+    }
 
     @Override
     public boolean deleteAnnouncement(int id) {

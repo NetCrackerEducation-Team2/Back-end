@@ -4,8 +4,11 @@ import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.model.Role;
 import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
+import com.netcraker.security.filter.JwtAuthenticationFilter;
 import com.netcraker.services.RoleService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +19,7 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RoleIServiceImpl implements RoleService {
-
+    private static final Logger logger = LoggerFactory.getLogger(RoleIServiceImpl.class);
     private final RoleRepositoryImpl roleRepositoryImpl;
     private final UserRoleRepositoryImpl userRoleRepositoryImpl;
 
@@ -32,7 +35,7 @@ public class RoleIServiceImpl implements RoleService {
         }
         Role createdRole = createdRoleOpt.get();
 
-        System.out.println("created with id: " + createdRole.getRoleId());
+        logger.info("created with id: " + createdRole.getRoleId());
         return role;
     }
 

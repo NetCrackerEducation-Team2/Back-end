@@ -4,6 +4,8 @@ import com.netcraker.model.Book;
 import com.netcraker.model.mapper.BookRowMapper;
 import com.netcraker.repositories.BooksSelectionRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -17,7 +19,7 @@ import java.util.List;
 @PropertySource("classpath:sqlQueries.properties")
 @RequiredArgsConstructor
 public class BooksSelectionRepositoryImp implements BooksSelectionRepository {
-
+    private static final Logger logger = LoggerFactory.getLogger(BooksSelectionRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${booksSelection.insert}")
@@ -35,7 +37,7 @@ public class BooksSelectionRepositoryImp implements BooksSelectionRepository {
                 return ps.execute();
             });
         }catch (DataAccessException e){
-            System.out.println("BooksSelection::insert. Stack trace: ");
+            logger.info("BooksSelection::insert. Stack trace: ");
             e.printStackTrace();
         }
     }
@@ -45,7 +47,7 @@ public class BooksSelectionRepositoryImp implements BooksSelectionRepository {
         try {
             jdbcTemplate.execute(sqlClear);
         }catch (DataAccessException e){
-            System.out.println("BooksSelection::clear. Stack trace: ");
+            logger.info("BooksSelection::clear. Stack trace: ");
             e.printStackTrace();
         }
     }

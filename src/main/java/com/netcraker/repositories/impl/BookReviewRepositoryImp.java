@@ -29,6 +29,8 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
 
     @Value("${book_reviews.getById}")
     private String sqlGetById;
+    @Value("${book_reviews.getAll}")
+    private String sqlGetReviews;
     @Value("${book_reviews.insert}")
     private String sqlInsert;
     @Value("${book_reviews.update}")
@@ -41,6 +43,12 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     private String sqlGetPage;
     @Value("${book_reviews.countByUserIdBookId}")
     private String sqlCountByUserIdBookId;
+    @Value("${book_reviews.publish}")
+    private String sqlPublish;
+    @Value("${book_reviews.unpublish}")
+    private String sqlUnpublish;
+    @Value("${book_reviews.count}")
+    private String sqlGetBookReviewsCount;
 
     @Override
     public Optional<BookReview> getById(int id) {
@@ -51,6 +59,11 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    @Override
+    public int getCount() {
+        return jdbcTemplate.queryForObject(sqlGetBookReviewsCount, int.class);
     }
 
     @Override
@@ -91,6 +104,11 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     }
 
     @Override
+    public List<BookReview> getBookReviews(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetReviews, new Object[]{limit, offset}, new BookReviewRowMapper());
+    }
+
+    @Override
     public Optional<BookReview> update(BookReview entity) {
         try {
             jdbcTemplate.execute(Objects.requireNonNull(sqlUpdate), (PreparedStatementCallback<Boolean>) ps -> {
@@ -111,5 +129,19 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     @Override
     public int countByUserIdBookId(Integer userId, Integer bookId) {
         return Objects.requireNonNull(jdbcTemplate.queryForObject(sqlCountByUserIdBookId, Integer.class, userId, bookId));
+    }
+
+    @Override
+    public void publish(int id) {
+        Object[] params = {id};
+        jdbcTemplate.update(sqlPublish, params);
+
+    }
+
+    @Override
+    public void unpublish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlUnpublish, params);
+
     }
 }

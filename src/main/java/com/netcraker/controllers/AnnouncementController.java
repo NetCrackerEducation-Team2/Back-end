@@ -5,6 +5,7 @@ import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Announcement;
 import com.netcraker.model.Page;
 import com.netcraker.services.AnnouncementService;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AnnouncementController {
 
-    private final AnnouncementService announcementService;
+    final private AnnouncementService announcementService;
 
     @GetMapping
     public ResponseEntity<Page<Announcement>> getAnnouncements(
@@ -67,6 +68,21 @@ public class AnnouncementController {
     public ResponseEntity<?> deleteAnnouncement(@PathVariable int id){
         return ResponseEntity.ok().body(announcementService.deleteAnnouncement(id));
     }
+
+    @PutMapping("/publish/{id}")
+    public ResponseEntity<?> publishAnnouncement(@PathVariable int id){
+        System.out.println(id);
+        announcementService.publishAnnouncement(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/unpublish/{id}")
+    public ResponseEntity<?> unpublishAnnouncement(@PathVariable int id){
+        System.out.println(id);
+        announcementService.unpublishAnnouncement(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 
 
 }

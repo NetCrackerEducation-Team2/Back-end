@@ -36,6 +36,8 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
     @Value("${book_overviews.getById}")
     private String sqlGetById;
+    @Value("${book_overviews.getAll}")
+    private String sqlGetOverviews;
     @Value("${book_overviews.countByBook}")
     private String sqlCountByBook;
     @Value("${book_overviews.getByBook}")
@@ -48,6 +50,12 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     private String sqlUpdate;
     @Value("${book_overviews.delete]")
     private String sqlDelete;
+    @Value("${book_overviews.publish}")
+    private String sqlPublish;
+    @Value("${book_overviews.unpublish}")
+    private String sqlUnpublish;
+    @Value("${book_overviews.count}")
+    private String sqlGetBookOverviewsCount;
 
     @Override
     public void loadReferences(BookOverview bookOverview) {
@@ -60,6 +68,11 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     }
 
     @Override
+    public int getCount() {
+        return jdbcTemplate.queryForObject(sqlGetBookOverviewsCount, int.class);
+    }
+
+    @Override
     public int countByBook(int bookId) {
         return jdbcTemplate.queryForObject(sqlCountByBook, new Object[]{bookId}, int.class);
     }
@@ -67,6 +80,11 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     @Override
     public List<BookOverview> getByBook(int bookId, int size, int offset) {
         return jdbcTemplate.query(sqlGetByBook, new BookOverviewRowMapper(), bookId, size, offset);
+    }
+
+    @Override
+    public List<BookOverview> getBookOverviews(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetOverviews, new Object[]{limit, offset}, new BookOverviewRowMapper());
     }
 
     @Override
@@ -82,6 +100,7 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
                 new BookOverviewRowMapper(), id);
         return bookOverviews.isEmpty() ? Optional.empty() : Optional.of(bookOverviews.get(0));
     }
+
 
     @Override
     public Optional<BookOverview> insert(BookOverview entity) {
@@ -130,5 +149,19 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public void publish(int id) {
+        Object[] params = {id};
+        jdbcTemplate.update(sqlPublish, params);
+
+    }
+
+    @Override
+    public void unpublish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlUnpublish, params);
+
     }
 }

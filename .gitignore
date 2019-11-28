@@ -42,6 +42,9 @@ tomcat
 # Maven 
 target/
 
+# Vscode settings
+.vscode/
+
 # IntelliJ project files 
 *.iml
 *.iws
@@ -101,7 +104,6 @@ local.properties
 *~
 .#*
 .*.md.html
-
 
 .recommenders
 /code

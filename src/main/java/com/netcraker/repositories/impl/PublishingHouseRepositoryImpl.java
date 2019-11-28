@@ -6,6 +6,8 @@ import com.netcraker.model.mapper.PublishingHouseRowMapper;
 import com.netcraker.repositories.PublishingHouseRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -19,8 +21,10 @@ import java.util.Optional;
 @PropertySource("classpath:sqlQueries.properties")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PublishingHouseRepositoryImpl implements PublishingHouseRepository {
+
     @Value("${publishingHouses.getAll}")
     private String sqlGetAll;
+    private static final Logger logger = LoggerFactory.getLogger(PublishingHouseRepositoryImpl.class);
     private final @NonNull JdbcTemplate jdbcTemplate;
 
     @Override

@@ -3,8 +3,11 @@ package com.netcraker.services.impl;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
+import com.netcraker.security.filter.JwtAuthenticationFilter;
 import com.netcraker.services.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,7 @@ public class RecoveryServiceImp implements RecoveryService {
     private final UserService userService;
     private final PasswordEncoder encoder;
     private final PasswordGenerator passGenerator;
-
+    private static final Logger logger = LoggerFactory.getLogger(RecoveryServiceImp.class);
     @Override
     public boolean sendRecoveryCode(String email) {
         final User fromDb = userService.findByEmail(email);
@@ -38,7 +41,7 @@ public class RecoveryServiceImp implements RecoveryService {
         try {
             linkFromDb = authRepo.findByActivationCode(recoveryCode);
         } catch (DataAccessException e) {
-            System.out.println("RecoveryServiceImpl::recoverPassword. Stack trace: ");
+            logger.error("RecoveryServiceImpl::recoverPassword. Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }

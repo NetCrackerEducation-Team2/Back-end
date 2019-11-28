@@ -6,6 +6,8 @@ import com.netcraker.model.User;
 import com.netcraker.model.vo.ChangePassword;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -20,10 +22,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("profile/{userId}")
     public ResponseEntity<?> getUserProfile(@PathVariable int userId) {
-        System.out.println("userId = " + userId);
+        logger.info("userId = " + userId);
         final User userFromDb = userService.findByUserId(userId);
         if (userFromDb == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with such id doesn't exist");

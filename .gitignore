@@ -42,6 +42,9 @@ tomcat
 # Maven 
 target/
 
+# Vscode settings
+.vscode/
+
 # IntelliJ project files 
 *.iml
 *.iws

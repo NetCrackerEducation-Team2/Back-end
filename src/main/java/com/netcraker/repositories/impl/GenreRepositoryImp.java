@@ -4,6 +4,8 @@ import com.netcraker.model.Genre;
 import com.netcraker.model.mapper.GenreRowMapper;
 import com.netcraker.repositories.GenreRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GenreRepositoryImp implements GenreRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(GenreRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${genres.getById}")
@@ -57,7 +60,7 @@ public class GenreRepositoryImp implements GenreRepository {
                 return ps;
             }, keyHolder);
         }catch (DataAccessException e){
-            System.out.println("Genre::insert entity: " + entity + ". Stack trace: ");
+            logger.info("Genre::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -74,7 +77,7 @@ public class GenreRepositoryImp implements GenreRepository {
                 return ps.execute();
             });
         }catch (DataAccessException e){
-            System.out.println("Genre::update entity: " + entity + ". Stack trace: ");
+            logger.info("Genre::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -86,7 +89,7 @@ public class GenreRepositoryImp implements GenreRepository {
         try {
             return jdbcTemplate.update(sqlDelete, id) == 1;
         }catch (DataAccessException e){
-            System.out.println("Genre::delete entityId: " + id + ". Stack trace: ");
+            logger.info("Genre::delete entityId: " + id + ". Stack trace: ");
             e.printStackTrace();
             return false;
         }

@@ -4,6 +4,8 @@ import com.netcraker.model.Book;
 import com.netcraker.model.mapper.BookRowMapper;
 import com.netcraker.repositories.BooksRecommendationsRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -21,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BooksRecommendationsRepositoryImp implements BooksRecommendationsRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(BooksRecommendationsRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${booksRecommendations.count}")
@@ -66,7 +69,7 @@ public class BooksRecommendationsRepositoryImp implements BooksRecommendationsRe
                 }
             });
         }catch (DataAccessException e){
-            System.out.println("BooksRecommendations::insert. Stack trace: ");
+            logger.info("BooksRecommendations::insert. Stack trace: ");
             e.printStackTrace();
         }
     }
@@ -76,7 +79,7 @@ public class BooksRecommendationsRepositoryImp implements BooksRecommendationsRe
         try {
             jdbcTemplate.execute(sqlClear);
         }catch (DataAccessException e){
-            System.out.println("BooksRecommendations::clear. Stack trace: ");
+            logger.info("BooksRecommendations::clear. Stack trace: ");
             e.printStackTrace();
         }
     }

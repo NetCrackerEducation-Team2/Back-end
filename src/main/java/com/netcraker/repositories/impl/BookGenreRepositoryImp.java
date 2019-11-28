@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class BookGenreRepositoryImp implements BookGenreRepository {
 
+
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${books_genres.insert}")

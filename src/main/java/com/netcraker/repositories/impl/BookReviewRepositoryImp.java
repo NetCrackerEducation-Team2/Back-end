@@ -5,6 +5,8 @@ import com.netcraker.model.Page;
 import com.netcraker.model.mapper.BookReviewRowMapper;
 import com.netcraker.repositories.BookReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -25,10 +27,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookReviewRepositoryImp implements BookReviewRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(BookReviewRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${book_reviews.getById}")
     private String sqlGetById;
+    @Value("${book_reviews.getAll}")
+    private String sqlGetReviews;
     @Value("${book_reviews.insert}")
     private String sqlInsert;
     @Value("${book_reviews.update}")
@@ -41,16 +46,27 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     private String sqlGetPage;
     @Value("${book_reviews.countByUserIdBookId}")
     private String sqlCountByUserIdBookId;
+    @Value("${book_reviews.publish}")
+    private String sqlPublish;
+    @Value("${book_reviews.unpublish}")
+    private String sqlUnpublish;
+    @Value("${book_reviews.count}")
+    private String sqlGetBookReviewsCount;
 
     @Override
     public Optional<BookReview> getById(int id) {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, new BookReviewRowMapper(), id));
         } catch (DataAccessException e) {
-            System.out.println("BookReview::getById id: " + id + ". Stack trace: ");
+            logger.info("BookReview::getById id: " + id + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    @Override
+    public int getCount() {
+        return jdbcTemplate.queryForObject(sqlGetBookReviewsCount, int.class);
     }
 
     @Override
@@ -83,11 +99,16 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
-            System.out.println("BookReview::insert entity: " + entity + ". Stack trace: ");
+            logger.info("BookReview::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
         return getById((Integer) keyHolder.getKeys().get("book_review_id"));
+    }
+
+    @Override
+    public List<BookReview> getBookReviews(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetReviews, new Object[]{limit, offset}, new BookReviewRowMapper());
     }
 
     @Override
@@ -102,7 +123,7 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
             });
             return getById(entity.getBookReviewId());
         } catch (DataAccessException e) {
-            System.out.println("BookReview::update entity: " + entity + ". Stack trace: ");
+            logger.info("BookReview::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -111,5 +132,19 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
     @Override
     public int countByUserIdBookId(Integer userId, Integer bookId) {
         return Objects.requireNonNull(jdbcTemplate.queryForObject(sqlCountByUserIdBookId, Integer.class, userId, bookId));
+    }
+
+    @Override
+    public void publish(int id) {
+        Object[] params = {id};
+        jdbcTemplate.update(sqlPublish, params);
+
+    }
+
+    @Override
+    public void unpublish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlUnpublish, params);
+
     }
 }

@@ -2,12 +2,15 @@ package com.netcraker.services.impl;
 
 import com.netcraker.model.BookOverview;
 import com.netcraker.model.Page;
+import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.BookOverviewRepository;
 import com.netcraker.services.BookOverviewService;
 import com.netcraker.services.PageService;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class BookOverviewServiceImpl implements BookOverviewService {
-
+    private final ApplicationEventPublisher eventPublisher;
     private final BookOverviewRepository bookOverviewRepository;
     private final PageService pageService;
 
@@ -50,7 +53,9 @@ public class BookOverviewServiceImpl implements BookOverviewService {
 
     @Override
     public Optional<BookOverview> addBookOverview(BookOverview bookOverview) {
-        return bookOverviewRepository.insert(bookOverview);
+        final Optional<BookOverview> inserted = bookOverviewRepository.insert(bookOverview);
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_OVERVIEWS,bookOverview.getUserId()));
+        return inserted;
     }
 
     @Override

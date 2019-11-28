@@ -2,11 +2,14 @@ package com.netcraker.services.impl;
 
 import com.netcraker.model.BookReview;
 import com.netcraker.model.Page;
+import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.BookReviewRepository;
 import com.netcraker.services.BookReviewService;
 
 import com.netcraker.services.PageService;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +21,13 @@ import java.util.Optional;
 public class BookReviewServiceImp implements BookReviewService {
     private final BookReviewRepository bookReviewRepo;
     private final PageService pageService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public Optional<BookReview> createBookReview(BookReview bookReview) {
-        return bookReviewRepo.insert(bookReview);
+        final Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
+        return inserted;
     }
 
     @Override

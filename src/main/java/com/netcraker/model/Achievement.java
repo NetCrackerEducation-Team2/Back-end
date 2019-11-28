@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class Achievement {
     private int achievementId;
     private String name;
-    private String requirement;
+    private String sqlQuery;
     private TableName tableName;
+    private String requirement;
 }

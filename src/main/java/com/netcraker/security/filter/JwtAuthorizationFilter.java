@@ -24,9 +24,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
-        System.out.println("JwtAuthorizationFilter is doing filter");
-        System.out.println("Method: " + request.getMethod());
-        System.out.println("URI: " + request.getRequestURI());
+//        System.out.println("JwtAuthorizationFilter is doing filter");
+//        System.out.println("Method: " + request.getMethod());
+//        System.out.println("URI: " + request.getRequestURI());
 
         if (request.getRequestURI().startsWith("/auth/")) {
             filterChain.doFilter(request, response);
@@ -35,7 +35,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         Authentication authentication = getAuthentication(request);
         if (authentication == null) {
-            System.out.println("Authentication is null");
+//            System.out.println("Authentication is null");
             filterChain.doFilter(request, response);
             return;
         }

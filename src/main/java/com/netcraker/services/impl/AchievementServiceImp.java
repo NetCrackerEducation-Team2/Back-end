@@ -6,13 +6,15 @@ import com.netcraker.model.vo.AchievementReq;
 import com.netcraker.repositories.AchievementRepository;
 import com.netcraker.services.AchievementService;
 import com.netcraker.services.UserAchievementService;
-import com.netcraker.services.builders.Builder;
 import com.netcraker.services.builders.imp.AchievementBuilder;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,9 +34,11 @@ public class AchievementServiceImp implements AchievementService {
         return achievementRepo.getById(achievementId);
     }
 
+    @NonNull
     @Override
     public List<Achievement> getAchievementsByTableName(TableName tableName) {
-        return achievementRepo.getByTableName(tableName);
+        List<Achievement> fromDb = achievementRepo.getByTableName(tableName);
+        return fromDb != null ? fromDb : Collections.emptyList();
     }
 
     @Override
@@ -55,7 +59,9 @@ public class AchievementServiceImp implements AchievementService {
 
         final Achievement achievement = achievementBuilder.build(achievementReq);
 
-        return achievementRepo.insert(achievement);
+        final Optional<Achievement> inserted = achievementRepo.insert(achievement);
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(achievementReq.getSubject(), -1));
+        return inserted;
     }
 
     @Transactional

@@ -2,6 +2,7 @@ package com.netcraker.services;
 
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface UserService {
     boolean activateUser(String code);
     boolean equalsPassword(User user, String password);
     User changePassword(int userId, String oldPass, String newPass);
+    @NonNull List<Integer> getListId();
 }

@@ -14,8 +14,9 @@ public class AchievementRowMapper implements RowMapper<Achievement> {
         return Achievement.builder()
                 .achievementId(resultSet.getInt("achievement_id"))
                 .name(resultSet.getString("name"))
-                .requirement(resultSet.getString("requirment"))
+                .sqlQuery(resultSet.getString("sql_query"))
                 .tableName(TableName.valueOf(resultSet.getString("table_name").toUpperCase()))
+                .requirement(resultSet.getString("requirement"))
                 .build();
     }
 }

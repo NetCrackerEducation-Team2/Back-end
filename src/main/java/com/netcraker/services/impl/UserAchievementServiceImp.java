@@ -2,6 +2,7 @@ package com.netcraker.services.impl;
 
 import com.netcraker.model.Achievement;
 import com.netcraker.model.Page;
+import com.netcraker.model.UserAchievement;
 import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.UserAchievementRepository;
 import com.netcraker.services.PageService;
@@ -44,5 +45,10 @@ public class UserAchievementServiceImp implements UserAchievementService {
         int pages = pageService.getPagesCount(userAchievementRepo.countByUserId(userId), pageSize);
         List<Achievement> result = userAchievementRepo.getByUserId(userId, pageSize, page * pageSize - pageSize);
         return new Page<>(page, pages, pageSize, result);
+    }
+
+    @Override
+    public boolean exists(int userId, int achievementId) {
+        return userAchievementRepo.countByUserIdAchievementId(userId, achievementId) > 0;
     }
 }

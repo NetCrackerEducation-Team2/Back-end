@@ -6,7 +6,6 @@ import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
-import com.netcraker.model.UserRole;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.repositories.UserRepository;
@@ -16,11 +15,13 @@ import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,16 +75,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAdminModerator(User user, List<Role> roles){
+    public User createAdminModerator(User user, List<Role> roles) {
         user.setEnabled(true);
         final User registered = createUser(user);
-        for (Role role:roles) {
+        for (Role role : roles) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
-            if(!roleFromDB.isPresent()){
+            if (!roleFromDB.isPresent()) {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepositoryImpl.insert(registered,roleFind);
+            userRoleRepositoryImpl.insert(registered, roleFind);
         }
 
         return user;
@@ -115,7 +116,7 @@ public class UserServiceImpl implements UserService {
     public User findByEmail(String email) {
         User user = userRepository.findByEmail(email).orElse(null);
         assert user != null;
-        final List<Role> roles= roleRepository.getAllRoleById(user.getUserId());
+        final List<Role> roles = roleRepository.getAllRoleById(user.getUserId());
         user.setRoles(roles);
         return user;
     }
@@ -129,9 +130,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateAdminModerator(User newUser, List<Role> roles) {
         userRepository.update(newUser);
-        for (Role role:roles) {
+        for (Role role : roles) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
-            if(!roleFromDB.isPresent()){
+            if (!roleFromDB.isPresent()) {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
@@ -161,5 +162,12 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.update(user)
                 .orElseThrow(() -> new UpdateException("Cannot update password"));
+    }
+
+    @Override
+    @NonNull
+    public List<Integer> getListId() {
+        List<Integer> listId = userRepository.getListId();
+        return listId != null ? listId : Collections.emptyList();
     }
 }

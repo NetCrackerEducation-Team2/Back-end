@@ -64,6 +64,8 @@ public class ErrorHandlerController {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
         System.out.println("ErrorHandlerController is handling IllegalArgumentException");
+        System.out.println("Stack trace : ");
+        e.printStackTrace();
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

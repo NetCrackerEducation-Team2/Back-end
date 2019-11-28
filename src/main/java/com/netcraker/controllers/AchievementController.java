@@ -37,28 +37,18 @@ public class AchievementController {
     private final AchievementService achievementService;
     private final UserAchievementService userAchievementService;
 
-//    ============
-//    OLD VERSION:
-//    ============
-//
-//    @PostMapping
-//    public ResponseEntity<Achievement> createAchievement(@RequestBody @Validated Achievement achievement,
-//                                                         BindingResult result) {
-//        validateBody(result);
-//
-//        return ResponseEntity.status(HttpStatus.CREATED)
-//                .body(achievementService.createAchievement(achievement)
-//                        .orElseThrow(() -> new CreationException("Cannot create achievement")));
-//    }
-
     @PostMapping
-    public ResponseEntity<Achievement> createAchievement(@RequestBody AchievementReq achievementReq) {
+    public ResponseEntity<Achievement> createAchievement(@RequestBody @Validated AchievementReq achievementReq,
+                                                         BindingResult result) {
+        System.out.println("Request : " + achievementReq);
+        if (result.hasErrors()) {
+            throw newCreationException();
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(achievementService.createAchievement(achievementReq)
-                        .orElseThrow(() -> new CreationException("Cannot create achievement")));
+                        .orElseThrow(this::newCreationException));
     }
-
 
     @PutMapping
     public ResponseEntity<Achievement> updateAchievement(@RequestBody @Validated Achievement achievement,
@@ -116,6 +106,10 @@ public class AchievementController {
         System.err.println("greeting controller");
 
         return "subscribed, your userId : " + userId;
+    }
+
+    private CreationException newCreationException() {
+        return new CreationException("Cannot create achievement");
     }
 }
 

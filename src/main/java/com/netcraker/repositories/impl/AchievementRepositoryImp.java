@@ -51,7 +51,7 @@ public class AchievementRepositoryImp implements AchievementRepository {
 
     @Override
     public List<Achievement> getByTableName(TableName tableName) {
-        return jdbcTemplate.query(sqlGetByTableName, new Object[]{tableName.getTableName()}, new AchievementRowMapper());
+        return jdbcTemplate.query(sqlGetByTableName, new Object[]{tableName.name()}, new AchievementRowMapper());
     }
 
     @Override
@@ -63,8 +63,9 @@ public class AchievementRepositoryImp implements AchievementRepository {
             jdbcTemplate.update(conn -> {
                 PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, entity.getName());
-                ps.setString(2, entity.getRequirement());
-                ps.setString(3, entity.getTableName().getTableName()); // can change to entity.getTableName().name()
+                ps.setString(2, entity.getTableName().name()); // can change to entity.getTableName().name()
+                ps.setString(3, entity.getRequirement());
+                ps.setString(4, entity.getSqlQuery());
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {

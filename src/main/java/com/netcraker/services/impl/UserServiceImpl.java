@@ -85,10 +85,11 @@ public class UserServiceImpl implements UserService {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepositoryImpl.insert(registered,roleFind);
+            userRoleRepositoryImpl.insert(registered,roleFind)
+                    .orElseThrow(() -> new FailedToRegisterException("Error in creating relationship between user and role"));
         }
 
-        return user;
+        return registered;
     }
 
     private User createUser(User user) {
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserService {
             throw new FailedToRegisterException("Email is already used");
         }
         //for hashing
-        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         final User registered = userRepository.insert(user)
                 .orElseThrow(() -> new FailedToRegisterException("Error in creating user! Email is free, but creation query failure."));

@@ -77,7 +77,11 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
 
     @Override
     public Optional<UserRole> insert(UserRole entity) {
-        return Optional.empty();
+        logger.info("trying to add user to db: " + entity);
+        Object[] params = {entity.getUserId(), entity.getRoleId()};
+        jdbcTemplate.update(sqlCreateRoleUser, params);
+
+        return getById(entity.getUserId());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.netcraker.services;
 
+import com.netcraker.model.Page;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
 
@@ -17,5 +18,5 @@ public interface UserService {
     boolean activateUser(String code);
     boolean equalsPassword(User user, String password);
     User changePassword(int userId, String oldPass, String newPass);
-    List<User> searchUser(String searchExpression, Optional<User> currentUser);
+    Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize);
 }

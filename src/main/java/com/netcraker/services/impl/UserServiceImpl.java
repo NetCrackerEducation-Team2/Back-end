@@ -2,8 +2,10 @@ package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.exceptions.FindException;
+import com.netcraker.exceptions.NoUserRoleProvided;
 import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.AuthorizationLinks;
+import com.netcraker.model.Page;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.repositories.UserRepository;
@@ -11,6 +13,7 @@ import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.services.AuthEmailSenderService;
+import com.netcraker.services.PageService;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.PropertySource;
@@ -27,6 +30,7 @@ import java.util.Optional;
 @PropertySource("classpath:email-messages.properties")
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private final PageService pageService;
     private final UserRepository userRepository;
     private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
     private final RoleRepositoryImpl roleRepository;
@@ -103,15 +107,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> searchUser(String searchExpression, Optional<User> currentUser) {
+    public Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize) {
         // TODO should we set user roles here?
-        Role user = roleRepository.findByName("USER").get();
+        searchExpression = "%" + searchExpression + "%";
+        Role user = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
         if (!currentUser.isPresent() || roleRepository.getAllRoleById(currentUser.get().getUserId()).contains(user)) {
-            return userRepository.findByEmailOrFullNameFilterByRole("%" + searchExpression + "%", user);
+            int total = userRepository.getFindByEmailOrFullNameFilterByRoleCount(searchExpression, user);
+            int pagesCount = pageService.getPagesCount(total, pageSize);
+            int currentPage = pageService.getRestrictedPage(page, pagesCount);
+            int offset = currentPage * pageSize;
+            return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRole(searchExpression, user, offset, pageSize));
         } else {
-            List<Role> allRoles = roleRepository.getAllRoles();
-            allRoles.remove(user);
-            return userRepository.findByEmailOrFullNameFilterByRoleWithout("%" + searchExpression + "%", user);
+            int total = userRepository.getFindByEmailOrFullNameFilterByRoleWithoutCount(searchExpression, user);
+            int pagesCount = pageService.getPagesCount(total, pageSize);
+            int currentPage = pageService.getRestrictedPage(page, pagesCount);
+            int offset = currentPage * pageSize;
+            return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRoleWithout(searchExpression, user, offset, pageSize));
         }
     }
 

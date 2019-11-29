@@ -1,6 +1,7 @@
 package com.netcraker.controllers;
 
 import com.netcraker.exceptions.UpdateException;
+import com.netcraker.model.Page;
 import com.netcraker.model.User;
 import com.netcraker.model.vo.ChangePassword;
 import com.netcraker.services.UserService;
@@ -51,10 +52,13 @@ public class UserController {
     }
 
     @GetMapping("profile/search")
-    public List<User> searchUser(@RequestParam String searchExpression, HttpServletRequest request) {
-        return userService.searchUser(searchExpression, getCurrentUser(request));
+    public Page<User> searchUser(@RequestParam String searchExpression,
+                                 @RequestParam(required = false, defaultValue = "0") int page,
+                                 @RequestParam(required = false, defaultValue = "5") int pageSize,
+                                 HttpServletRequest request) {
+        return userService.searchUser(searchExpression, getCurrentUser(request), page, pageSize);
     }
-
+    // FIXME use SecurityContext
     private Optional<User> getCurrentUser(HttpServletRequest request) {
         String currentUserEmail = (String) request.getAttribute("currentUserEmail");
         return Optional.ofNullable(userService.findByEmail(currentUserEmail));

@@ -13,9 +13,10 @@ import java.security.NoSuchAlgorithmException;
 @ControllerAdvice
 public class ErrorHandlerController {
     private static final Logger logger = LoggerFactory.getLogger(ErrorHandlerController.class);
+
     @ExceptionHandler(FailedToRegisterException.class)
     public ResponseEntity<?> handleFailedToRegisterException(FailedToRegisterException e) {
-        logger.error("ErrorHandlerController is handling FailedToRegisterException");
+        logError(e);
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
@@ -23,8 +24,8 @@ public class ErrorHandlerController {
     }
 
     @ExceptionHandler(FailedToLoginException.class)
-    public ResponseEntity<?> handleFailedToLoginException(FailedToLoginException e){
-        logger.error("ErrorHandlerController is handling FailedToRegisterException");
+    public ResponseEntity<?> handleFailedToLoginException(FailedToLoginException e) {
+        logError(e);
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
@@ -33,41 +34,53 @@ public class ErrorHandlerController {
 
     @ExceptionHandler(CreationException.class)
     public ResponseEntity<?> handleCreationException(CreationException e) {
-        logger.error("ErrorHandlerController is handling CreationException");
+        logError(e);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
+
     @ExceptionHandler(UpdateException.class)
     public ResponseEntity<?> handleUpdateException(UpdateException e) {
-        logger.error("ErrorHandlerController is handling CreationException");
+        logError(e);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
+
     @ExceptionHandler(FindException.class)
     public ResponseEntity<?> handleFindException(FindException e) {
-        logger.error("ErrorHandlerController is handling FindException");
+        logError(e);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
+
     @ExceptionHandler(NoSuchAlgorithmException.class)
     public ResponseEntity<?> handleNoSuchAlgorithmException(NoSuchAlgorithmException e) {
-        logger.error("ErrorHandlerController is handling NoSuchAlgorithmException");
+        logError(e);
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(e.getMessage());
     }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
-        logger.error("ErrorHandlerController is handling IllegalArgumentException");
+        logError(e);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
+
+    private void logError(Exception e) {
+        logger.error("ErrorHandlerController is handling {}", e.getClass());
+        logger.error("Message : {}", e.getMessage());
+    }
+
+
 }

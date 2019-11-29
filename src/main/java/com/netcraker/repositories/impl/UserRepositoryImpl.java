@@ -46,6 +46,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Value("${user.deleteByEmail}")
     private String sqlDeleteByEmail;
+    @Value("${user.getListId}")
+    private String sqlListId;
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -76,7 +78,7 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> getById(int id) {
         Object[] params = {id};
         List<User> users = jdbcTemplate.query(sqlGetById, params, new UserRowMapper());
-        return Optional.ofNullable(users.get(0));
+        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     @Override
@@ -119,5 +121,10 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean delete(int id) {
         Object[] params = {id};
         return jdbcTemplate.update(sqlDelete, params) == 1;
+    }
+
+    @Override
+    public List<Integer> getListId() {
+        return jdbcTemplate.queryForList(sqlListId, Integer.class);
     }
 }

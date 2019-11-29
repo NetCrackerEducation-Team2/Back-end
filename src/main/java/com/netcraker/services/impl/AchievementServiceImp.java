@@ -42,14 +42,6 @@ public class AchievementServiceImp implements AchievementService {
     }
 
     @Override
-    public Optional<Achievement> updateAchievement(Achievement achievement) {
-        if (achievement == null) {
-            return Optional.empty();
-        }
-        return achievementRepo.update(achievement);
-    }
-
-    @Override
     public Optional<Achievement> createAchievement(AchievementReq achievementReq) {
         final Optional<Achievement> optFromDb = achievementRepo.getByName(achievementReq.getName());
 
@@ -71,7 +63,6 @@ public class AchievementServiceImp implements AchievementService {
         if (!fromDb.isPresent()) {
             return false;
         }
-
         // cascade delete achievement from user_achievement table
         userAchievementService.deleteUserAchievement(null, achievementId);
 

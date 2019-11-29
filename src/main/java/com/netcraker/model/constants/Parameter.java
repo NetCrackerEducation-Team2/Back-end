@@ -2,9 +2,8 @@ package com.netcraker.model.constants;
 
 
 public enum Parameter {
-
     // Common
-    CREATED_TIME,
+    CREATION_TIME,
 
     // Book
     BOOK_VOTERS_COUNT,

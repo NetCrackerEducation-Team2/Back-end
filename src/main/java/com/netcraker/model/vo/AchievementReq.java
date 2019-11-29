@@ -30,4 +30,6 @@ public class AchievementReq {
     private Map<Parameter, List<String>> extraParams;
     @Min(1)
     private Integer count;
+    @Nullable
+    private String description;
 }

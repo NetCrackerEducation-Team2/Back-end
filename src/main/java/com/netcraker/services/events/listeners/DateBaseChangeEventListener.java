@@ -33,7 +33,7 @@ public class DateBaseChangeEventListener {
         final TableName tableName = event.getAffectedTable();
         final int userId = event.getUserId().intValue();
 
-        // if user id < 0 => need to check all users
+        // Check all users in database
         if (userId < 0) {
             final List<Integer> allUserIds = userService.getListId();
 

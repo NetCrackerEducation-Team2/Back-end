@@ -34,8 +34,6 @@ public class AchievementRepositoryImp implements AchievementRepository {
     private String sqlGetById;
     @Value("${achievements.insert}")
     private String sqlInsert;
-    @Value("${achievements.update}")
-    private String sqlUpdate;
     @Value("${achievements.delete}")
     private String sqlDelete;
     @Value("${achievements.getByName}")
@@ -64,7 +62,7 @@ public class AchievementRepositoryImp implements AchievementRepository {
                 PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, entity.getName());
                 ps.setString(2, entity.getTableName().name()); // can change to entity.getTableName().name()
-                ps.setString(3, entity.getRequirement());
+                ps.setString(3, entity.getDescription());
                 ps.setString(4, entity.getSqlQuery());
                 return ps;
             }, keyHolder);
@@ -74,22 +72,6 @@ public class AchievementRepositoryImp implements AchievementRepository {
             return Optional.empty();
         }
         return getById((Integer) keyHolder.getKeys().get("achievement_id"));
-    }
-
-    @Override
-    public Optional<Achievement> update(Achievement entity) {
-        try {
-            jdbcTemplate.execute(Objects.requireNonNull(sqlUpdate), (PreparedStatementCallback<Boolean>) ps -> {
-                ps.setString(1, entity.getName());
-                ps.setString(2, entity.getRequirement());
-                return ps.execute();
-            });
-            return getById(entity.getAchievementId());
-        } catch (DataAccessException e) {
-            System.out.println("Achievements::update entity: " + entity + ". Stack trace: ");
-            e.printStackTrace();
-            return Optional.empty();
-        }
     }
 
     @Override

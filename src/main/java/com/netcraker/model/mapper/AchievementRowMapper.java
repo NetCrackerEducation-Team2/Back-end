@@ -16,7 +16,7 @@ public class AchievementRowMapper implements RowMapper<Achievement> {
                 .name(resultSet.getString("name"))
                 .sqlQuery(resultSet.getString("sql_query"))
                 .tableName(TableName.valueOf(resultSet.getString("table_name").toUpperCase()))
-                .requirement(resultSet.getString("requirement"))
+                .description(resultSet.getString("description"))
                 .build();
     }
 }

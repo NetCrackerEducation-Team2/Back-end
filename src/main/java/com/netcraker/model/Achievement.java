@@ -13,5 +13,5 @@ public class Achievement {
     private String name;
     private String sqlQuery;
     private TableName tableName;
-    private String requirement;
+    private String description;
 }

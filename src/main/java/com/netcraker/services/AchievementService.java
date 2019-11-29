@@ -12,7 +12,6 @@ public interface AchievementService {
     Optional<Achievement> getAchievementById(int achievementId);
     @NonNull List<Achievement> getAchievementsByTableName(TableName tableName);
     Optional<Achievement> getAchievementByName(String name);
-    Optional<Achievement> updateAchievement(Achievement achievement);
     Optional<Achievement> createAchievement(AchievementReq achievement);
     boolean deleteAchievement(int achievementId);
 }

@@ -3,6 +3,7 @@ package com.netcraker.repositories.impl;
 import com.netcraker.model.Announcement;
 import com.netcraker.model.mapper.AnnouncementRowMapper;
 import com.netcraker.repositories.AnnouncementRepository;
+import com.netcraker.repositories.GenericRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
     private static final Logger logger = LoggerFactory.getLogger(AnnouncementRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
     private final AnnouncementRowMapper announcementRowMapper;
+    private final GenericRepository<Announcement, AnnouncementRowMapper> genericRepository;
 
     @Value("${announcements.getById}")
     private String sqlGetById;
@@ -84,8 +86,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
     @Override
     public Optional<Announcement> getById(int id) {
-        List<Announcement> announcements = jdbcTemplate.query(sqlGetById, announcementRowMapper, id);
-        return announcements.isEmpty() ? Optional.empty() : Optional.of(announcements.get(0));
+        return genericRepository.getById(announcementRowMapper, sqlGetById, id);
     }
 
     @Override

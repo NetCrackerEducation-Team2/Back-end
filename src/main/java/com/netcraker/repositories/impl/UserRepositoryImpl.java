@@ -7,6 +7,8 @@ import com.netcraker.model.User;
 import com.netcraker.model.mapper.UserRowMapper;
 import com.netcraker.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,6 +23,7 @@ import java.util.Optional;
 @PropertySource("classpath:sqlQueries.properties")
 public class UserRepositoryImpl implements UserRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserRepositoryImpl.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${user.findByEmail}")
@@ -52,6 +55,12 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Value("${user.findByEmailOrFullNameFilterByRoleWithoutCount}")
     private String sqlFindByEmailOrFullNameFilterByRoleWithoutCount;
+
+    @Value("${user.deleteByEmail}")
+    private String sqlDeleteByEmail;
+    @Value("${user.getListId}")
+    private String sqlListId;
+
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -117,12 +126,12 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> getById(int id) {
         Object[] params = {id};
         List<User> users = jdbcTemplate.query(sqlGetById, params, new UserRowMapper());
-        return Optional.ofNullable(users.get(0));
+        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     @Override
     public Optional<User> insert(User entity) {
-        System.out.println("trying to add user to db: " + entity);
+        logger.info("trying to add user to db: " + entity);
         Object[] params = {entity.getFullName(), entity.getPassword(), entity.getEmail(),
                 new Timestamp(System.currentTimeMillis()), entity.getEnabled(), entity.getPhotoPath()};
         jdbcTemplate.update(sqlInsert, params);
@@ -151,8 +160,19 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public boolean deleteByEmail(String email) {
+        Object[] params = {email};
+        return jdbcTemplate.update(sqlDeleteByEmail, params) == 1;
+    }
+
+    @Override
     public boolean delete(int id) {
         Object[] params = {id};
         return jdbcTemplate.update(sqlDelete, params) == 1;
+    }
+
+    @Override
+    public List<Integer> getListId() {
+        return jdbcTemplate.queryForList(sqlListId, Integer.class);
     }
 }

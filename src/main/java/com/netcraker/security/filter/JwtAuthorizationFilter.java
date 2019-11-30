@@ -2,6 +2,8 @@ package com.netcraker.security.filter;
 
 import com.netcraker.security.SecurityConstants;
 import io.jsonwebtoken.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,21 +15,22 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Enumeration;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
-        System.out.println("JwtAuthorizationFilter constructed ");
+        logger.info("JwtAuthorizationFilter constructed ");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
-        System.out.println("JwtAuthorizationFilter is doing filter");
-        System.out.println("Method: " + request.getMethod());
-        System.out.println("URI: " + request.getRequestURI());
+
+        logger.info("JwtAuthorizationFilter is doing filter");
+        logger.info("Method: " + request.getMethod());
+        logger.info("URI: " + request.getRequestURI());
 
         if (request.getRequestURI().startsWith("/auth/")) {
             filterChain.doFilter(request, response);
@@ -36,11 +39,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         Authentication authentication = getAuthentication(request);
         if (authentication == null) {
-            System.out.println("Authentication is null");
+            logger.error("Authentication is null");
             filterChain.doFilter(request, response);
             return;
         }
-        System.out.println("Authentication set in Security context holder");
+        logger.info("Authentication set in Security context holder");
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }

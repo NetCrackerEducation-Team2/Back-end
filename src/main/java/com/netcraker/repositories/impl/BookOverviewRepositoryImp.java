@@ -1,10 +1,16 @@
 package com.netcraker.repositories.impl;
 
+import com.netcraker.model.Book;
 import com.netcraker.model.BookOverview;
+import com.netcraker.model.User;
 import com.netcraker.model.mapper.BookOverviewRowMapper;
 import com.netcraker.repositories.BookOverviewRepository;
+import com.netcraker.repositories.BookRepository;
+import com.netcraker.repositories.UserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -26,10 +32,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(BookOverviewRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
+    private final UserRepository userRepository;
+    private final BookRepository bookRepository;
 
     @Value("${book_overviews.getById}")
     private String sqlGetById;
+    @Value("${book_overviews.getAll}")
+    private String sqlGetOverviews;
     @Value("${book_overviews.countByBook}")
     private String sqlCountByBook;
     @Value("${book_overviews.getByBook}")
@@ -42,6 +53,27 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     private String sqlUpdate;
     @Value("${book_overviews.delete]")
     private String sqlDelete;
+    @Value("${book_overviews.publish}")
+    private String sqlPublish;
+    @Value("${book_overviews.unpublish}")
+    private String sqlUnpublish;
+    @Value("${book_overviews.count}")
+    private String sqlGetBookOverviewsCount;
+
+    @Override
+    public void loadReferences(BookOverview bookOverview) {
+        Optional<User> optionalUser = userRepository.getById(bookOverview.getUserId());
+        Optional<Book> optionalBook = bookRepository.getById(bookOverview.getBookId());
+        if(optionalBook.isPresent() && optionalUser.isPresent()){
+            bookOverview.setBook(optionalBook.get());
+            bookOverview.setUser(optionalUser.get());
+        }
+    }
+
+    @Override
+    public int getCount() {
+        return jdbcTemplate.queryForObject(sqlGetBookOverviewsCount, int.class);
+    }
 
     @Override
     public int countByBook(int bookId) {
@@ -51,6 +83,11 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
     @Override
     public List<BookOverview> getByBook(int bookId, int size, int offset) {
         return jdbcTemplate.query(sqlGetByBook, new BookOverviewRowMapper(), bookId, size, offset);
+    }
+
+    @Override
+    public List<BookOverview> getBookOverviews(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetOverviews, new Object[]{limit, offset}, new BookOverviewRowMapper());
     }
 
     @Override
@@ -67,6 +104,7 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
         return bookOverviews.isEmpty() ? Optional.empty() : Optional.of(bookOverviews.get(0));
     }
 
+
     @Override
     public Optional<BookOverview> insert(BookOverview entity) {
         KeyHolder keyHolder;
@@ -80,7 +118,7 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
-            System.out.println("Book Overview::insert entity: " + entity + ". Stack trace: ");
+            logger.info("Book Overview::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -99,7 +137,7 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
             });
             return getById(entity.getBookOverviewId());
         } catch (DataAccessException e) {
-            System.out.println("Book Overview::update entity: " + entity + ". Stack trace: ");
+            logger.info("Book Overview::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -107,6 +145,26 @@ public class BookOverviewRepositoryImp implements BookOverviewRepository {
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.update(sqlDelete, id) == 1;
+        try {
+            return jdbcTemplate.update(sqlDelete, id) == 1;
+        }catch (DataAccessException e){
+            logger.info("BookOverview::delete entityId: " + id + ". Stack trace: ");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public void publish(int id) {
+        Object[] params = {id};
+        jdbcTemplate.update(sqlPublish, params);
+
+    }
+
+    @Override
+    public void unpublish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlUnpublish, params);
+
     }
 }

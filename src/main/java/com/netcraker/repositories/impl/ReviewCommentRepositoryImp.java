@@ -7,6 +7,8 @@ import com.netcraker.model.mapper.ReviewCommentRowMapper;
 import com.netcraker.repositories.ReviewCommentRepository;
 import com.netcraker.services.PageService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -28,6 +30,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReviewCommentRepository.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${review_comments.getById}")
@@ -57,14 +60,14 @@ public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
             keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(conn -> {
                 PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-                ps.setInt(1, entity.getAuthorId());
+                ps.setInt(1, entity.getUserId());
                 ps.setInt(2, entity.getBookReviewId());
                 ps.setString(3, entity.getContent());
                 ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
-            System.out.println("ReviewComment::insert entity: " + entity + ". Stack trace: ");
+            logger.info("ReviewComment::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -75,7 +78,7 @@ public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
     public Optional<ReviewComment> update(ReviewComment entity) {
         try {
             jdbcTemplate.execute(Objects.requireNonNull(sqlUpdate), (PreparedStatementCallback<Boolean>) ps -> {
-                ps.setInt(1, entity.getAuthorId());
+                ps.setInt(1, entity.getUserId());
                 ps.setInt(2, entity.getBookReviewId());
                 ps.setString(3, entity.getContent());
                 ps.setInt(4, entity.getCommentId());
@@ -83,7 +86,7 @@ public class ReviewCommentRepositoryImp implements ReviewCommentRepository {
             });
             return getById(entity.getCommentId());
         } catch (DataAccessException e) {
-            System.out.println("BookReview::update entity: " + entity + ". Stack trace: ");
+            logger.info("BookReview::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }

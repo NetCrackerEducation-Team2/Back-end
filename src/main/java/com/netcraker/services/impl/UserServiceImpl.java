@@ -16,12 +16,16 @@ import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.PageService;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +41,7 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepositoryImpl userRoleRepositoryImpl;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
-
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Override
     public User createUsualUser(User user) {
         user.setEnabled(false);
@@ -60,7 +64,7 @@ public class UserServiceImpl implements UserService {
         if (authorizationLinks == null || authorizationLinks.isUsed()) {
             return false;
         }
-        System.out.println("Auth link has user's id:" + authorizationLinks.getUserId());
+        logger.info("Auth link has user's id:" + authorizationLinks.getUserId());
         Optional<User> userOpt = userRepository.getById(authorizationLinks.getUserId());
 
         if (!userOpt.isPresent()) {
@@ -101,7 +105,7 @@ public class UserServiceImpl implements UserService {
         final User registered = userRepository.insert(user)
                 .orElseThrow(() -> new FailedToRegisterException("Error in creating user! Email is free, but creation query failure."));
 
-        System.out.println("user is created with id: " + registered.getUserId());
+        logger.info("user is created with id: " + registered.getUserId());
 
         return registered;
     }
@@ -145,12 +149,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User oldUser, User newUser) {
-        System.out.println(newUser + " to update");
+        logger.info(newUser + " to update");
         userRepository.update(newUser);
     }
 
     @Override
     public void updateAdminModerator(User newUser, List<Role> roles) {
+        newUser.setEnabled(true);
         userRepository.update(newUser);
         for (Role role : roles) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
@@ -163,12 +168,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteAdminModerator(int id) {
-        userRepository.delete(id);
+    public void deleteAdminModerator(String email) {
+        userRepository.deleteByEmail(email);
     }
 
     public boolean equalsPassword(User user, String rawPassword) {
-        System.out.println("Old password: " + user.getPassword() + " new password: " + rawPassword);
+        logger.info("Old password: " + user.getPassword() + " new password: " + rawPassword);
         return passwordEncoder.matches(rawPassword, user.getPassword());
     }
 
@@ -184,5 +189,12 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.update(user)
                 .orElseThrow(() -> new UpdateException("Cannot update password"));
+    }
+
+    @Override
+    @NonNull
+    public List<Integer> getListId() {
+        List<Integer> listId = userRepository.getListId();
+        return listId != null ? listId : Collections.emptyList();
     }
 }

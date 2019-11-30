@@ -3,7 +3,10 @@ package com.netcraker.repositories.impl;
 import com.netcraker.model.Announcement;
 import com.netcraker.model.mapper.AnnouncementRowMapper;
 import com.netcraker.repositories.AnnouncementRepository;
+import com.netcraker.repositories.GenericRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
@@ -25,8 +28,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(AnnouncementRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
     private final AnnouncementRowMapper announcementRowMapper;
+    private final GenericRepository<Announcement, AnnouncementRowMapper> genericRepository;
 
     @Value("${announcements.getById}")
     private String sqlGetById;
@@ -42,14 +47,13 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
     private String sqlDelete;
     @Value("${announcements.publish}")
     private String sqlPublish;
-
+    @Value("${announcements.unPublish}")
+    private String sqlUnpublish;
     @Value("${announcements.countPublished}")
     private String sqlGetPublishAnnouncementsCount;
     @Value("${announcements.selectAllPublished}")
     private String sqlGetPublishedAnnouncements;
 
-    @Value("${announcements.unPublish}")
-    private String sqlUnPublish;
 
     @Override
     public List<Announcement> getAll() {
@@ -82,8 +86,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
     @Override
     public Optional<Announcement> getById(int id) {
-        List<Announcement> announcements = jdbcTemplate.query(sqlGetById, announcementRowMapper, id);
-        return announcements.isEmpty() ? Optional.empty() : Optional.of(announcements.get(0));
+        return genericRepository.getById(announcementRowMapper, sqlGetById, id);
     }
 
     @Override
@@ -100,7 +103,7 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
-            System.out.println("Announcement::insert entity: " + entity + ". Stack trace: ");
+            logger.info("Announcement::insert entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -114,13 +117,13 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
                 ps.setString(1, entity.getTitle());
                 ps.setString(2, entity.getDescription());
                 ps.setInt(3, entity.getUserId());
-                ps.setInt(4, entity.getBookId());
+                ps.setInt(4, entity.getBookId());       
                 ps.setInt(5, entity.getAnnouncementId());
                 return ps.execute();
             });
             return getById(entity.getAnnouncementId());
         } catch (DataAccessException e) {
-            System.out.println("Announcement::update entity: " + entity + ". Stack trace: ");
+           logger.info("Announcement::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
         }
@@ -132,5 +135,19 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
             ps.setInt(1, id);
             return ps.execute();
         });
+    }
+
+    @Override
+    public void publish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlPublish, params);
+
+    }
+
+    @Override
+    public void unpublish(int id){
+        Object[] params = {id};
+        jdbcTemplate.update(sqlUnpublish, params);
+
     }
 }

@@ -2,12 +2,15 @@ package com.netcraker.services.impl;
 
 import com.netcraker.model.BookOverview;
 import com.netcraker.model.Page;
+import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.BookOverviewRepository;
 import com.netcraker.services.BookOverviewService;
 import com.netcraker.services.PageService;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,9 +20,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class BookOverviewServiceImpl implements BookOverviewService {
-
-    private final @NonNull BookOverviewRepository bookOverviewRepository;
-    private final @NonNull PageService pageService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final BookOverviewRepository bookOverviewRepository;
+    private final PageService pageService;
 
     @Override
     public Page<BookOverview> getBookOverviewsByBook(int bookId, int page, int pageSize) {
@@ -28,17 +31,31 @@ public class BookOverviewServiceImpl implements BookOverviewService {
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
         List<BookOverview> bookOverviews = bookOverviewRepository.getByBook(bookId, pageSize, offset);
+        bookOverviews.forEach(bookOverviewRepository::loadReferences);
         return new Page<>(currentPage, pagesCount, pageSize, bookOverviews);
+    }
+    @Override
+    public Page<BookOverview> getBookOverviewsPagination(int page, int pageSize) {
+        int total = bookOverviewRepository.getCount();
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        List<BookOverview> list = bookOverviewRepository.getBookOverviews(pageSize,offset);
+        return new Page<>(currentPage, pagesCount, list);
     }
 
     @Override
     public Optional<BookOverview> getPublishedBookOverviewByBook(int bookId) {
-        return bookOverviewRepository.getPublishedByBook(bookId);
+        Optional<BookOverview> optionalBookOverview =  bookOverviewRepository.getPublishedByBook(bookId);
+        optionalBookOverview.ifPresent(bookOverviewRepository::loadReferences);
+        return optionalBookOverview;
     }
 
     @Override
     public Optional<BookOverview> addBookOverview(BookOverview bookOverview) {
-        return bookOverviewRepository.insert(bookOverview);
+        final Optional<BookOverview> inserted = bookOverviewRepository.insert(bookOverview);
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_OVERVIEWS,bookOverview.getUserId()));
+        return inserted;
     }
 
     @Override
@@ -50,4 +67,15 @@ public class BookOverviewServiceImpl implements BookOverviewService {
     public boolean deleteBookOverview(int bookOverviewId) {
         return bookOverviewRepository.delete(bookOverviewId);
     }
+
+    @Override
+    public void publishBookOverview(int id) {
+        bookOverviewRepository.publish(id);
+    }
+
+    @Override
+    public void unpublishBookOverview(int id) {
+        bookOverviewRepository.unpublish(id);
+    }
+
 }

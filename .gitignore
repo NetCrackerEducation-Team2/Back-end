@@ -16,7 +16,7 @@ hs_err_pid*
 #
 # Project specific excludes
 #
-
+src/main/resources/application.yaml
 tomcat
 
 #
@@ -41,6 +41,9 @@ tomcat
 
 # Maven 
 target/
+
+# Vscode settings
+.vscode/
 
 # IntelliJ project files 
 *.iml
@@ -101,7 +104,6 @@ local.properties
 *~
 .#*
 .*.md.html
-
 
 .recommenders
 /code

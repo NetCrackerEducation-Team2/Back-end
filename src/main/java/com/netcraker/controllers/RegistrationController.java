@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.exceptions.FindException;
 import com.netcraker.exceptions.UpdateException;
+import com.netcraker.listeners.WebSocketEventListener;
 import com.netcraker.model.User;
 import com.netcraker.services.RecoveryService;
 import com.netcraker.services.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -28,6 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RegistrationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RegistrationController.class);
     private final UserService userService;
     private final RecoveryService recoveryService;
 
@@ -36,16 +40,14 @@ public class RegistrationController {
             throws JsonProcessingException {
 
         if (bindingResult.hasErrors()) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("User must have only valid properties");
+            throw new FailedToRegisterException("User must have only valid properties");
         }
 
         ObjectMapper mapper = new ObjectMapper();
         String userInJson = mapper.writeValueAsString(user);
 
-        System.out.println("Attempt to register");
-        System.out.println(userInJson);
+        logger.info("Attempt to register");
+        logger.info(userInJson);
 
 
         userService.createUsualUser(user);
@@ -58,11 +60,11 @@ public class RegistrationController {
         boolean isActivated = userService.activateUser(code);
 
         if (isActivated) {
-            System.out.println("Activation code is admitted");
+            logger.info("Activation code is admitted");
             return new ResponseEntity(HttpStatus.OK);
         }
 
-        System.out.println("Activation code is rejected");
+        logger.info("Activation code is rejected");
         throw new UpdateException("Invalid activation code. Try to sign up again");
     }
 

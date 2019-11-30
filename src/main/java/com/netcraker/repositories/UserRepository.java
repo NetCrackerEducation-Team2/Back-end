@@ -13,4 +13,6 @@ public interface UserRepository extends BaseOptionalRepository<User> {
     List<User> findByEmailOrFullNameFilterByRoleWithout(String searchExpression, Role roleWithout, int page, int pageSize);
     int getFindByEmailOrFullNameFilterByRoleCount(String searchExpression, Role roleFiltering);
     int getFindByEmailOrFullNameFilterByRoleWithoutCount(String searchExpression, Role roleFilteringWithout);
+    boolean deleteByEmail(String email);
+    List<Integer> getListId();
 }

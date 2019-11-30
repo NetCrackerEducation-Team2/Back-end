@@ -5,6 +5,8 @@ import com.netcraker.model.Role;
 import com.netcraker.model.mapper.RoleRowMapper;
 import com.netcraker.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -19,6 +21,7 @@ import java.util.Optional;
 @PropertySource("classpath:sqlQueries.properties")
 public class RoleRepositoryImpl implements RoleRepository {
     private final JdbcTemplate jdbcTemplate;
+    private static final Logger logger = LoggerFactory.getLogger(RoleRepositoryImpl.class);
 
     @Value("${role.findByRoleName}")
     private String sqlSelectRoleName;

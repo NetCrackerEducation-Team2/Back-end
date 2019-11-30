@@ -27,12 +27,20 @@ public class BookOverviewController {
     @GetMapping("/by-book/{bookId}")
     public ResponseEntity<Page<BookOverview>> getBookOverviewsByBook(
             @PathVariable int bookId,
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "5") int pageSize){
+            @RequestParam int page,
+            @RequestParam int pageSize){
         Page<BookOverview> pagination = bookOverviewService.getBookOverviewsByBook(bookId, page, pageSize);
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<Page<BookOverview>> getBookOverviews(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        Page<BookOverview> pagination = bookOverviewService.getBookOverviewsPagination(page, pageSize);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
+    }
+//refactoring
     @GetMapping("/published-by-book/{bookId}")
     public ResponseEntity<BookOverview> getPublishedBookOverviewByBook(
             @PathVariable int bookId){
@@ -56,6 +64,18 @@ public class BookOverviewController {
         return ResponseEntity.ok()
                 .body(bookOverviewService.updateBookOverview(bookOverview)
                         .orElseThrow(() -> new UpdateException("Cannot update book overview")));
+    }
+
+    @PutMapping("/publish/{id}")
+    public ResponseEntity<?> publishBookOverview(@PathVariable int id){
+        bookOverviewService.publishBookOverview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/unpublish/{id}")
+    public ResponseEntity<?> unpublishBookOverview(@PathVariable int id){
+        bookOverviewService.unpublishBookOverview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping("{bookOverviewId}")

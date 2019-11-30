@@ -46,6 +46,14 @@ public class BookReviewController {
         return ResponseEntity.ok().body(bookReviewService.getPage(bookId, page, pageSize));
     }
 
+    @GetMapping
+    public ResponseEntity<Page<BookReview>> getBookReviews(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        Page<BookReview> pagination = bookReviewService.getBookReviewsPagination(page, pageSize);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
+    }
+
     @PutMapping
     public ResponseEntity<BookReview> updateBookReview(@RequestBody BookReview bookReview) {
         return ResponseEntity.ok()
@@ -97,6 +105,22 @@ public class BookReviewController {
                 .body(reviewCommentService.updateReviewComment(comment)
                         .orElseThrow(() -> new UpdateException("Cannot create review comment")));
     }
+
+    @PutMapping("/publish/{id}")
+    public ResponseEntity<?> publishBookReview(@PathVariable int id){
+        bookReviewService.publishBookReview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/unpublish/{id}")
+    public ResponseEntity<?> unpublishBookReview(@PathVariable int id){
+        bookReviewService.unpublishBookReview(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+
+
+
     @GetMapping("/comment/all/{bookReviewId}")
     public ResponseEntity<Page<ReviewComment>> getReviewComments(
             @PathVariable("bookReviewId") int bookReviewId,

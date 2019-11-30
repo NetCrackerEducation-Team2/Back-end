@@ -51,7 +51,7 @@ public class NotificationObjectRepositoryImp implements NotificationObjectReposi
             ps.setInt(1, entity.getNotificationType().getNotificationTypeId());
             ps.setInt(2, entity.getEntityId());
             ps.setInt(3, entity.getUser().getUserId());
-            ps.setString(4, entity.getNotificationMessage().getNotificationMessageText());
+            ps.setInt(4, entity.getNotificationMessage().getNotificationMessageId());
             ps.setBoolean(5, entity.isSendAll());
             return ps;
         }, keyHolder);

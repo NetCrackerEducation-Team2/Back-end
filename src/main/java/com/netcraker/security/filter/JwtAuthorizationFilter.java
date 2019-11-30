@@ -15,7 +15,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Enumeration;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -28,6 +27,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
+
         logger.info("JwtAuthorizationFilter is doing filter");
         logger.info("Method: " + request.getMethod());
         logger.info("URI: " + request.getRequestURI());

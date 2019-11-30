@@ -1,3 +1,4 @@
+-- DB version 1.2
 create schema public;
 
 alter schema public owner to dvzoykednyiqtw;

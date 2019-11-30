@@ -47,22 +47,33 @@ public class NotificationServiceImp implements NotificationService {
     }
 
     @Override
-    public <T> boolean sendNotificationToAll(int notificationTypeId, int notificationMessageId,int entityId, int userId, boolean sendAll) {
-        NotificationObject nObj = NotificationServiceImp.makeNotificationObject(notificationTypeId, notificationMessageId, entityId, userId);
-        nObj.setSendAll(true);
-        logger.info("Trying to creating notification object: " + nObj.toString());
-        notificationObjectRepository.insert(nObj);
-        return true;
-    }
-
-    @Override
     @Transactional
-    public <T> boolean sendNotificationToUser(int notificationTypeId, int notificationMessageId, int entityId, int userId, int notifierId) {
+    public <T> boolean sendNotification(int notificationTypeId, int notificationMessageId, T entity) {
+        int entityId = 0;
+        int userId = 0;
+        int notifierId = 0;
+        boolean sendAll = false;
+        switch (notificationTypeId) {
+            case 10:
+                entityId = ((Announcement) entity).getAnnouncementId();
+                userId = ((Announcement) entity).getUserId();
+                notifierId = userId;
+                break;
+            case 11:
+                entityId = ((BookReview) entity).getBookReviewId();
+                userId = ((BookReview) entity).getUserId();
+                notifierId = userId;
+                break;
+        }
         NotificationObject nObj = NotificationServiceImp.makeNotificationObject(notificationTypeId, notificationMessageId, entityId, userId);
+        nObj.setSendAll(sendAll);
         logger.info("Trying to creating notification object: " + nObj.toString());
-        NotificationObject nObjCreated = notificationObjectRepository.insert(nObj).orElse(null);
-        Notification notification = NotificationServiceImp.makeNotification(nObjCreated.getNotificationObjectId(), notifierId);
-        notificationRepository.insert(notification);
+        Optional<NotificationObject> nObjCreated = notificationObjectRepository.insert(nObj);
+        if(!sendAll && nObjCreated.isPresent()) {
+            NotificationObject notificationObject = nObjCreated.orElse(null);
+            Notification notification = NotificationServiceImp.makeNotification(notificationObject.getNotificationObjectId(), notifierId);
+            notificationRepository.insert(notification);
+        }
         return true;
     }
 

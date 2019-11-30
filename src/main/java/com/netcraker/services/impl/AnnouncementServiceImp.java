@@ -4,6 +4,7 @@ import com.netcraker.model.Announcement;
 import com.netcraker.model.Page;
 import com.netcraker.repositories.AnnouncementRepository;
 import com.netcraker.services.AnnouncementService;
+import com.netcraker.services.NotificationService;
 import com.netcraker.services.PageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.PropertySource;
@@ -19,6 +20,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
     private final AnnouncementRepository announcementRepository;
     private final PageService pageService;
+    private final NotificationService notificationService;
 
     @Override
     public Page<Announcement> getAnnouncementsPagination(int page, int pageSize) {
@@ -46,7 +48,11 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
     @Override
     public Optional<Announcement> addAnnouncement(Announcement announcement) {
-        return announcementRepository.insert(announcement);
+        Announcement createdAnnouncement = announcementRepository.insert(announcement).orElse(null);
+        if(createdAnnouncement != null) {
+            notificationService.sendNotificationToUser(10, 12, createdAnnouncement.getAnnouncementId(), createdAnnouncement.getUserId(), createdAnnouncement.getUserId() );
+        }
+        return Optional.of(createdAnnouncement);
     }
 
     @Override

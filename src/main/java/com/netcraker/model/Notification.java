@@ -16,9 +16,8 @@ public class Notification {
     private boolean isRead;
 
     public String getNotificationMessage() {
-        String action = notificationObject.getAction().getDescription();
-        String entity = notificationObject.getEntityType().getName();
+        String action = notificationObject.getNotificationMessage().getNotificationMessageText();
         String actor = notificationObject.getUser().getFullName();
-        return actor + " " + action + " " + entity;
+        return actor + ": " + action;
     }
 }

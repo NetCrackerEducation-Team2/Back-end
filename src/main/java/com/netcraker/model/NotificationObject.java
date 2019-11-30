@@ -13,9 +13,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NotificationObject {
     private int notificationObjectId;
-    private EntityType entityType;
+    private NotificationType notificationType;
     private int entityId;
-    private NotificationAction action;
+    private NotificationMessage notificationMessage;
     private LocalDateTime creationTime;
     private User user;
+    private boolean isRead;
+    private boolean sendAll;
 }

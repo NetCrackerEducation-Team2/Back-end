@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,10 @@ public class AnnouncementServiceImp implements AnnouncementService {
     }
 
     @Override
+    @Transactional
     public Optional<Announcement> addAnnouncement(Announcement announcement) {
+        int announcementAuthorId = announcement.getUserId();
+        // TODO asem insert to activity table
         final Optional<Announcement> inserted = announcementRepository.insert(announcement);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, announcement.getUserId()));
         notificationService.sendNotificationToUser(10, 12, announcement.getAnnouncementId(), announcement.getUserId(), announcement.getUserId() );

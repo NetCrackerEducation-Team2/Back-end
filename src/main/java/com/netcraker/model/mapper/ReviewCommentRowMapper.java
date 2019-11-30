@@ -14,7 +14,7 @@ public class ReviewCommentRowMapper implements RowMapper<ReviewComment> {
     public ReviewComment mapRow(ResultSet resultSet, int i) throws SQLException {
         return ReviewComment.builder()
                 .commentId(resultSet.getInt("comment_id"))
-                .userId(resultSet.getInt("user_id"))
+                .userId(resultSet.getInt("author_id"))
                 .bookReviewId(resultSet.getInt("book_review_id"))
                 .content(resultSet.getString("content"))
                 .creationTime(resultSet.getTimestamp("creation_time").toLocalDateTime())

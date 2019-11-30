@@ -83,7 +83,4 @@ public class AnnouncementController {
         announcementService.unpublishAnnouncement(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-
-
 }

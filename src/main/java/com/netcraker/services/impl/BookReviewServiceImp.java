@@ -6,6 +6,7 @@ import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.BookReviewRepository;
 import com.netcraker.services.BookReviewService;
 
+import com.netcraker.services.NotificationService;
 import com.netcraker.services.PageService;
 import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +23,13 @@ public class BookReviewServiceImp implements BookReviewService {
     private final BookReviewRepository bookReviewRepo;
     private final PageService pageService;
     private final ApplicationEventPublisher eventPublisher;
+    private final NotificationService notificationService;
 
     @Override
     public Optional<BookReview> createBookReview(BookReview bookReview) {
         final Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
+        notificationService.sendNotification(11, 13, inserted);
         return inserted;
     }
 

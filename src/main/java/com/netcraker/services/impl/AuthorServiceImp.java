@@ -23,4 +23,9 @@ public class AuthorServiceImp implements AuthorService {
     public List<Author> searchByNameContains(String authorFullNameStartsWith) {
         return authorRepository.searchByNameContains(authorFullNameStartsWith);
     }
+
+    @Override
+    public List<Author> searchByNameContains(String authorFullNameStartsWith, int offset, int size) {
+        return authorRepository.searchByNameContains(authorFullNameStartsWith, offset, size);
+    }
 }

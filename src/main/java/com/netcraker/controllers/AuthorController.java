@@ -27,4 +27,11 @@ public class AuthorController {
     public List<Author> searchByContains(@RequestParam(value = "contains") String authorFullNameContains) {
         return authorService.searchByNameContains(authorFullNameContains);
     }
+
+    @GetMapping("/authors/searchPartByNameContains")
+    public List<Author> searchPartByContains(@RequestParam(value = "contains") String authorFullNameContains,
+                                             @RequestParam int offset,
+                                             @RequestParam int size) {
+        return authorService.searchByNameContains(authorFullNameContains, offset, size);
+    }
 }

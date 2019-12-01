@@ -50,8 +50,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("api/achievement").permitAll()
 
                 .antMatchers(HttpMethod.GET, "/api/books", "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**,", "/api/book-review/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/**", "/api/searching-history/add").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**,", "/api/book-review/**", "/api/books-recommendations/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**", "**").permitAll()
                 .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()
                 .anyRequest().authenticated()

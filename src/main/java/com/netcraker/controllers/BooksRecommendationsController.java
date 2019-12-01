@@ -8,26 +8,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping({"/api/books-recommendations"})
-@CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
+@CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT})
 @RequiredArgsConstructor
 public class BooksRecommendationsController {
 
     private final BooksRecommendationsService booksRecommendationsService;
 
-    @PostMapping("/prepare/{userId}/{count}")
+    @PutMapping("/prepare/{userId}")
     public ResponseEntity<?> prepareBooksRecommendations(@PathVariable int userId,
-                                            @PathVariable int count){
+                                                         @RequestParam int count){
         booksRecommendationsService.prepareBooksRecommendations(userId, count);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/get/{userId}")
-    public ResponseEntity<Page<Book>> getBooksRecommendations(@PathVariable int userId,
-                                                              @RequestParam int page,
-                                                              @RequestParam int pageSize){
-        Page<Book> pagination = booksRecommendationsService.getBooksRecommendations(userId, page, pageSize);
+    public ResponseEntity<List<Page<Book>>> getBooksRecommendations(@PathVariable int userId,
+                                                                    @RequestParam int pageSize){
+        List<Page<Book>> pagination = booksRecommendationsService.getBooksRecommendations(userId, pageSize);
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 }

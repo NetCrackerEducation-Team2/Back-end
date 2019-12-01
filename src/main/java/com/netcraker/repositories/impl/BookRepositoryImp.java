@@ -51,6 +51,8 @@ public class BookRepositoryImp implements BookRepository {
     private String sqlGetFiltered;
     @Value("${books.getBySlug}")
     private String sqlGetBySlug;
+    @Value("${books.getRandom}")
+    private String sqlGetRandom;
 
     @Override
     public Optional<Book> getById(int id) {
@@ -142,6 +144,11 @@ public class BookRepositoryImp implements BookRepository {
         checkBookFilteringParams(filteringParams);
         List params = getBookFilteringParams(filteringParams);
         return jdbcTemplate.queryForObject(sqlCountFiltered, params.toArray(), int.class);
+    }
+
+    @Override
+    public List<Book> getRandom(int count) {
+        return jdbcTemplate.query(sqlGetRandom, new BookRowMapper(), count);
     }
 
     @Override

@@ -36,19 +36,16 @@ public class AuthEmailSenderServiceImp implements AuthEmailSenderService {
     private String messageRecoveryPassword;
 
     @Override
-    @Async("mailThreadPoolTaskExecutor")
     public void sendActivationCode(User user, AuthorizationLinks links) {
         mailSender.send(user.getEmail(), subjectActivation, messageActivation, user.getFullName(), links.getToken());
     }
 
     @Override
-    @Async("mailThreadPoolTaskExecutor")
     public void sendRecoveryLink(User user, AuthorizationLinks links) {
         mailSender.send(user.getEmail(), subjectRecoveryLink, messageRecoveryLink, user.getFullName(), links.getToken());
     }
 
     @Override
-    @Async("mailThreadPoolTaskExecutor")
     public void sendNewGeneratedPassword(User user, String password) {
         mailSender.send(user.getEmail(), subjectRecoveryPassword, messageRecoveryPassword, password);
     }

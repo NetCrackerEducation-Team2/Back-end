@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface BookRepository extends BaseOptionalRepository<Book> {
     void loadReferences(Book book);
     int countFiltered(HashMap<BookFilteringParam, Object> filteringParams);
+    List<Book> getRandom(int count);
     List<Book> getFiltered(HashMap<BookFilteringParam, Object> filteringParams, int size, int offset);
     Optional<Book> getBySlug(String slug);
 }

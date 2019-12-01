@@ -2,19 +2,19 @@ package com.netcraker.repositories.impl;
 
 import com.netcraker.exceptions.FindException;
 import com.netcraker.exceptions.UpdateException;
+import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.model.mapper.UserRowMapper;
 import com.netcraker.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,8 +44,23 @@ public class UserRepositoryImpl implements UserRepository {
     @Value("${user.delete}")
     private String sqlDelete;
 
+    @Value("${user.findByEmailOrFullNameFilterByRole}")
+    private String sqlFindByEmailOrFullNameFilterByRole;
+
+    @Value("${user.findByEmailOrFullNameFilterByRoleWithout}")
+    private String sqlFindByEmailOrFullNameFilterByRoleWithout;
+
+    @Value("${user.findByEmailOrFullNameFilterByRoleCount}")
+    private String sqlFindByEmailOrFullNameFilterByRoleCount;
+
+    @Value("${user.findByEmailOrFullNameFilterByRoleWithoutCount}")
+    private String sqlFindByEmailOrFullNameFilterByRoleWithoutCount;
+
     @Value("${user.deleteByEmail}")
     private String sqlDeleteByEmail;
+    @Value("${user.getListId}")
+    private String sqlListId;
+
 
     @Value("${user.searchByFullNameContains}")
     private String sqlSearchByNameContains;
@@ -76,10 +91,45 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public int getFindByEmailOrFullNameFilterByRoleCount(String searchExpression, Role roleFiltering) {
+        return jdbcTemplate.queryForObject(sqlFindByEmailOrFullNameFilterByRoleCount, int.class, roleFiltering.getRoleId(), searchExpression, searchExpression);
+
+    }
+
+    @Override
+    public int getFindByEmailOrFullNameFilterByRoleWithoutCount(String searchExpression, Role roleFilteringWithout) {
+        return jdbcTemplate.queryForObject(sqlFindByEmailOrFullNameFilterByRoleWithoutCount, int.class, roleFilteringWithout.getRoleId(), searchExpression, searchExpression);
+    }
+
+    @Override
+    public List<User> findByEmailOrFullNameFilterByRole(String searchExpression, Role roleFiltering, int offset, int pageSize) {
+        return jdbcTemplate.query(sqlFindByEmailOrFullNameFilterByRole,
+                new UserRowMapper(),
+                roleFiltering.getRoleId(),
+                searchExpression,
+                searchExpression,
+                pageSize,
+                offset
+        );
+    }
+
+    @Override
+    public List<User> findByEmailOrFullNameFilterByRoleWithout(String searchExpression, Role roleWithout, int offset, int pageSize) {
+        return jdbcTemplate.query(sqlFindByEmailOrFullNameFilterByRoleWithout,
+                new UserRowMapper(),
+                roleWithout.getRoleId(),
+                searchExpression,
+                searchExpression,
+                pageSize,
+                offset
+        );
+    }
+
+    @Override
     public Optional<User> getById(int id) {
         Object[] params = {id};
         List<User> users = jdbcTemplate.query(sqlGetById, params, new UserRowMapper());
-        return Optional.ofNullable(users.get(0));
+        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     @Override
@@ -125,7 +175,10 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> searchByNameContains(String authorFullNameContains) {
-        return jdbcTemplate.query(sqlSearchByNameContains, new UserRowMapper(), "%" + authorFullNameContains.trim() + "%");
+    // public List<User> searchByNameContains(String authorFullNameContains) {
+    //     return jdbcTemplate.query(sqlSearchByNameContains, new UserRowMapper(), "%" + authorFullNameContains.trim() + "%");
+
+    public List<Integer> getListId() {
+        return jdbcTemplate.queryForList(sqlListId, Integer.class);
     }
 }

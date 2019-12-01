@@ -123,6 +123,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Map<String, Object> claims = new HashMap<>();
 
         claims.put("userId", userFromDb.getUserId());
+        request.setAttribute("userId", userFromDb.getUserId());
 
         String token = Jwts.builder()
                 .setClaims(claims)

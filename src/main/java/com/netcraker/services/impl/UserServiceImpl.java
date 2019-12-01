@@ -2,27 +2,30 @@ package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.exceptions.FindException;
+import com.netcraker.exceptions.NoUserRoleProvided;
 import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.AuthorizationLinks;
+import com.netcraker.model.Page;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
-import com.netcraker.model.UserRole;
+import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
-import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.services.AuthEmailSenderService;
+import com.netcraker.services.PageService;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +34,7 @@ import java.util.Optional;
 @PropertySource("classpath:email-messages.properties")
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
+    private final PageService pageService;
     private final UserRepository userRepository;
     private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
     private final RoleRepositoryImpl roleRepository;
@@ -77,17 +80,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAdminModerator(User user, List<Role> roles){
+    public User createAdminModerator(User user, List<Role> roles) {
         user.setEnabled(true);
         final User registered = createUser(user);
-        for (Role role:roles) {
+        for (Role role : roles) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
-            if(!roleFromDB.isPresent()){
+            if (!roleFromDB.isPresent()) {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
             userRoleRepositoryImpl.insert(registered,roleFind)
                     .orElseThrow(() -> new FailedToRegisterException("Error in creating relationship between user and role"));
+
         }
 
         return registered;
@@ -109,6 +113,25 @@ public class UserServiceImpl implements UserService {
         return registered;
     }
 
+    @Override
+    public Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize) {
+        // TODO should we set user roles here?
+        searchExpression = "%" + searchExpression + "%";
+        Role user = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
+        if (!currentUser.isPresent() || roleRepository.getAllRoleById(currentUser.get().getUserId()).contains(user)) {
+            int total = userRepository.getFindByEmailOrFullNameFilterByRoleCount(searchExpression, user);
+            int pagesCount = pageService.getPagesCount(total, pageSize);
+            int currentPage = pageService.getRestrictedPage(page, pagesCount);
+            int offset = currentPage * pageSize;
+            return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRole(searchExpression, user, offset, pageSize));
+        } else {
+            int total = userRepository.getFindByEmailOrFullNameFilterByRoleWithoutCount(searchExpression, user);
+            int pagesCount = pageService.getPagesCount(total, pageSize);
+            int currentPage = pageService.getRestrictedPage(page, pagesCount);
+            int offset = currentPage * pageSize;
+            return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRoleWithout(searchExpression, user, offset, pageSize));
+        }
+    }
 
     @Override
     public User findByUserId(int userId) {
@@ -118,8 +141,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByEmail(String email) {
         User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return null;
+        }
         assert user != null;
-        final List<Role> roles= roleRepository.getAllRoleById(user.getUserId());
+        final List<Role> roles = roleRepository.getAllRoleById(user.getUserId());
         user.setRoles(roles);
         return user;
     }
@@ -134,9 +160,9 @@ public class UserServiceImpl implements UserService {
     public void updateAdminModerator(User newUser, List<Role> roles) {
         newUser.setEnabled(true);
         userRepository.update(newUser);
-        for (Role role:roles) {
+        for (Role role : roles) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
-            if(!roleFromDB.isPresent()){
+            if (!roleFromDB.isPresent()) {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
@@ -169,7 +195,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> searchByNameContains(String userFullNameStartsWith) {
-        return userRepository.searchByNameContains(userFullNameStartsWith);
+    @NonNull
+    public List<Integer> getListId() {
+        List<Integer> listId = userRepository.getListId();
+        return listId != null ? listId : Collections.emptyList();
     }
 }

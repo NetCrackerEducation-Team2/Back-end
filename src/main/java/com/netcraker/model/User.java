@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor

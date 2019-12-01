@@ -5,6 +5,7 @@ import com.netcraker.security.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,8 +27,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
 
     @Autowired
-    public SecurityConfiguration(@Qualifier("jwtUserDetailsServiceImpl")
-                                         UserDetailsService userDetailsService) {
+    public SecurityConfiguration(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -42,10 +42,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "api/profile/**","**").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/**", "/admins/create","/ws/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**", "/api/book-review/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "api/profile/**","**", "/api/books").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/**", "/admins/create","/ws/**","/api/searching-history/add").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**","**").permitAll()
+//                .antMatchers(HttpMethod.POST, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+//                .antMatchers(HttpMethod.DELETE, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+//                .antMatchers(HttpMethod.PUT, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
+                // for test, in production uncomment upper comments
+//                .antMatchers(HttpMethod.DELETE, "/api/announcements/**").permitAll()
+                .antMatchers("api/achievement").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**,", "/api/book-review/**", "/api/books-recommendations/**").permitAll()
                 .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

@@ -1,13 +1,12 @@
 package com.netcraker.services.impl;
 
-import com.github.slugify.Slugify;
-import com.netcraker.model.*;
+import com.netcraker.model.Book;
+import com.netcraker.model.BookFilteringParam;
+import com.netcraker.model.Page;
 import com.netcraker.repositories.BookRepository;
-import com.netcraker.repositories.StatsRepository;
 import com.netcraker.services.BookService;
 import com.netcraker.services.FileService;
 import com.netcraker.services.PageService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -15,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @PropertySource({"classpath:path.properties"})
@@ -79,7 +80,7 @@ public class BookServiceImp implements BookService {
 
     @Override
     public Optional<Book> createBook(Book book) {
-        book.setSlug(new Slugify().slugify(book.getTitle()));
+//        book.setSlug(new Slugify().slugify(book.getTitle()));
         return bookRepository.insert(book);
     }
 }

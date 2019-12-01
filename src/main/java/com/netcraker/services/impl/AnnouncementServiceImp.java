@@ -2,12 +2,17 @@ package com.netcraker.services.impl;
 
 import com.netcraker.model.Announcement;
 import com.netcraker.model.Page;
+import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.AnnouncementRepository;
 import com.netcraker.services.AnnouncementService;
+import com.netcraker.services.NotificationService;
 import com.netcraker.services.PageService;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +21,10 @@ import java.util.Optional;
 @PropertySource({"classpath:view.properties"})
 @RequiredArgsConstructor
 public class AnnouncementServiceImp implements AnnouncementService {
-
     private final AnnouncementRepository announcementRepository;
     private final PageService pageService;
+    private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public Page<Announcement> getAnnouncementsPagination(int page, int pageSize) {
@@ -45,8 +51,14 @@ public class AnnouncementServiceImp implements AnnouncementService {
     }
 
     @Override
+    @Transactional
     public Optional<Announcement> addAnnouncement(Announcement announcement) {
-        return announcementRepository.insert(announcement);
+        int announcementAuthorId = announcement.getUserId();
+        // TODO asem insert to activity table
+        final Optional<Announcement> inserted = announcementRepository.insert(announcement);
+        //eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, announcement.getUserId()));
+        notificationService.sendNotification(10, 12, inserted.orElse(null));
+        return inserted;
     }
 
     @Override
@@ -56,6 +68,9 @@ public class AnnouncementServiceImp implements AnnouncementService {
     @Override
     public void publishAnnouncement(int id) {
         announcementRepository.publish(id);
+        //Announcement announcement = announcementRepository.getById(id).orElse(null);
+        //notificationService.sendNotification(10, 15, announcement);
+
     }
 
     @Override

@@ -1,3 +1,4 @@
+-- DB version 1.2
 create schema public;
 
 alter schema public owner to dvzoykednyiqtw;
@@ -519,4 +520,21 @@ create index users_roles_role_id_index
 create index users_roles_user_id_index
 	on users_roles (user_id);
 
+create table books_recommendations
+(
+  recommendation_id serial                  not null
+    constraint recommendations_pk primary key,
+  user_id           integer                 not null
+    constraint recommendations_users references users,
+  book_id           integer                 not null
+    constraint recommendations_books references books,
+  creation_time     timestamp default now() not null
+);
 
+create index books_recommendations_user_id_index
+  on books_recommendations (user_id);
+
+create index books_recommendations_book_id_index
+  on books_recommendations (book_id);
+
+alter table books_recommendations owner to dvzoykednyiqtw;

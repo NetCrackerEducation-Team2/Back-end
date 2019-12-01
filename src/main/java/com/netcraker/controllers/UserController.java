@@ -1,7 +1,7 @@
 package com.netcraker.controllers;
 
 import com.netcraker.exceptions.UpdateException;
-import com.netcraker.model.Role;
+import com.netcraker.model.Page;
 import com.netcraker.model.User;
 import com.netcraker.model.vo.ChangePassword;
 import com.netcraker.services.UserService;
@@ -13,8 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.sql.SQLDataException;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.PUT})
@@ -44,7 +46,7 @@ public class UserController {
     public ResponseEntity<?> changePassword(@PathVariable int userId,
                                             @RequestBody @Validated ChangePassword changePassword,
                                             BindingResult result) {
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             throw new UpdateException("Password must be valid");
         }
 
@@ -52,8 +54,16 @@ public class UserController {
                 .changePassword(userId, changePassword.getOldPassword(), changePassword.getNewPassword()));
     }
 
-    @GetMapping("/users/searchByNameContains")
-    public List<User> searchByContains(@RequestParam(value = "contains") String userFullNameContains) {
-        return userService.searchByNameContains(userFullNameContains);
+    @GetMapping("profile/search")
+    public Page<User> searchUser(@RequestParam String searchExpression,
+                                 @RequestParam(required = false, defaultValue = "0") int page,
+                                 @RequestParam(required = false, defaultValue = "5") int pageSize,
+                                 HttpServletRequest request) {
+        return userService.searchUser(searchExpression, getCurrentUser(request), page, pageSize);
+    }
+    // FIXME use SecurityContext
+    private Optional<User> getCurrentUser(HttpServletRequest request) {
+        String currentUserEmail = (String) request.getAttribute("currentUserEmail");
+        return Optional.ofNullable(userService.findByEmail(currentUserEmail));
     }
 }

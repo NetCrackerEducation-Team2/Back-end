@@ -1,5 +1,7 @@
 package com.netcraker.model;
 
+import com.netcraker.model.annotations.EntityId;
+import com.netcraker.model.annotations.GenericModel;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -8,7 +10,9 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@GenericModel("announcements")
 public class Announcement {
+    @EntityId("announcement_id")
     private int announcementId;
     private @NonNull String title;
     private @NonNull String description;

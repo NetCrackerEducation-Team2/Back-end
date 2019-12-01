@@ -39,7 +39,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         Authentication authentication = getAuthentication(request);
         if (authentication == null) {
-            logger.error("Authentication is null");
+            logger.warn("Authentication is null");
             filterChain.doFilter(request, response);
             return;
         }

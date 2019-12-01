@@ -42,6 +42,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Override
     public User createUsualUser(User user) {
         user.setEnabled(false);
@@ -88,10 +89,12 @@ public class UserServiceImpl implements UserService {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepositoryImpl.insert(registered, roleFind);
+            userRoleRepositoryImpl.insert(registered,roleFind)
+                    .orElseThrow(() -> new FailedToRegisterException("Error in creating relationship between user and role"));
+
         }
 
-        return user;
+        return registered;
     }
 
     private User createUser(User user) {

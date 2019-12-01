@@ -1,5 +1,6 @@
 package com.netcraker.model;
 
+import com.netcraker.model.annotations.GenericModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@GenericModel("notifications")
 public class Notification {
     private int notificationId;
     private NotificationObject notificationObject;

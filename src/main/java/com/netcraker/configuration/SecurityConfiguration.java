@@ -47,10 +47,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //                .antMatchers(HttpMethod.DELETE, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
 //                .antMatchers(HttpMethod.PUT, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
                 // for test, in production uncomment upper comments
+//                .antMatchers(HttpMethod.DELETE, "/api/announcements/**").permitAll()
                 .antMatchers("api/achievement").permitAll()
 
                 .antMatchers(HttpMethod.GET, "/api/books", "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/**", "/api/announcements/**").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**,", "/api/book-review/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**", "**").permitAll()
                 .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()

@@ -5,30 +5,18 @@ import com.netcraker.model.mapper.AnnouncementRowMapper;
 import com.netcraker.repositories.AnnouncementRepository;
 import com.netcraker.repositories.GenericRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Types;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
 @RequiredArgsConstructor
 public class AnnouncementRepositoryImp implements AnnouncementRepository {
-
-    private static final Logger logger = LoggerFactory.getLogger(AnnouncementRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
     private final AnnouncementRowMapper announcementRowMapper;
     private final GenericRepository<Announcement, AnnouncementRowMapper> genericRepository;
@@ -86,12 +74,13 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
 
     @Override
     public Optional<Announcement> getById(int id) {
-        return genericRepository.getById(announcementRowMapper, sqlGetById, id);
+        //return genericRepository.getById(announcementRowMapper, sqlGetById, id);
+        return genericRepository.getById(Announcement.class, announcementRowMapper,  id);
     }
 
     @Override
     public Optional<Announcement> insert(Announcement entity) {
-        KeyHolder keyHolder;
+        /*KeyHolder keyHolder;
         try {
             keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(conn -> {
@@ -107,12 +96,14 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
             e.printStackTrace();
             return Optional.empty();
         }
-        return getById((Integer) keyHolder.getKeys().get("announcement_id"));
+        return getById((Integer) keyHolder.getKeys().get("announcement_id"));*/
+        Object[] params = {entity.getTitle(), entity.getDescription(), entity.getUserId()};
+        return genericRepository.insert(entity, announcementRowMapper, params);
     }
 
     @Override
     public Optional<Announcement> update(Announcement entity) {
-        try {
+        /*try {
             jdbcTemplate.execute(Objects.requireNonNull(sqlUpdate), (PreparedStatementCallback<Boolean>) ps -> {
                 ps.setString(1, entity.getTitle());
                 ps.setString(2, entity.getDescription());
@@ -126,15 +117,24 @@ public class AnnouncementRepositoryImp implements AnnouncementRepository {
            logger.info("Announcement::update entity: " + entity + ". Stack trace: ");
             e.printStackTrace();
             return Optional.empty();
-        }
+        }*/
+
+        /*for (Field f: Announcement.class.getDeclaredFields()) {
+            EntityId column = f.getAnnotation(EntityId.class);
+            if (column != null)
+                System.out.println(column.value());
+        }*/
+
+        Object[] params = {entity.getTitle(), entity.getDescription(), entity.getUserId(),
+                entity.getAnnouncementId()};
+        return genericRepository.update(entity, announcementRowMapper, params,  entity.getAnnouncementId());
+
+
     }
 
     @Override
     public boolean delete(int id) {
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatement ps) -> {
-            ps.setInt(1, id);
-            return ps.execute();
-        });
+        return genericRepository.delete(sqlDelete, id);
     }
 
     @Override

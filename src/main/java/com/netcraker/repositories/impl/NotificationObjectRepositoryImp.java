@@ -40,7 +40,7 @@ public class NotificationObjectRepositoryImp implements NotificationObjectReposi
     public Optional<NotificationObject> getById(int id) {
         logger.info("Trying to get notification object with notification_object_id = " + id);
         //List<NotificationObject> list =  jdbcTemplate.query(sqlGetById, notificationObjectRowMapper, new Object[] {id});
-        return genericRepository.getById(notificationObjectRowMapper, sqlGetById, id);
+        return genericRepository.getById(NotificationObject.class, notificationObjectRowMapper, id);
     }
 
     @Override

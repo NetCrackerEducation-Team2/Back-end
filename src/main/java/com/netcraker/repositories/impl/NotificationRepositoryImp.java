@@ -28,8 +28,9 @@ public class NotificationRepositoryImp implements NotificationRepository {
     private final NotificationRowMapper notificationRowMapper;
     private static final Logger logger = LoggerFactory.getLogger(NotificationRepositoryImp.class);
     private final GenericRepository<Notification, NotificationRowMapper> genericRepository;
+    private final String entityName = "notifications";
 
-    @Value("${notifications.getByNotifierId}")
+    @Value("${" + entityName + ".getByNotifierId}")
     private String sqlGetByNotifierId;
     @Value("${notifications.getById}")
     private String sqlGetById;
@@ -51,14 +52,12 @@ public class NotificationRepositoryImp implements NotificationRepository {
 
     @Override
     public Optional<Notification> getById(int id) {
-        return genericRepository.getById(notificationRowMapper, sqlGetById, id);
+        return genericRepository.getById(Notification.class, notificationRowMapper, id);
     }
 
     @Override
     public Optional<Notification> insert(Notification entity) {
-        logger.info("trying to add notification to db: " + entity);
-
-        //Object[] params = {entity.getNotificationObject().getNotificationObjectId(), entity.getNotifierId()};
+        Object[] params = {entity.getNotificationObject().getNotificationObjectId(), entity.getNotifierId()};
         //jdbcTemplate.update(sqlInsert, params);
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -74,12 +73,13 @@ public class NotificationRepositoryImp implements NotificationRepository {
 
     @Override
     public Optional<Notification> update(Notification entity) {
-        return Optional.empty();
+        Object[] params = {entity.getNotificationObject(), entity.getNotifierId(), entity.getNotificationId()};
+        return genericRepository.update(entity, notificationRowMapper, params, entity.getNotificationId());
     }
 
     @Override
     public boolean delete(int id) {
-        return false;
+        return genericRepository.delete(sqlDelete, id);
     }
 
     @Override

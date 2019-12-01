@@ -51,4 +51,9 @@ public class UserController {
         return ResponseEntity.ok(userService
                 .changePassword(userId, changePassword.getOldPassword(), changePassword.getNewPassword()));
     }
+
+    @GetMapping("/users/searchByNameContains")
+    public List<User> searchByContains(@RequestParam(value = "contains") String userFullNameContains) {
+        return userService.searchByNameContains(userFullNameContains);
+    }
 }

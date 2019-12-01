@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Override
     public User createUsualUser(User user) {
         user.setEnabled(false);
@@ -98,7 +99,7 @@ public class UserServiceImpl implements UserService {
             throw new FailedToRegisterException("Email is already used");
         }
         //for hashing
-         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         final User registered = userRepository.insert(user)
                 .orElseThrow(() -> new FailedToRegisterException("Error in creating user! Email is free, but creation query failure."));
@@ -165,5 +166,10 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.update(user)
                 .orElseThrow(() -> new UpdateException("Cannot update password"));
+    }
+
+    @Override
+    public List<User> searchByNameContains(String userFullNameStartsWith) {
+        return userRepository.searchByNameContains(userFullNameStartsWith);
     }
 }

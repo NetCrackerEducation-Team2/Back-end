@@ -1,10 +1,5 @@
 package com.netcraker.configuration;
 
-
-import com.netcraker.repositories.RoleRepository;
-import com.netcraker.repositories.UserRoleRepository;
-import com.netcraker.repositories.impl.RoleRepositoryImpl;
-import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.security.filter.JwtAuthenticationFilter;
 import com.netcraker.security.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +39,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/**", "/admins/create").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**,", "/api/book-review/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "api/profile/**","**").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/**", "/admins/create","/ws/**").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**", "/api/book-review/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**","**").permitAll()
                 .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()
                 .anyRequest().authenticated()
@@ -63,8 +59,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected PasswordEncoder passwordEncoder() {
         // Code below is only for test purpose
         // In production change to return an instance of BCryptPasswordEncoder
-       //return NoOpPasswordEncoder.getInstance();
-       return new BCryptPasswordEncoder();
+       return NoOpPasswordEncoder.getInstance();
+       //return new BCryptPasswordEncoder();
     }
 
     @Override

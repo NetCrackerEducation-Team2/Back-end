@@ -47,6 +47,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Value("${user.deleteByEmail}")
     private String sqlDeleteByEmail;
 
+    @Value("${user.searchByFullNameContains}")
+    private String sqlSearchByNameContains;
+
     @Override
     public Optional<User> findByEmail(String email) {
         Object[] params = {email};
@@ -119,5 +122,10 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean delete(int id) {
         Object[] params = {id};
         return jdbcTemplate.update(sqlDelete, params) == 1;
+    }
+
+    @Override
+    public List<User> searchByNameContains(String authorFullNameContains) {
+        return jdbcTemplate.query(sqlSearchByNameContains, new UserRowMapper(), "%" + authorFullNameContains.trim() + "%");
     }
 }

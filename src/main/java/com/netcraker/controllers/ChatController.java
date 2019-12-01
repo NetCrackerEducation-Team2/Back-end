@@ -1,27 +1,62 @@
 package com.netcraker.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.model.ChatMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.util.Map;
 
-@RestController
+@Controller
+@RequestMapping(value = "/api/ws")
+@CrossOrigin(methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
 public class ChatController {
-    @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/public")
-    public ChatMessage sendMassage(@Payload ChatMessage chatMessage){
-        return chatMessage;
+    @Autowired
+
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    @RequestMapping(method = RequestMethod.POST)
+    public ResponseEntity<?> useSimpleRest(@RequestBody Map<String, String> message){
+        if(message.containsKey("message")){
+            if(message.containsKey("toId") && message.get("toId")!=null && !message.get("toId").equals("")){
+                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.get("toId"),message);
+                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.get("fromId"),message);
+            }else{
+                this.simpMessagingTemplate.convertAndSend("/socket-publisher",message);
+            }
+            return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @MessageMapping("/chat.addUser")
-    @SendTo("/topic/public")
-    public ChatMessage addUser(@Payload ChatMessage chatMessage,
-                               SimpMessageHeaderAccessor headerAccessor) {
-        Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("username", chatMessage.getSender());
-        return chatMessage;
+    @MessageMapping("/send/message")
+    public Map<String, String> useSocketCommunication(String message){
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> messageConverted = null;
+        try {
+            messageConverted = mapper.readValue(message, Map.class);
+        } catch (IOException e) {
+            messageConverted = null;
+        }
+        if(messageConverted!=null){
+            if(messageConverted.containsKey("toId") && messageConverted.get("toId")!=null && !messageConverted.get("toId").equals("")){
+                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+messageConverted.get("toId"),messageConverted);
+                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+messageConverted.get("fromId"),message);
+            }else{
+                this.simpMessagingTemplate.convertAndSend("/socket-publisher",messageConverted);
+            }
+        }
+        return messageConverted;
     }
+
 }

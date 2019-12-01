@@ -4,7 +4,6 @@ import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.model.Role;
 import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
-import com.netcraker.security.filter.JwtAuthenticationFilter;
 import com.netcraker.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

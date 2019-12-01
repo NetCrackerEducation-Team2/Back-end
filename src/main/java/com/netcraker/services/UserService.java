@@ -16,4 +16,5 @@ public interface UserService {
     boolean activateUser(String code);
     boolean equalsPassword(User user, String password);
     User changePassword(int userId, String oldPass, String newPass);
+    List<User> searchByNameContains(String userFullNameStartsWith);
 }

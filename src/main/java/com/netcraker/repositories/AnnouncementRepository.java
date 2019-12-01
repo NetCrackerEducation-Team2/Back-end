@@ -13,6 +13,5 @@ public interface AnnouncementRepository extends BaseOptionalRepository<Announcem
     List<Announcement> getAnnouncements(int limit, int offset);
     int getCount();
     int getPublishedCount();
-    Announcement getAnnouncementByTitle();
     List<Announcement> getPublishedAnnouncements(int pageSize, int offset);
 }

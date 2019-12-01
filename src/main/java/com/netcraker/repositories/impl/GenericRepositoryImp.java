@@ -2,6 +2,8 @@ package com.netcraker.repositories.impl;
 
 import com.netcraker.repositories.GenericRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,7 +22,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GenericRepositoryImp<T, RM extends RowMapper<T>> implements GenericRepository<T, RM> {
     private final JdbcTemplate jdbcTemplate;
-    //private RM rowMapper;
+    //@Qualifier(value = "notificationObjectRowMapper")
+    //private final RM rowMapper;
+
+    /*@Autowired
+    public <T> GenericRepositoryImp(RowMapper<T> mapper) {
+        jdbcTemplate = new JdbcTemplate();
+        rowMapper = mapper;
+    }*/
+
     @Override
     public Optional<T> getById(RM rowMapper, String sql, int id) {
         List<T> list =  jdbcTemplate.query(sql, rowMapper, new Object[] {id});

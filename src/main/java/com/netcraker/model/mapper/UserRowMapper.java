@@ -2,10 +2,13 @@ package com.netcraker.model.mapper;
 
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+@Builder
+@AllArgsConstructor
 public class UserRowMapper implements RowMapper<User> {
 
     @Override

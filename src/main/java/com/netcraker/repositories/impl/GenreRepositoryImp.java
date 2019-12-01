@@ -42,6 +42,8 @@ public class GenreRepositoryImp implements GenreRepository {
     private String sqlGetByBook;
     @Value("${genres.searchByNameContains}")
     private String sqlSearchByNameContains;
+    @Value("${genres.searchPartByNameContains}")
+    private String sqlSearchPartByNameContains;
 
     @Override
     public Optional<Genre> getById(int id) {
@@ -108,5 +110,10 @@ public class GenreRepositoryImp implements GenreRepository {
     @Override
     public List<Genre> findByNameContains(String genreNameContains) {
         return jdbcTemplate.query(sqlSearchByNameContains, new GenreRowMapper(), "%" + genreNameContains.trim() + "%");
+    }
+
+    @Override
+    public List<Genre> findByNameContains(String genreNameContains, int offset, int size) {
+        return jdbcTemplate.query(sqlSearchPartByNameContains, new GenreRowMapper(), genreNameContains.trim() + "%", size, offset);
     }
 }

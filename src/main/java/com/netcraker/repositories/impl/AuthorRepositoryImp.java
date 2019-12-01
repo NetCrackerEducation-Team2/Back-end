@@ -43,6 +43,8 @@ public class AuthorRepositoryImp implements AuthorRepository {
     private String sqlGetByBook;
     @Value("${authors.searchByFullNameContains}")
     private String sqlSearchByNameContains;
+    @Value("${authors.searchPartByFullNameContains}")
+    private String getSqlSearchPartByNameContains;
 
     @Override
     public Optional<Author> getById(int id) {
@@ -109,5 +111,10 @@ public class AuthorRepositoryImp implements AuthorRepository {
     @Override
     public List<Author> searchByNameContains(String authorFullNameContains) {
         return jdbcTemplate.query(sqlSearchByNameContains, new AuthorRowMapper(), "%" + authorFullNameContains.trim() + "%");
+    }
+
+    @Override
+    public List<Author> searchByNameContains(String authorFullNameContains, int offset, int size) {
+        return jdbcTemplate.query(getSqlSearchPartByNameContains, new AuthorRowMapper(), authorFullNameContains.trim() + "%", size, offset);
     }
 }

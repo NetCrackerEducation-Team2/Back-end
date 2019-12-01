@@ -23,4 +23,9 @@ public class GenreServiceImp implements GenreService {
     public List<Genre> searchByNameContains(String genreNameContains) {
         return genreRepository.findByNameContains(genreNameContains);
     }
+
+    @Override
+    public List<Genre> searchByNameContains(String genreNameContains, int offset, int size) {
+        return genreRepository.findByNameContains(genreNameContains, offset, size);
+    }
 }

@@ -73,9 +73,10 @@ public class GenericRepositoryImp<T, RM extends RowMapper<T>> implements Generic
     }
 
     @Override
-    public boolean delete(String entityName, int id) {
+    public boolean delete(Class<T> entity, int id) {
+        String entityName = getEntityName(entity);
+        logger.info("Trying to delete from " + entityName + " with id = " + id);
         String sqlDelete = environment.getProperty(entityName + ".delete");
-        logger.info("Trying to delete " + id);
         return jdbcTemplate.execute(sqlDelete, (PreparedStatement ps) -> {
             ps.setInt(1, id);
             return ps.execute();

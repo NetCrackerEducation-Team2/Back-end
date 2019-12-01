@@ -28,18 +28,11 @@ public class NotificationRepositoryImp implements NotificationRepository {
     private final NotificationRowMapper notificationRowMapper;
     private static final Logger logger = LoggerFactory.getLogger(NotificationRepositoryImp.class);
     private final GenericRepository<Notification, NotificationRowMapper> genericRepository;
-    private final String entityName = "notifications";
 
-    @Value("${" + entityName + ".getByNotifierId}")
+    @Value("${notifications.getByNotifierId}")
     private String sqlGetByNotifierId;
-    @Value("${notifications.getById}")
-    private String sqlGetById;
     @Value("${notifications.count}")
     private String sqlGetCount;
-    @Value("${notifications.insert}")
-    private String sqlInsert;
-    @Value("${notifications.update}")
-    private String sqlUpdate;
     @Value("${notifications.delete}")
     private String sqlDelete;
 
@@ -58,17 +51,7 @@ public class NotificationRepositoryImp implements NotificationRepository {
     @Override
     public Optional<Notification> insert(Notification entity) {
         Object[] params = {entity.getNotificationObject().getNotificationObjectId(), entity.getNotifierId()};
-        //jdbcTemplate.update(sqlInsert, params);
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, entity.getNotificationObject().getNotificationObjectId());
-            ps.setInt(2, entity.getNotifierId());
-            return ps;
-        }, keyHolder);
-
-        return getById((Integer) keyHolder.getKeys().get("notification_id"));
+        return genericRepository.insert(entity, notificationRowMapper, params);
     }
 
     @Override
@@ -79,7 +62,7 @@ public class NotificationRepositoryImp implements NotificationRepository {
 
     @Override
     public boolean delete(int id) {
-        return genericRepository.delete(sqlDelete, id);
+        return genericRepository.delete(Notification.class, id);
     }
 
     @Override

@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping({"/api/searching-history"})
 @CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST})
@@ -17,8 +19,8 @@ public class SearchingHistoryController {
     private final SearchingHistoryService searchingHistoryService;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addSearchingHistories(@RequestBody SearchingHistoryWrapper wrapper){
-        searchingHistoryService.addSearchingHistories(wrapper.getSearchingHistories());
+    public ResponseEntity<?> addSearchingHistories(@RequestBody List<SearchingHistory> searchingHistories){
+        searchingHistoryService.addSearchingHistories(searchingHistories);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

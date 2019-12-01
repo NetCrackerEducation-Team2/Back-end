@@ -8,14 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -28,59 +29,50 @@ public class BooksRecommendationsRepositoryImp implements BooksRecommendationsRe
 
     @Value("${booksRecommendations.count}")
     private String sqlCount;
-    @Value("${booksRecommendations.select}")
-    private String sqlSelect;
+    @Value("${booksRecommendations.get}")
+    private String sqlGet;
+    @Value("${booksRecommendations.getLatestUpdateTime}")
+    private String sqlGetLatestUpdateTime;
     @Value("${booksRecommendations.insert}")
     private String sqlInsert;
     @Value("${booksRecommendations.clear}")
     private String sqlClear;
 
     @Override
-    public int count() {
-        return jdbcTemplate.queryForObject(sqlCount, int.class);
+    public int count(int userId) {
+        return jdbcTemplate.queryForObject(sqlCount, new Object[]{userId}, int.class);
     }
 
     @Override
-    public List<Book> select(int size, int offset) {
-        return jdbcTemplate.query(sqlSelect, new BookRowMapper(), size, offset);
+    public List<Book> get(int userId) {
+        return jdbcTemplate.query(sqlGet, new Object[]{userId}, new BookRowMapper());
     }
 
     @Override
-    public void insert(List<Book> books) {
-        try {
-            this.jdbcTemplate.batchUpdate(sqlInsert, new BatchPreparedStatementSetter() {
-
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    ps.setInt(1, books.get(i).getBookId());
-                    ps.setString(2, books.get(i).getTitle());
-                    ps.setLong(3, books.get(i).getIsbn());
-                    ps.setDate(4, Date.valueOf(books.get(i).getRelease()));
-                    ps.setInt(5, books.get(i).getPages());
-                    ps.setString(6, books.get(i).getFilePath());
-                    ps.setString(7, books.get(i).getPhotoPath());
-                    ps.setString(8, books.get(i).getPublishingHouse());
-                    ps.setInt(9, books.get(i).getRateSum());
-                    ps.setInt(10, books.get(i).getVotersCount());
-                    ps.setString(11, books.get(i).getSlug());
-                }
-
-                public int getBatchSize() {
-                    return books.size();
-                }
-            });
-        }catch (DataAccessException e){
-            logger.info("BooksRecommendations::insert. Stack trace: ");
-            e.printStackTrace();
-        }
+    public LocalDateTime getLatestUpdateTime(int userId) {
+        return jdbcTemplate.queryForObject(sqlGetLatestUpdateTime, new Object[]{userId}, LocalDateTime.class);
     }
 
     @Override
-    public void clear() {
-        try {
-            jdbcTemplate.execute(sqlClear);
-        }catch (DataAccessException e){
-            logger.info("BooksRecommendations::clear. Stack trace: ");
-            e.printStackTrace();
-        }
+    public void insert(int userId, List<Book> books) {
+        this.jdbcTemplate.batchUpdate(sqlInsert, new BatchPreparedStatementSetter() {
+
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                ps.setInt(1, userId);
+                ps.setInt(2, books.get(i).getBookId());
+            }
+
+            public int getBatchSize() {
+                return books.size();
+            }
+        });
+    }
+
+    @Override
+    public void clear(int userId) {
+        jdbcTemplate.execute(sqlClear, (PreparedStatementCallback<Boolean>) ps -> {
+            ps.setInt(1, userId);
+            return ps.execute();
+        });
     }
 }

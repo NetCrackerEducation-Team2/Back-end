@@ -31,14 +31,8 @@ public class NotificationRepositoryImp implements NotificationRepository {
 
     @Value("${notifications.getByNotifierId}")
     private String sqlGetByNotifierId;
-    @Value("${notifications.getById}")
-    private String sqlGetById;
     @Value("${notifications.count}")
     private String sqlGetCount;
-    @Value("${notifications.insert}")
-    private String sqlInsert;
-    @Value("${notifications.update}")
-    private String sqlUpdate;
     @Value("${notifications.delete}")
     private String sqlDelete;
 
@@ -51,35 +45,24 @@ public class NotificationRepositoryImp implements NotificationRepository {
 
     @Override
     public Optional<Notification> getById(int id) {
-        return genericRepository.getById(notificationRowMapper, sqlGetById, id);
+        return genericRepository.getById(Notification.class, notificationRowMapper, id);
     }
 
     @Override
     public Optional<Notification> insert(Notification entity) {
-        logger.info("trying to add notification to db: " + entity);
-
-        //Object[] params = {entity.getNotificationObject().getNotificationObjectId(), entity.getNotifierId()};
-        //jdbcTemplate.update(sqlInsert, params);
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, entity.getNotificationObject().getNotificationObjectId());
-            ps.setInt(2, entity.getNotifierId());
-            return ps;
-        }, keyHolder);
-
-        return getById((Integer) keyHolder.getKeys().get("notification_id"));
+        Object[] params = {entity.getNotificationObject().getNotificationObjectId(), entity.getNotifierId()};
+        return genericRepository.insert(entity, notificationRowMapper, params);
     }
 
     @Override
     public Optional<Notification> update(Notification entity) {
-        return Optional.empty();
+        Object[] params = {entity.getNotificationObject(), entity.getNotifierId(), entity.getNotificationId()};
+        return genericRepository.update(entity, notificationRowMapper, params, entity.getNotificationId());
     }
 
     @Override
     public boolean delete(int id) {
-        return false;
+        return genericRepository.delete(Notification.class, id);
     }
 
     @Override

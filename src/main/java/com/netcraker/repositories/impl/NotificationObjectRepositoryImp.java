@@ -38,34 +38,27 @@ public class NotificationObjectRepositoryImp implements NotificationObjectReposi
 
     @Override
     public Optional<NotificationObject> getById(int id) {
-        logger.info("Trying to get notification object with notification_object_id = " + id);
-        //List<NotificationObject> list =  jdbcTemplate.query(sqlGetById, notificationObjectRowMapper, new Object[] {id});
-        return genericRepository.getById(notificationObjectRowMapper, sqlGetById, id);
+        return genericRepository.getById(NotificationObject.class, notificationObjectRowMapper, id);
     }
 
     @Override
     public Optional<NotificationObject> insert(NotificationObject entity) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, entity.getNotificationType().getNotificationTypeId());
-            ps.setInt(2, entity.getEntityId());
-            ps.setInt(3, entity.getUser().getUserId());
-            ps.setInt(4, entity.getNotificationMessage().getNotificationMessageId());
-            ps.setBoolean(5, entity.isSendAll());
-            return ps;
-        }, keyHolder);
-
-        return getById((Integer) keyHolder.getKeys().get("notification_object_id"));
+        Object[] params = {entity.getNotificationType().getNotificationTypeId(),
+                entity.getEntityId(), entity.getUser().getUserId(), entity.getNotificationMessage().getNotificationMessageId(),
+                entity.isSendAll()};
+        return genericRepository.insert(entity, notificationObjectRowMapper, params);
     }
 
     @Override
     public Optional<NotificationObject> update(NotificationObject entity) {
-        return Optional.empty();
+        Object[] params = {entity.getNotificationType().getNotificationTypeId(),
+                entity.getEntityId(), entity.getUser().getUserId(), entity.getNotificationMessage().getNotificationMessageId(),
+                entity.isSendAll(), entity.isRead(), entity.getNotificationObjectId()};
+        return genericRepository.update(entity, notificationObjectRowMapper, params, entity.getNotificationObjectId());
     }
 
     @Override
     public boolean delete(int id) {
-        return false;
+        return genericRepository.delete(NotificationObject.class, id);
     }
 }

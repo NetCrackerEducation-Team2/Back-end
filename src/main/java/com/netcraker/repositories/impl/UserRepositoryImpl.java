@@ -62,6 +62,9 @@ public class UserRepositoryImpl implements UserRepository {
     private String sqlListId;
 
 
+    @Value("${user.searchByFullNameContains}")
+    private String sqlSearchByNameContains;
+
     @Override
     public Optional<User> findByEmail(String email) {
         Object[] params = {email};
@@ -172,6 +175,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    // public List<User> searchByNameContains(String authorFullNameContains) {
+    //     return jdbcTemplate.query(sqlSearchByNameContains, new UserRowMapper(), "%" + authorFullNameContains.trim() + "%");
+
     public List<Integer> getListId() {
         return jdbcTemplate.queryForList(sqlListId, Integer.class);
     }

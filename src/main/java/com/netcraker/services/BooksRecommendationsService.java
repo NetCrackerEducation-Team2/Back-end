@@ -3,7 +3,9 @@ package com.netcraker.services;
 import com.netcraker.model.Book;
 import com.netcraker.model.Page;
 
+import java.util.List;
+
 public interface BooksRecommendationsService {
     void prepareBooksRecommendations(int userId, int count);
-    Page<Book> getBooksRecommendations(int userId, int page, int pageSize);
+    List<Page<Book>> getBooksRecommendations(int userId, int pageSize);
 }

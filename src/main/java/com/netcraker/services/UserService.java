@@ -13,6 +13,7 @@ public interface UserService {
     User createAdminModerator(User user, List<Role> role);
     User findByUserId(int userId);
     User findByEmail(String email);
+    List<User> findById(int id);
     void updateUser(User oldUser, User newUser);
     void updateAdminModerator(User user, List<Role> roles);
     void deleteAdminModerator(String email);

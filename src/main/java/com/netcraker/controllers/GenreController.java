@@ -27,4 +27,11 @@ public class GenreController {
     public List<Genre> searchByNameStartsWith(@RequestParam(name = "contains") String genreNameContains) {
         return genreService.searchByNameContains(genreNameContains);
     }
+
+    @GetMapping("/genres/searchPartByNameContains")
+    public List<Genre> searchPartByNameStartsWith(@RequestParam(name = "contains") String genreNameContains,
+                                                  @RequestParam int offset,
+                                                  @RequestParam int size) {
+        return genreService.searchByNameContains(genreNameContains, offset, size);
+    }
 }

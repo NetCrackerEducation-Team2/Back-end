@@ -40,6 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "api/profile/**", "**").permitAll()
@@ -54,6 +55,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**,", "/api/book-review/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**", "**").permitAll()
                 .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()
+
+                .antMatchers(HttpMethod.GET, "/socket/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/socket/**").permitAll()
+
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager(), passwordEncoder()))

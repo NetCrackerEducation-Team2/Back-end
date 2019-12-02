@@ -25,7 +25,7 @@ public class DateBaseChangeEventListener {
     private final AchievementService achievementService;
     private final JdbcTemplate jdbcTemplate;
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final static String destinationTopic = "/topic/achievements";
+    private final static String destinationTopic = "/topic/achievements/";
 
     @Async
     @EventListener
@@ -43,7 +43,7 @@ public class DateBaseChangeEventListener {
                 if (optAchievement.isPresent()) {
                     final Achievement achievement = optAchievement.get();
                     if (userAchievementService.addUserAchievement(uId, achievement.getAchievementId())) {
-                        simpMessagingTemplate.convertAndSend(destinationTopic, achievement.getName());
+                        simpMessagingTemplate.convertAndSend(destinationTopic + uId, achievement.getAchievementId());
                     }
                 }
             }
@@ -53,7 +53,7 @@ public class DateBaseChangeEventListener {
             if (optAchievement.isPresent()) {
                 final Achievement achievement = optAchievement.get();
                 if (userAchievementService.addUserAchievement(userId, achievement.getAchievementId())) {
-                    simpMessagingTemplate.convertAndSend(destinationTopic, achievement.getName());
+                    simpMessagingTemplate.convertAndSend(destinationTopic + userId, achievement.getAchievementId());
                 }
             }
         }

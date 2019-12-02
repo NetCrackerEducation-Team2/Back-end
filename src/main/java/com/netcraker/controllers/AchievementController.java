@@ -27,6 +27,8 @@ public class AchievementController {
     @PostMapping
     public ResponseEntity<Achievement> createAchievement(@RequestBody @Validated AchievementReq achievementReq,
                                                          BindingResult result) {
+        System.out.println(achievementReq);
+
         if (result.hasErrors()) {
             throw newCreationException();
         }
@@ -54,6 +56,11 @@ public class AchievementController {
             @RequestParam(defaultValue = "5") int pageSize) {
 
         return ResponseEntity.ok(userAchievementService.getPage(userId, pageSize, page));
+    }
+
+    @GetMapping("user/{userId}/count")
+    public ResponseEntity<Integer> countByUserId(@PathVariable int userId) {
+        return ResponseEntity.ok(userAchievementService.countByUserId(userId));
     }
 
     private CreationException newCreationException() {

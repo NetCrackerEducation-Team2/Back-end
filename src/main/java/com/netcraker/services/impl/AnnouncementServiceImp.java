@@ -52,7 +52,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
     @Override
     public Optional<Announcement> addAnnouncement(Announcement announcement) {
         final Optional<Announcement> inserted = announcementRepository.insert(announcement);
-        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, announcement.getUserId()));
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.ANNOUNCEMENTS, announcement.getUserId()));
         notificationService.sendNotificationToUser(10, 12, announcement.getAnnouncementId(), announcement.getUserId(), announcement.getUserId() );
         return inserted;
     }

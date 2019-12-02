@@ -1,4 +1,4 @@
-package com.netcraker.services.builders.imp;
+package com.netcraker.services.adaptors.imp;
 
 import com.netcraker.exceptions.CreationException;
 import com.netcraker.model.Achievement;
@@ -6,7 +6,7 @@ import com.netcraker.model.constants.Parameter;
 import com.netcraker.model.constants.TableName;
 import com.netcraker.model.constants.Verb;
 import com.netcraker.model.vo.AchievementReq;
-import com.netcraker.services.builders.Builder;
+import com.netcraker.services.adaptors.Adaptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -23,7 +22,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @PropertySource("classpath:achievement-templates.properties")
-public class AchievementBuilder implements Builder<AchievementReq, Achievement> {
+public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> {
 
     @Value("${common.template.count}")
     private String templateCount;
@@ -35,13 +34,12 @@ public class AchievementBuilder implements Builder<AchievementReq, Achievement> 
     private final Environment env;
 
     @Override
-    public Achievement build(AchievementReq achievementReq) {
+    public Achievement adapt(AchievementReq achievementReq) {
         final Verb verb = achievementReq.getVerb();
         final TableName subject = achievementReq.getSubject();
         final Map<Parameter, List<String>> extraParams = achievementReq.getExtraParams();
         final String name = achievementReq.getName();
         final int count = achievementReq.getCount();
-
 
         if (!AchievementUtils.isValidVerb(verb, subject)) {
             throw new CreationException("Invalid values for achievement");
@@ -80,7 +78,7 @@ public class AchievementBuilder implements Builder<AchievementReq, Achievement> 
         if (verb == Verb.READ) {
             query.add(createBookParameterizedQuery(extraParams, count));
         } else if (verb == Verb.HAS) {
-            query.add(insertParams(env.getProperty("common.template.has"), count, subject));
+            query.add(insertParams(env.getProperty("common.template.count"), count, subject));
         } else {
             throw new IllegalArgumentException("Invalid verb value (additional parameters are applied only to `HAS`, `READ` verbs)");
         }
@@ -165,6 +163,7 @@ public class AchievementBuilder implements Builder<AchievementReq, Achievement> 
                 if (ObjectUtils.isEmpty(rateSumParam)) {
                     continue;
                 }
+
                 final int firstBound = Integer.parseInt(rateSumParam.get(0));
                 final int secondBound = Integer.parseInt(rateSumParam.get(1));
 
@@ -237,6 +236,11 @@ public class AchievementBuilder implements Builder<AchievementReq, Achievement> 
 
         private static final int DEFAULT_LIMIT_VALUE = 10;
         static final String DEFAULT_DESCRIPTION = "No description present";
+
+        static boolean isStringValid(String str) {
+            return !str.contains("'") && !str.contains("\"");
+        }
+
 
         static int extractLimit(Parameter parameter, Map<Parameter, List<String>> extraParams) {
             final List<String> limitParam = extraParams.get(parameter);

@@ -15,25 +15,24 @@ import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/chat-messaging").withSockJS();
+//        registry.addEndpoint("/chat-messaging").withSockJS();
 //        registry.addEndpoint("/socket")
 //                .setAllowedOrigins("*")
 //                .withSockJS();
 
-        RequestUpgradeStrategy upgradeStrategy = new TomcatRequestUpgradeStrategy();
-        registry.addEndpoint("/socket")
-                .withSockJS();
-        registry.addEndpoint("/socket")
-                .setHandshakeHandler(new DefaultHandshakeHandler(upgradeStrategy))
-                .setAllowedOrigins("*");
+//        RequestUpgradeStrategy upgradeStrategy = new TomcatRequestUpgradeStrategy();
+//        registry.addEndpoint("/socket")
+//                .withSockJS();
+//        registry.addEndpoint("/socket")
+//                .setHandshakeHandler(new DefaultHandshakeHandler(upgradeStrategy))
+//                .setAllowedOrigins("*");
+
+        registry.addEndpoint("/socket").setAllowedOrigins("http://localhost:4200").withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
         registry.enableSimpleBroker("/topic");
-
-        registry.setApplicationDestinationPrefixes("/app")
-                .enableSimpleBroker("/topic");
     }
 }

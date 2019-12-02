@@ -6,7 +6,7 @@ import com.netcraker.model.vo.AchievementReq;
 import com.netcraker.repositories.AchievementRepository;
 import com.netcraker.services.AchievementService;
 import com.netcraker.services.UserAchievementService;
-import com.netcraker.services.builders.imp.AchievementBuilder;
+import com.netcraker.services.adaptors.imp.AchievementAdaptor;
 import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,7 +23,7 @@ import java.util.Optional;
 public class AchievementServiceImp implements AchievementService {
     private final AchievementRepository achievementRepo;
     private final UserAchievementService userAchievementService;
-    private final AchievementBuilder achievementBuilder;
+    private final AchievementAdaptor achievementAdaptor;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -49,7 +49,7 @@ public class AchievementServiceImp implements AchievementService {
             return optFromDb;
         }
 
-        final Achievement achievement = achievementBuilder.build(achievementReq);
+        final Achievement achievement = achievementAdaptor.adapt(achievementReq);
 
         final Optional<Achievement> inserted = achievementRepo.insert(achievement);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(achievementReq.getSubject(), -1));

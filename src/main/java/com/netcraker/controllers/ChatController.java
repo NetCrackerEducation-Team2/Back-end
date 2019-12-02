@@ -1,37 +1,35 @@
 package com.netcraker.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.model.ChatMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.netcraker.services.impl.ChatServiceImp;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping(value = "/api/ws")
 @CrossOrigin(methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
+@RequiredArgsConstructor
 public class ChatController {
-    @Autowired
 
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ChatServiceImp chatServiceImp;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> useSimpleRest(@RequestBody Map<String, String> message){
+    @PostMapping
+    public ResponseEntity<?> sendMessage(@RequestBody Map<String, String> message){
         if(message.containsKey("message")){
-            if(message.containsKey("toId") && message.get("toId")!=null && !message.get("toId").equals("")){
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.get("toId"),message);
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.get("fromId"),message);
-            }else{
+            if(message.containsKey("toName") && message.get("toName")!=null && !message.get("toName").equals("")){
+
+                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.get("toName"),message);
+                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.get("fromName"),message);
+            }else {
+
                 this.simpMessagingTemplate.convertAndSend("/socket-publisher",message);
             }
             return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
@@ -39,24 +37,16 @@ public class ChatController {
         return new ResponseEntity<>(new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @MessageMapping("/send/message")
-    public Map<String, String> useSocketCommunication(String message){
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> messageConverted = null;
-        try {
-            messageConverted = mapper.readValue(message, Map.class);
-        } catch (IOException e) {
-            messageConverted = null;
-        }
-        if(messageConverted!=null){
-            if(messageConverted.containsKey("toId") && messageConverted.get("toId")!=null && !messageConverted.get("toId").equals("")){
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+messageConverted.get("toId"),messageConverted);
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+messageConverted.get("fromId"),message);
-            }else{
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher",messageConverted);
-            }
-        }
-        return messageConverted;
+    @GetMapping
+    public ResponseEntity<?> getMessages(@RequestParam int user1_id, @RequestParam int user2_id) {
+        List<ChatMessage> messages  = chatServiceImp.getContent(user1_id, user2_id);
+        messages.forEach(
+                chatMessage -> {
+                    this.simpMessagingTemplate.convertAndSend("/socket-publisher",chatMessage.getContent());
+                }
+        );
+        return new ResponseEntity<>(messages, new HttpHeaders(), HttpStatus.OK);
     }
+
 
 }

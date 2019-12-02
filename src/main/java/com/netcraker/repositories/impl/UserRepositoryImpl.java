@@ -61,6 +61,8 @@ public class UserRepositoryImpl implements UserRepository {
     @Value("${user.getListId}")
     private String sqlListId;
 
+    @Value("${users_localChat.getById}")
+    private String sqlListUsers;
 
     @Value("${user.searchByFullNameContains}")
     private String sqlSearchByNameContains;
@@ -70,6 +72,12 @@ public class UserRepositoryImpl implements UserRepository {
         Object[] params = {email};
         List<User> users = jdbcTemplate.query(sqlFindByEmail, params, new UserRowMapper());
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
+    }
+
+    @Override
+    public List<User> findById(int id) {
+        Object[] params = {id};
+        return jdbcTemplate.query(sqlListUsers, params, new UserRowMapper());
     }
 
     @Override

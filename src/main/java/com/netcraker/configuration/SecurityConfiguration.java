@@ -40,7 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "api/profile/**","**", "/api/books").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/**", "/admins/create","/ws/**","/api/searching-history/add").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/announcements/**", "/auth/**", "/admins/create","/ws/**","/api/searching-history/add").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**","**").permitAll()
 //                .antMatchers(HttpMethod.POST, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
 //                .antMatchers(HttpMethod.DELETE, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")

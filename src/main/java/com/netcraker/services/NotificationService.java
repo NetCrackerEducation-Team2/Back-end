@@ -19,10 +19,12 @@ package com.netcraker.services;
 */
 
 import com.netcraker.model.Page;
+import com.netcraker.model.constants.NotificationTypeMessage;
+import com.netcraker.model.constants.NotificationTypeName;
 import com.netcraker.model.vo.NotificationMessage;
 
 
 public interface NotificationService {
     Page<NotificationMessage> getUserNotification(int id, int page, int pageSize);
-    <T> boolean sendNotification(int notificationTypeId, int notificationMessageId, T entity);
+    <T> boolean sendNotification(NotificationTypeName notificationTypeName, NotificationTypeMessage notificationTypeMessage, T entity);
 }

@@ -56,7 +56,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
         int announcementAuthorId = announcement.getUserId();
         // TODO asem insert to activity table
         final Optional<Announcement> inserted = announcementRepository.insert(announcement);
-        //eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, announcement.getUserId()));
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.ANNOUNCEMENTS, announcement.getUserId()));
         notificationService.sendNotification(10, 12, inserted.orElse(null));
         return inserted;
     }

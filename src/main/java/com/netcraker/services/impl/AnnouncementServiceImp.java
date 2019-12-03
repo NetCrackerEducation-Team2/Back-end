@@ -2,6 +2,8 @@ package com.netcraker.services.impl;
 
 import com.netcraker.model.Announcement;
 import com.netcraker.model.Page;
+import com.netcraker.model.constants.NotificationTypeMessage;
+import com.netcraker.model.constants.NotificationTypeName;
 import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.AnnouncementRepository;
 import com.netcraker.services.AnnouncementService;
@@ -57,7 +59,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
         // TODO asem insert to activity table
         final Optional<Announcement> inserted = announcementRepository.insert(announcement);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.ANNOUNCEMENTS, announcement.getUserId()));
-        notificationService.sendNotification(10, 12, inserted.orElse(null));
+        notificationService.sendNotification(NotificationTypeName.ANNOUNCEMENTS, NotificationTypeMessage.CREATE_ANNOUNCEMENT, inserted.orElse(null));
         return inserted;
     }
 

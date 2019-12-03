@@ -2,8 +2,10 @@ package com.netcraker.model;
 
 import com.netcraker.model.annotations.EntityId;
 import com.netcraker.model.annotations.GenericModel;
+import com.netcraker.model.mapper.AnnouncementRowMapper;
 import lombok.*;
 
+import javax.swing.tree.RowMapper;
 import java.time.LocalDateTime;
 
 @Data

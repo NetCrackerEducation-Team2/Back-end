@@ -4,8 +4,8 @@ import com.netcraker.model.annotations.EntityId;
 import com.netcraker.model.annotations.GenericModel;
 import com.netcraker.repositories.GenericRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,15 +25,16 @@ import java.util.Optional;
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
 @RequiredArgsConstructor
+@Slf4j
 public class GenericRepositoryImp<T, RM extends RowMapper<T>> implements GenericRepository<T, RM> {
     private final JdbcTemplate jdbcTemplate;
     private final Environment environment;
-    private static final Logger logger = LoggerFactory.getLogger(GenericRepositoryImp.class);
+
 
     @Override
     public Optional<T> getById(Class<T> entity, RM rowMapper, int id) {
         String entityName = getEntityName(entity);
-        logger.info("Trying to get from " + entityName + " with id = " + id);
+        log.info("Trying to get from {} with id = {}", entityName, id);
         String sqlGetById = environment.getProperty(entityName + ".getById");
         List<T> list =  jdbcTemplate.query(sqlGetById, rowMapper, new Object[] {id});
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
@@ -43,7 +44,7 @@ public class GenericRepositoryImp<T, RM extends RowMapper<T>> implements Generic
     public Optional<T> insert(T entity, RM rowMapper, Object[] params) {
         Class<T> classObj = (Class<T>)entity.getClass();
         String entityName = getEntityName(classObj);
-        logger.info("Trying to insert " + entity + " to table " + entityName);
+        log.info("Trying to insert {} to table {}", entity, entityName);
         String entityIdName = getEntityIdName(classObj);
         String sqlInsert = environment.getProperty(entityName + ".insert");
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -62,7 +63,7 @@ public class GenericRepositoryImp<T, RM extends RowMapper<T>> implements Generic
     public Optional<T> update(T entity, RM rowMapper, Object[] params, int id) {
         String entityName = getEntityName((Class<T>)entity.getClass());
         String sqlUpdate = environment.getProperty(entityName + ".update");
-        logger.info("Trying to update " + entity);
+        log.info("Trying to update {}", entity);
         jdbcTemplate.execute(Objects.requireNonNull(sqlUpdate), (PreparedStatementCallback<Boolean>) ps -> {
             for (int i = 0; i < params.length; i++) {
                 ps.setObject(i+1, params[i]);
@@ -75,7 +76,7 @@ public class GenericRepositoryImp<T, RM extends RowMapper<T>> implements Generic
     @Override
     public boolean delete(Class<T> entity, int id) {
         String entityName = getEntityName(entity);
-        logger.info("Trying to delete from " + entityName + " with id = " + id);
+        log.info("Trying to delete from {} with id = {}", entityName, id);
         String sqlDelete = environment.getProperty(entityName + ".delete");
         return jdbcTemplate.execute(sqlDelete, (PreparedStatement ps) -> {
             ps.setInt(1, id);
@@ -86,7 +87,7 @@ public class GenericRepositoryImp<T, RM extends RowMapper<T>> implements Generic
     private String getEntityName(Class<T> entity) {
         String entityName = "";
         if(!entity.isAnnotationPresent(GenericModel.class)){
-            logger.error("no annotation @GenericModel in class " + entity.getName());
+            log.error("no annotation @GenericModel in class {}", entity.getName());
         } else {
             entityName = entity.getAnnotation(GenericModel.class).value();
         }

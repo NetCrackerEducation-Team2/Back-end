@@ -42,7 +42,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
         final int count = achievementReq.getCount();
 
         if (!AchievementUtils.isValidVerb(verb, subject)) {
-            throw new CreationException("Invalid values for achievement");
+            throw new CreationException("Invalid values for achievement (wrong verb value)");
         }
 
         String query;
@@ -128,13 +128,21 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
 
                 query.add(env.getProperty("books.join.genre"));
 
+                String genreName = selectedGenres.get(0);
+                if (!AchievementUtils.isValidString(genreName)) {
+                    throw new CreationException("Invalid value for genre name");
+                }
+
                 // Begin genre condition
-                String tempCondition = insertParams(env.getProperty("books.condition.genre.name"), selectedGenres.get(0));
+                String tempCondition = insertParams(env.getProperty("books.condition.genre.name"), genreName);
 
                 conditionalBuffer.add(tempCondition);
 
                 for (int i = 1; i < selectedGenres.size(); i++) {
-                    String genreName = selectedGenres.get(i);
+                    genreName = selectedGenres.get(i);
+                    if (!AchievementUtils.isValidString(genreName)) {
+                        throw new CreationException("Invalid value for genre name");
+                    }
                     tempCondition = insertParams(env.getProperty("books.condition.add.genre.name"), genreName);
                     conditionalBuffer.add(tempCondition);
                 }
@@ -237,7 +245,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
         private static final int DEFAULT_LIMIT_VALUE = 10;
         static final String DEFAULT_DESCRIPTION = "No description present";
 
-        static boolean isStringValid(String str) {
+        static boolean isValidString(String str) {
             return !str.contains("'") && !str.contains("\"");
         }
 

@@ -27,8 +27,6 @@ public class AchievementController {
     @PostMapping
     public ResponseEntity<Achievement> createAchievement(@RequestBody @Validated AchievementReq achievementReq,
                                                          BindingResult result) {
-        System.out.println(achievementReq);
-
         if (result.hasErrors()) {
             throw newCreationException();
         }

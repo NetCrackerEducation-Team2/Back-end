@@ -1,6 +1,8 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.model.*;
+import com.netcraker.model.constants.NotificationTypeMessage;
+import com.netcraker.model.constants.NotificationTypeName;
 import com.netcraker.model.vo.NotificationMessage;
 import com.netcraker.repositories.NotificationObjectRepository;
 import com.netcraker.repositories.NotificationRepository;
@@ -28,7 +30,7 @@ public class NotificationServiceImp implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
     @Override
     public Page<NotificationMessage> getUserNotification(int id,int page, int pageSize) {
-        int total = notificationRepository.getCount(id);
+        int total = notificationRepository.getUserNotificationsCount(id);
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
@@ -48,23 +50,28 @@ public class NotificationServiceImp implements NotificationService {
 
     @Override
     @Transactional
-    public <T> boolean sendNotification(int notificationTypeId, int notificationMessageId, T entity) {
+    public <T> boolean sendNotification(NotificationTypeName notificationTypeName, NotificationTypeMessage notificationTypeMessage, T entity) {
+        int notificationTypeId = 0;
+        int notificationMessageId = getNotificationMessageId(notificationTypeMessage);
         int entityId = 0;
         int userId = 0;
         int notifierId = 0;
         boolean sendAll = false;
-        switch (notificationTypeId) {
-            case 10:
+        switch (notificationTypeName) {
+            case ANNOUNCEMENTS:
+                notificationTypeId = 10;
                 entityId = ((Announcement) entity).getAnnouncementId();
                 userId = ((Announcement) entity).getUserId();
                 notifierId = userId;
                 break;
-            case 11:
+            case BOOK_REVIEWS:
+                notificationTypeId = 11;
                 entityId = ((BookReview) entity).getBookReviewId();
                 userId = ((BookReview) entity).getUserId();
                 notifierId = userId;
                 break;
         }
+
         NotificationObject nObj = NotificationServiceImp.makeNotificationObject(notificationTypeId, notificationMessageId, entityId, userId);
         nObj.setSendAll(sendAll);
         logger.info("Trying to creating notification object: " + nObj.toString());
@@ -77,6 +84,25 @@ public class NotificationServiceImp implements NotificationService {
         return true;
     }
 
+    private int getNotificationMessageId(NotificationTypeMessage notificationTypeMessage) {
+        int notificationMessageId = 0;
+        switch (notificationTypeMessage) {
+            case CREATE_ANNOUNCEMENT:
+                notificationMessageId = 12;
+                break;
+            case PUBLISH_ANNOUNCEMENT:
+                notificationMessageId = 15;
+                break;
+            case CREATE_BOOK_REVIEWS:
+                notificationMessageId = 13;
+                break;
+            case PUBLISH_BOOK_REVIEWS:
+                notificationMessageId = 14;
+                break;
+
+        }
+        return notificationMessageId;
+    }
     private static NotificationObject makeNotificationObject(int notificationTypeId, int notificationMessageId,int entityId, int userId) {
         return NotificationObject.builder()
                 .notificationType(NotificationType.builder()

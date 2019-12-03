@@ -1,10 +1,12 @@
 package com.netcraker.repositories;
 
+import com.netcraker.model.Entity;
+
 import java.util.Optional;
 
-public interface GenericRepository<T, RM> {
-    Optional<T> getById(Class<T> entity, RM rowMapper, int id);
-    Optional<T> insert(T entity, RM rowMapper, Object[] params);
-    Optional<T> update(T entity, RM rowMapper, Object[] params, int id);
-    boolean delete(Class<T> entity, int id);
+public interface GenericRepository<T extends Entity> {
+    Optional<T> getById(int id);
+    Optional<T> insert(T entity);
+    Optional<T> update(T entity);
+    boolean delete(T entity);
 }

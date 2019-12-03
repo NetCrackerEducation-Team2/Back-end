@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @GenericModel("notification_objects")
-public class NotificationObject {
-    @EntityId("notification_object_id")
+public class NotificationObject implements Entity {
     private int notificationObjectId;
     private NotificationType notificationType;
     private int entityId;
@@ -24,4 +23,9 @@ public class NotificationObject {
     private User user;
     private boolean isRead;
     private boolean sendAll;
+
+    @Override
+    public Integer getId() {
+        return getNotificationObjectId();
+    }
 }

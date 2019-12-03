@@ -5,28 +5,30 @@ import com.netcraker.model.mapper.NotificationObjectRowMapper;
 import com.netcraker.repositories.GenericRepository;
 import com.netcraker.repositories.NotificationObjectRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @PropertySource("${classpath:sqlQueries.properties}")
-@RequiredArgsConstructor
-public class NotificationObjectRepositoryImp implements NotificationObjectRepository {
-    private final JdbcTemplate jdbcTemplate;
+//@RequiredArgsConstructor
+@Slf4j
+public class NotificationObjectRepositoryImp extends GenericRepositoryImp<NotificationObject> implements NotificationObjectRepository {
+   // private final JdbcTemplate jdbcTemplate;
     private final NotificationObjectRowMapper notificationObjectRowMapper;
-    private static final Logger logger = LoggerFactory.getLogger(NotificationRepositoryImp.class);
-    private final GenericRepository<NotificationObject, NotificationObjectRowMapper> genericRepository;
     @Value("${notification_objects.getById}")
     private String sqlGetById;
     @Value("${notification_objects.insert}")
@@ -35,30 +37,58 @@ public class NotificationObjectRepositoryImp implements NotificationObjectReposi
     private String sqlUpdate;
     @Value("${notification_objects.delete}")
     private String sqlDelete;
+    @Value("${notification_objects.count}")
+    private String sqlGetCount;
 
-    @Override
-    public Optional<NotificationObject> getById(int id) {
-        return genericRepository.getById(NotificationObject.class, notificationObjectRowMapper, id);
+    public NotificationObjectRepositoryImp(NotificationObjectRowMapper notificationObjectRowMapper, JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
+        this.notificationObjectRowMapper = notificationObjectRowMapper;
     }
 
     @Override
-    public Optional<NotificationObject> insert(NotificationObject entity) {
-        Object[] params = {entity.getNotificationType().getNotificationTypeId(),
-                entity.getEntityId(), entity.getUser().getUserId(), entity.getNotificationMessage().getNotificationMessageId(),
-                entity.isSendAll()};
-        return genericRepository.insert(entity, notificationObjectRowMapper, params);
+    protected RowMapper<NotificationObject> getRowMapper() {
+        return notificationObjectRowMapper;
+    }
+
+
+    @Override
+    protected String getSqlGetByIdQuery() {
+        return sqlGetById;
     }
 
     @Override
-    public Optional<NotificationObject> update(NotificationObject entity) {
-        Object[] params = {entity.getNotificationType().getNotificationTypeId(),
-                entity.getEntityId(), entity.getUser().getUserId(), entity.getNotificationMessage().getNotificationMessageId(),
-                entity.isSendAll(), entity.isRead(), entity.getNotificationObjectId()};
-        return genericRepository.update(entity, notificationObjectRowMapper, params, entity.getNotificationObjectId());
+    protected String getSqlInsertQuery() {
+        return sqlInsert;
     }
 
     @Override
-    public boolean delete(int id) {
-        return genericRepository.delete(NotificationObject.class, id);
+    protected String getSqlUpdateQuery() {
+        return sqlUpdate;
+    }
+
+    @Override
+    protected String getSqlDeleteQuery() {
+        return sqlDelete;
+    }
+
+    @Override
+    protected String getSqlCountQuery() {
+        return sqlGetCount;
+    }
+
+    @Override
+    protected int setParams(NotificationObject entity, PreparedStatement ps, int firstParamIndex) {
+        try {
+            int curParamIndex = firstParamIndex;
+            ps.setInt(curParamIndex++, entity.getNotificationType().getNotificationTypeId());
+            ps.setInt(curParamIndex++, entity.getEntityId());
+            ps.setInt(curParamIndex++, entity.getUser().getUserId());
+            ps.setInt(curParamIndex++, entity.getNotificationMessage().getNotificationMessageId());
+            ps.setBoolean(curParamIndex++, entity.isSendAll());
+            ps.setBoolean(curParamIndex++, entity.isRead());
+            return curParamIndex;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

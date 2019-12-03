@@ -30,7 +30,7 @@ public class NotificationServiceImp implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
     @Override
     public Page<NotificationMessage> getUserNotification(int id,int page, int pageSize) {
-        int total = notificationRepository.getCount(id);
+        int total = notificationRepository.getUserNotificationsCount(id);
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;

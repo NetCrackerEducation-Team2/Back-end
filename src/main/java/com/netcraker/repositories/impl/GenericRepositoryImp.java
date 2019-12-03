@@ -1,5 +1,6 @@
 package com.netcraker.repositories.impl;
 
+import com.netcraker.model.Entity;
 import com.netcraker.model.annotations.EntityId;
 import com.netcraker.model.annotations.GenericModel;
 import com.netcraker.repositories.GenericRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
@@ -26,77 +28,86 @@ import java.util.Optional;
 @PropertySource("${classpath:sqlQueries.properties}")
 @RequiredArgsConstructor
 @Slf4j
-public class GenericRepositoryImp<T, RM extends RowMapper<T>> implements GenericRepository<T, RM> {
-    private final JdbcTemplate jdbcTemplate;
-    private final Environment environment;
+public abstract class GenericRepositoryImp<T extends Entity> implements GenericRepository<T>  {
+    protected final JdbcTemplate jdbcTemplate;
 
+    protected abstract RowMapper<T> getRowMapper();
+    protected abstract String getSqlGetByIdQuery();
+    protected abstract String getSqlInsertQuery();
+    protected abstract String getSqlUpdateQuery();
+    protected abstract String getSqlDeleteQuery();
+    protected abstract String getSqlCountQuery();
+    protected abstract int setParams(T entity, PreparedStatement ps, int firstParamIndex);
 
     @Override
-    public Optional<T> getById(Class<T> entity, RM rowMapper, int id) {
-        String entityName = getEntityName(entity);
-        log.info("Trying to get from {} with id = {}", entityName, id);
-        String sqlGetById = environment.getProperty(entityName + ".getById");
-        List<T> list =  jdbcTemplate.query(sqlGetById, rowMapper, new Object[] {id});
+    public Optional<T> getById(int id) {
+        //String entityName = getEntityName(entity);
+        //log.info("Trying to get from {} with id = {}", entityName, id);
+        List<T> list =  jdbcTemplate.query(getSqlGetByIdQuery(), getRowMapper(), id);
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
     @Override
-    public Optional<T> insert(T entity, RM rowMapper, Object[] params) {
-        Class<T> classObj = (Class<T>)entity.getClass();
-        String entityName = getEntityName(classObj);
-        log.info("Trying to insert {} to table {}", entity, entityName);
-        String entityIdName = getEntityIdName(classObj);
-        String sqlInsert = environment.getProperty(entityName + ".insert");
+    public Optional<T> insert(T entity) {
+        log.info("Trying to insert {} to table {}", entity, getEntityName(entity));
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(conn -> {
-            PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-            for (int i = 0; i < params.length; i++) {
-                ps.setObject(i+1, params[i]);
-            }
-            return ps;
+            PreparedStatement ps = conn.prepareStatement(getSqlInsertQuery(), Statement.RETURN_GENERATED_KEYS);
+            return setInsertQueryParams(entity, ps);
         }, keyHolder);
-
-        return getById((Class<T>)entity.getClass(), rowMapper, (Integer) keyHolder.getKeys().get(entityIdName));
+        return getById((Integer) keyHolder.getKeys().get(getEntityIdName(entity)));
     }
 
     @Override
-    public Optional<T> update(T entity, RM rowMapper, Object[] params, int id) {
-        String entityName = getEntityName((Class<T>)entity.getClass());
-        String sqlUpdate = environment.getProperty(entityName + ".update");
-        log.info("Trying to update {}", entity);
-        jdbcTemplate.execute(Objects.requireNonNull(sqlUpdate), (PreparedStatementCallback<Boolean>) ps -> {
-            for (int i = 0; i < params.length; i++) {
-                ps.setObject(i+1, params[i]);
-            }
-            return ps.execute();
-        });
-        return getById((Class<T>)entity.getClass(), rowMapper, id);
+    public Optional<T> update(T entity) {
+        log.info("Trying to update {} in table", entity, getEntityName(entity));
+        jdbcTemplate.execute(getSqlUpdateQuery(), (PreparedStatementCallback<Boolean>) ps -> setUpdateQueryParams(entity, ps).execute());
+        return getById(entity.getId());
     }
 
     @Override
-    public boolean delete(Class<T> entity, int id) {
+    public boolean delete(T entity) {
         String entityName = getEntityName(entity);
-        log.info("Trying to delete from {} with id = {}", entityName, id);
-        String sqlDelete = environment.getProperty(entityName + ".delete");
-        return jdbcTemplate.execute(sqlDelete, (PreparedStatement ps) -> {
-            ps.setInt(1, id);
+        log.info("Trying to delete from {} with id = {}", entityName, entity.getId());
+        return jdbcTemplate.execute(getSqlDeleteQuery(), (PreparedStatement ps) -> {
+            ps.setInt(1, entity.getId());
             return ps.execute();
         });
     }
 
-    private String getEntityName(Class<T> entity) {
+    @Override
+    public int getCount() {
+        return jdbcTemplate.queryForObject(getSqlCountQuery(), int.class);
+    }
+
+    protected PreparedStatement setInsertQueryParams(T entity, PreparedStatement ps) {
+        setParams(entity, ps, 1);
+        return ps;
+    }
+
+    protected PreparedStatement setUpdateQueryParams(T entity, PreparedStatement ps) {
+        try {
+            ps.setInt(setParams(entity, ps, 1), entity.getId());
+            return ps;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getEntityName(T entity) {
         String entityName = "";
-        if(!entity.isAnnotationPresent(GenericModel.class)){
-            log.error("no annotation @GenericModel in class {}", entity.getName());
+        Class<T> classEntity = (Class<T>)entity.getClass();
+        if(!classEntity.isAnnotationPresent(GenericModel.class)){
+            log.error("no annotation @GenericModel in class {}", classEntity.getName());
         } else {
-            entityName = entity.getAnnotation(GenericModel.class).value();
+            entityName = classEntity.getAnnotation(GenericModel.class).value();
         }
         return entityName;
     }
 
-    private String getEntityIdName(Class<T> entity) {
+    private String getEntityIdName(T entity) {
         String entityIdName = "";
-        for (Field f: entity.getDeclaredFields()) {
+        for (Field f: entity.getClass().getDeclaredFields()) {
             if(f.isAnnotationPresent(EntityId.class)) {
                 entityIdName = f.getAnnotation(EntityId.class).value();
             }

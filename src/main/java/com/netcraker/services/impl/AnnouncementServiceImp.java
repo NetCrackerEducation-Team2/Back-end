@@ -82,7 +82,10 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
     @Override
     public boolean deleteAnnouncement(int id) {
-        return announcementRepository.delete(id);
+        return announcementRepository.delete(Announcement.builder()
+                .announcementId(id)
+                .title("")
+                .description("").build());
     }
 
     @Override

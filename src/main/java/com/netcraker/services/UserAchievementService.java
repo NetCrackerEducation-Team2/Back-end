@@ -10,4 +10,5 @@ public interface UserAchievementService {
     boolean deleteUserAchievement(@Nullable Integer userId, int achievementId);
     Page<Achievement> getPage(int userId, int pageSize, int page);
     boolean exists(int userId, int achievementId);
+    int countByUserId(int userId);
 }

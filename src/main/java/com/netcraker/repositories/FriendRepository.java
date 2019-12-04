@@ -19,4 +19,6 @@ public interface FriendRepository {
     boolean isAwaitingFriendRequestAccept(int sourceUserId, int targetUserId);
 
     boolean deleteFromFriends(int userId, int friendId);
+
+    void addFriends(int userId, int user2Id);
 }

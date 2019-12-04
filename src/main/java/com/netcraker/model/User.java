@@ -1,5 +1,6 @@
 package com.netcraker.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.validation.constraints.Email;
@@ -21,6 +22,7 @@ public class User {
     @Email @NotBlank
     private String email;
     @Size(min = 6)
+    @JsonIgnore
     private String password;
     private Timestamp createdAt;
     private Boolean enabled;

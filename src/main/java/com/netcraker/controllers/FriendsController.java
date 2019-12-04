@@ -1,13 +1,17 @@
 package com.netcraker.controllers;
 
 import com.netcraker.exceptions.RequiresAuthenticationException;
+import com.netcraker.model.FriendInvitation;
 import com.netcraker.model.FriendStatus;
+import com.netcraker.model.Pageable;
 import com.netcraker.model.User;
 import com.netcraker.services.FriendsService;
 import com.netcraker.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -37,5 +41,20 @@ public class FriendsController extends BaseController {
         friendsService.deleteFromFriends(getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new), friendId);
         // TODO should be returned OK status? Maybe we should pass own status code in response body?
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/friends/awaitingFriendRequests")
+    public List<FriendInvitation> getAllAwaitingFriendRequests(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        return friendsService.getAwaitingFriendInvitations(Pageable.of(page, pageSize));
+    }
+
+    @PutMapping("/friends/friendRequest/accept/{id}")
+    public ResponseEntity<Boolean> acceptFriendRequest(@PathVariable int invitationId) {
+        return new ResponseEntity<>(friendsService.acceptFriendRequest(invitationId), HttpStatus.OK);
+    }
+
+    @PutMapping("/friend/friendRequest/decline/{id}")
+    public ResponseEntity<Boolean> declineFriendRequest(@PathVariable int invitationId) {
+        return new ResponseEntity<>(friendsService.declineFriendRequest(invitationId), HttpStatus.OK);
     }
 }

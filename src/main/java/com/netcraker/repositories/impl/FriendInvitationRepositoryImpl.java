@@ -1,6 +1,7 @@
 package com.netcraker.repositories.impl;
 
 import com.netcraker.model.FriendInvitation;
+import com.netcraker.model.Pageable;
 import com.netcraker.model.mapper.FriendInvitationRowMapper;
 import com.netcraker.repositories.FriendInvitationRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -32,6 +35,8 @@ public class FriendInvitationRepositoryImpl implements FriendInvitationRepositor
     private String sqlUpdate;
     @Value("${friendInvitation.delete}")
     private String sqlDelete;
+    @Value("${friendInvitation.getLastAwaiting}")
+    private String sqlGetAwaitingInvitations;
 
     @Override
     public Optional<FriendInvitation> getById(int id) {
@@ -59,12 +64,21 @@ public class FriendInvitationRepositoryImpl implements FriendInvitationRepositor
 
     @Override
     public Optional<FriendInvitation> update(FriendInvitation entity) {
-        throw new UnsupportedOperationException();
+        jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
+            setPreparedStatementParams(ps, entity, 1);
+            return true;
+        });
+        return getById(entity.getInvitationId());
     }
 
     @Override
     public boolean delete(int id) {
-        return false;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<FriendInvitation> getAwaitingFriendInvitations(int userId, Pageable pageable) {
+        return jdbcTemplate.query(sqlGetAwaitingInvitations, rowMapper, userId, pageable.getPageSize(), pageable.getPage());
     }
 
     /**

@@ -90,7 +90,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
             return query.toString();
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date parsedLowBound, parsedHighBound;
 
         try {

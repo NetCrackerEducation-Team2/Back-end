@@ -13,7 +13,7 @@ public class ChatMessageRowMapper implements RowMapper<ChatMessage> {
     public ChatMessage mapRow(ResultSet resultSet, int i) throws SQLException {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(resultSet.getString("content"));
-        chatMessage.setUser1_id(resultSet.getInt("user_id"));
+       // chatMessage.setUser1_id(resultSet.getInt("user_id"));
         return chatMessage;
     }
 }

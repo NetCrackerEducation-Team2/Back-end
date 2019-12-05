@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatServiceImp implements ChatService {
 
-    private final ChatRepositoryImpl chatRepository;
+    private final ChatRepository chatRepository;
 
     @Override
     public List<ChatMessage> getContent(int user1_id, int user2_id) {

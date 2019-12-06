@@ -4,13 +4,14 @@ import com.netcraker.exceptions.FailedToSendFriendRequestException;
 import com.netcraker.exceptions.InvalidRequest;
 import com.netcraker.exceptions.OperationForbiddenException;
 import com.netcraker.exceptions.RequiresAuthenticationException;
-import com.netcraker.model.FriendInvitation;
-import com.netcraker.model.FriendStatus;
-import com.netcraker.model.Pageable;
-import com.netcraker.model.User;
+import com.netcraker.model.*;
+import com.netcraker.model.constants.NotificationTypeMessage;
+import com.netcraker.model.constants.NotificationTypeName;
 import com.netcraker.repositories.FriendInvitationRepository;
 import com.netcraker.repositories.FriendRepository;
 import com.netcraker.services.FriendsService;
+import com.netcraker.services.NotificationService;
+import com.netcraker.services.PageService;
 import com.netcraker.services.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ public class FriendServiceImpl implements FriendsService {
     private final FriendRepository friendRepository;
     private final FriendInvitationRepository friendInvitationRepository;
     private final UserInfoService userInfoService;
+    private final PageService pageService;
+    private final NotificationService notificationService;
 
     @Override
     public List<User> getFriends(int userId) {
@@ -49,11 +52,12 @@ public class FriendServiceImpl implements FriendsService {
                     FriendInvitation.builder()
                             .invitationSource(sourceUserId)
                             .invitationTarget(destinationUserId)
-                            .accepted(false)
+                            .accepted(null)
                             .creationTime(new Timestamp(System.currentTimeMillis()))
                             .build()
             );
-            result.orElseThrow(FailedToSendFriendRequestException::new);
+            FriendInvitation friendInvitation = result.orElseThrow(FailedToSendFriendRequestException::new);
+            notificationService.sendNotification(NotificationTypeName.INVITATIONS, NotificationTypeMessage.RECEIVED_FRIEND_INVITATION, friendInvitation);
         } else {
             throw new InvalidRequest("Friend request has been already sent or you are already friends");
         }
@@ -77,6 +81,9 @@ public class FriendServiceImpl implements FriendsService {
     public boolean acceptFriendRequest(int invitationId) {
         User user = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
         FriendInvitation friendInvitation = friendInvitationRepository.getById(invitationId).orElseThrow(NoSuchElementException::new);
+        if (friendInvitation.getAccepted() != null) {
+            throw new OperationForbiddenException("Invitation has been already " + (friendInvitation.getAccepted() ? "accepted" : "declined"));
+        }
         if (friendInvitation.getInvitationTarget().equals(user.getUserId())) {
             friendRepository.addFriends(friendInvitation.getInvitationSource(), friendInvitation.getInvitationTarget());
             friendInvitation.setAccepted(true);
@@ -92,6 +99,9 @@ public class FriendServiceImpl implements FriendsService {
     public boolean declineFriendRequest(int invitationId) {
         User user = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
         FriendInvitation friendInvitation = friendInvitationRepository.getById(invitationId).orElseThrow(NoSuchElementException::new);
+        if (friendInvitation.getAccepted() != null) {
+            throw new OperationForbiddenException("Invitation has been already " + (friendInvitation.getAccepted() ? "accepted" : "declined"));
+        }
         if (friendInvitation.getInvitationTarget().equals(user.getUserId())) {
             friendInvitation.setAccepted(false);
             friendInvitationRepository.update(friendInvitation);
@@ -99,5 +109,14 @@ public class FriendServiceImpl implements FriendsService {
         } else { // if user attempts to decline not his/her invitation
             throw new OperationForbiddenException();
         }
+    }
+
+    @Override
+    public Page<User> getFriends(Pageable pageable) {
+        User user = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
+        int pagesCount = pageService.getPagesCount(friendRepository.getFriendsPageableCount(user.getUserId()), pageable.getPageSize());
+        int page = pageService.getRestrictedPage(pageable.getPage(), pagesCount);
+        int offset = page * pageable.getPageSize();
+        return new Page<>(page, pagesCount, friendRepository.getFriendsPageable(user.getUserId(), pageable.getPageSize(), offset));
     }
 }

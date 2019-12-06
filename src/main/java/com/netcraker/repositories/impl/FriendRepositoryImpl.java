@@ -28,7 +28,10 @@ public class FriendRepositoryImpl implements FriendRepository {
     private String sqlDeleteByUsersId;
     @Value("${friends.insert}")
     private String sqlInsertFriends;
-
+    @Value("${friends.sqlGetFriendsPageable}")
+    private String sqlGetFriendsPageable;
+    @Value("${friends.getFriendsPageableCount}")
+    private String sqlGetFriendsPageableCount;
     @Override
     public List<User> getFriendsList(int userId) {
         return jdbcTemplate.query(sqlGetFriendsList, UserRowMapper.builder().build(), userId, userId);
@@ -65,5 +68,15 @@ public class FriendRepositoryImpl implements FriendRepository {
         if (affectedRows != 1) {
             throw new RuntimeException("Can not make friends");
         }
+    }
+
+    @Override
+    public List<User> getFriendsPageable(int userId, int limit, int offset) {
+        return jdbcTemplate.query(sqlGetFriendsPageable, UserRowMapper.builder().build(), userId, userId, limit, offset);
+    }
+
+    @Override
+    public int getFriendsPageableCount(int userId) {
+        return jdbcTemplate.queryForObject(sqlGetFriendsPageableCount, int.class, userId, userId);
     }
 }

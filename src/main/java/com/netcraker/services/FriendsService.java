@@ -1,15 +1,14 @@
 package com.netcraker.services;
 
-import com.netcraker.model.FriendInvitation;
-import com.netcraker.model.FriendStatus;
-import com.netcraker.model.Pageable;
-import com.netcraker.model.User;
+import com.netcraker.model.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface FriendsService {
     List<User> getFriends(int userId);
+
+    Page<User> getFriends(Pageable pageable);
 
     FriendStatus getFriendInfo(int currentUserId, int targetId);
 

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +54,7 @@ public class FriendInvitationRepositoryImpl implements FriendInvitationRepositor
         try {
             jdbcTemplate.update(conn -> {
                 PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-                ps = setPreparedStatementParams(ps, invitation, 1);
+                setPreparedStatementParams(ps, invitation, 1);
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
@@ -63,12 +64,13 @@ public class FriendInvitationRepositoryImpl implements FriendInvitationRepositor
     }
 
     @Override
-    public Optional<FriendInvitation> update(FriendInvitation entity) {
+    public Optional<FriendInvitation> update(FriendInvitation invitation) {
         jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
-            setPreparedStatementParams(ps, entity, 1);
-            return true;
+            int nextParamIndex = setPreparedStatementParams(ps, invitation, 1);
+            ps.setInt(nextParamIndex, invitation.getInvitationId());
+            return ps.execute();
         });
-        return getById(entity.getInvitationId());
+        return getById(invitation.getInvitationId());
     }
 
     @Override
@@ -88,11 +90,16 @@ public class FriendInvitationRepositoryImpl implements FriendInvitationRepositor
      * @param invitation       data source
      * @param paramsStartIndex first index that will be used for prepared statement param
      */
-    private PreparedStatement setPreparedStatementParams(PreparedStatement ps, FriendInvitation invitation, int paramsStartIndex) throws SQLException {
+    private int setPreparedStatementParams(PreparedStatement ps, FriendInvitation invitation, int paramsStartIndex) throws SQLException {
         ps.setInt(paramsStartIndex++, invitation.getInvitationSource());
         ps.setInt(paramsStartIndex++, invitation.getInvitationTarget());
-        ps.setBoolean(paramsStartIndex++, invitation.getAccepted());
+        Boolean accepted = invitation.getAccepted();
+        if (accepted == null) {
+            ps.setNull(paramsStartIndex++, Types.BOOLEAN);
+        } else {
+            ps.setBoolean(paramsStartIndex++, accepted);
+        }
         ps.setTimestamp(paramsStartIndex++, invitation.getCreationTime());
-        return ps;
+        return paramsStartIndex;
     }
 }

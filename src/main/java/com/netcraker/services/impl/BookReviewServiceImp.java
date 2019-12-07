@@ -68,8 +68,9 @@ public class BookReviewServiceImp implements BookReviewService {
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        List<BookReview> list = bookReviewRepo.getBookReviews(pageSize,offset);
-        return new Page<>(currentPage, pagesCount, list);
+        List<BookReview> bookReviews = bookReviewRepo.getBookReviews(pageSize,offset);
+        bookReviews.forEach(bookReviewRepo::loadReferences);
+        return new Page<>(currentPage, pagesCount, bookReviews);
     }
 
     @Override

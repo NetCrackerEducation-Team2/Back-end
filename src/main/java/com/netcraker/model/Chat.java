@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChatMessage {
-    private String content;
-    private int fromUser;
+public class Chat {
+    private int friendId;
+    private int userCurrentId;
 }
 

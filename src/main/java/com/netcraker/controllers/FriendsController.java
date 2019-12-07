@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(methods = {RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.DELETE})
@@ -23,6 +25,12 @@ public class FriendsController extends BaseController {
     @GetMapping("/friends/getFriendInfo")
     public FriendStatus getFriendInfo(@RequestParam int targetUserId) {
         return friendsService.getFriendInfo(getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new), targetUserId);
+    }
+
+    @GetMapping("/friends/{userId}")
+    public ResponseEntity<List<User>> getFriends(@PathVariable int userId) {
+        List<User> friends = friendsService.getFriends(userId);
+        return new ResponseEntity<>(friends, HttpStatus.OK);
     }
 
     @PostMapping("/friends/friendRequest")

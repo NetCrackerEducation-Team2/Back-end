@@ -1,10 +1,12 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.services.FileService;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -21,9 +23,14 @@ public class FileServiceImp implements FileService {
 
     private final ResourceLoader resourceLoader;
 
+    @Value("${file.filesPath}")
+    private String filesPath;
+    @Value("${file.imagesPath}")
+    private String imagesPath;
+
     @Override
-    public void downloadFile(String filePath, HttpServletResponse response) {
-        Resource resource = resourceLoader.getResource(filePath);
+    public void downloadFile(String path, HttpServletResponse response) {
+        Resource resource = resourceLoader.getResource(filesPath + path);
         try {
             InputStream is = resource.getInputStream();
             FileCopyUtils.copy(is, response.getOutputStream());
@@ -34,8 +41,8 @@ public class FileServiceImp implements FileService {
     }
 
     @Override
-    public byte[] getImage(String imagePath) {
-        Resource resource = resourceLoader.getResource(imagePath);
+    public byte[] getImage(String path) {
+        Resource resource = resourceLoader.getResource(imagesPath + path);
         if(!resource.exists()) return null;
         byte[] image = null;
         try {
@@ -45,5 +52,10 @@ public class FileServiceImp implements FileService {
             e.printStackTrace();
         }
         return image;
+    }
+
+    @Override
+    public String getImageBase64(String path) {
+        return Base64.encode(getImage(path));
     }
 }

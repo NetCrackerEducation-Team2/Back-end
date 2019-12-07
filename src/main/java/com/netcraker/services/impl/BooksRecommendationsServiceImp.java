@@ -32,7 +32,6 @@ public class BooksRecommendationsServiceImp implements BooksRecommendationsServi
     private final StatsRepository statsRepository;
     private final BooksRecommendationsRepository booksRecommendationsRepository;
     private final PageService pageService;
-    private final BookService bookService;
 
     @Override
     @Transactional
@@ -67,7 +66,6 @@ public class BooksRecommendationsServiceImp implements BooksRecommendationsServi
     public List<Page<Book>> getBooksRecommendations(int userId, int pageSize) {
         List<Book> recommendations = booksRecommendationsRepository.get(userId);
         recommendations.forEach(bookRepository::loadReferences);
-        recommendations.forEach(bookService::insureBookPhoto);
         int total = recommendations.size();
         int pagesCount = pageService.getPagesCount(total, pageSize);
         List<Page<Book>> pages = new ArrayList<>();

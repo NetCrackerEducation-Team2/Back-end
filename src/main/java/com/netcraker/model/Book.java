@@ -17,7 +17,6 @@ public class Book {
     private int pages;
     private String filePath;
     private String photoPath;
-    private byte[] photo;
     private @NonNull String publishingHouse;
     private int rateSum;
     private int votersCount;

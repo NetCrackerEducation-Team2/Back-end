@@ -41,11 +41,6 @@ public class BookController {
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 
-    @GetMapping("/book/download")
-    public void downloadBook(@RequestParam String fileName, HttpServletResponse response){
-        bookService.downloadBook(fileName, response);
-    }
-
     @GetMapping("/book/{slug}")
     public ResponseEntity<Book> getBookBySlug(@PathVariable String slug){
         return ResponseEntity.ok().body(bookService.getBookBySlug(slug)

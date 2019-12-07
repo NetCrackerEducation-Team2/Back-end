@@ -27,13 +27,6 @@ public class BookServiceImp implements BookService {
     private final PageService pageService;
     private final FileService fileService;
 
-    @Value("${books.contentPath}")
-    private String booksContentPath;
-    @Value("${books.imagePath}")
-    private String booksImagePath;
-    @Value("${books.defaultImageName}")
-    private String booksDefaultImageName;
-
     @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize) {
         int total = bookRepository.countFiltered(filteringParams);
@@ -42,20 +35,18 @@ public class BookServiceImp implements BookService {
         int offset = currentPage * pageSize;
         List<Book> books = bookRepository.getFiltered(filteringParams, pageSize, offset);
         books.forEach(bookRepository::loadReferences);
-        books.forEach(this::insureBookPhoto);
         return new Page<>(currentPage, pagesCount, pageSize, books);
     }
 
     @Override
-    public void downloadBook(String fileName, HttpServletResponse response) {
-        fileService.downloadFile(booksContentPath + fileName, response);
+    public void downloadBook(String filePath, HttpServletResponse response) {
+        fileService.downloadFile(filePath, response);
     }
 
     @Override
     public Optional<Book> getBookBySlug(String slug) {
         Optional<Book> optionalBook = bookRepository.getBySlug(slug);
         optionalBook.ifPresent(bookRepository::loadReferences);
-        optionalBook.ifPresent(this::insureBookPhoto);
         return optionalBook;
     }
 
@@ -63,19 +54,7 @@ public class BookServiceImp implements BookService {
     public Optional<Book> getBookById(int bookId) {
         Optional<Book> optionalBook = bookRepository.getById(bookId);
         optionalBook.ifPresent(bookRepository::loadReferences);
-        optionalBook.ifPresent(this::insureBookPhoto);
         return optionalBook;
-    }
-
-    @Override
-    public void insureBookPhoto(Book book){
-        byte[] photo = fileService.getImage(booksImagePath + book.getPhotoPath());
-        if(photo == null) {
-            book.setPhotoPath(booksDefaultImageName);
-            book.setPhoto(fileService.getImage(booksImagePath + book.getPhotoPath()));
-        }else{
-            book.setPhoto(photo);
-        }
     }
 
     @Override

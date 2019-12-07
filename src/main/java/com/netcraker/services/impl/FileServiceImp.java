@@ -2,10 +2,8 @@ package com.netcraker.services.impl;
 
 import com.netcraker.services.FileService;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;

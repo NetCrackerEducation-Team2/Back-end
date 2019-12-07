@@ -40,7 +40,6 @@ public class BookOverviewController {
         Page<BookOverview> pagination = bookOverviewService.getBookOverviewsPagination(page, pageSize);
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
-//refactoring
     @GetMapping("/published-by-book/{bookId}")
     public ResponseEntity<BookOverview> getPublishedBookOverviewByBook(
             @PathVariable int bookId){

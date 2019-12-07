@@ -1,5 +1,6 @@
 package com.netcraker.repositories;
 
+import com.netcraker.model.Pageable;
 import com.netcraker.model.User;
 
 import java.util.List;
@@ -19,4 +20,9 @@ public interface FriendRepository {
     boolean isAwaitingFriendRequestAccept(int sourceUserId, int targetUserId);
 
     boolean deleteFromFriends(int userId, int friendId);
+
+    void addFriends(int userId, int user2Id);
+
+    List<User> getFriendsPageable(int userId, int limit, int offset);
+    int getFriendsPageableCount(int userId);
 }

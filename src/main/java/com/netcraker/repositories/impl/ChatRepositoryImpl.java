@@ -1,6 +1,7 @@
 package com.netcraker.repositories.impl;
 
 import com.netcraker.model.Chat;
+import com.netcraker.model.Message;
 import com.netcraker.model.mapper.ChatRowMapper;
 import com.netcraker.model.mapper.MessageRowMapper;
 import com.netcraker.repositories.ChatRepository;
@@ -23,8 +24,8 @@ public class ChatRepositoryImpl implements ChatRepository {
     private static final Logger logger = LoggerFactory.getLogger(ChatRepositoryImpl.class);
     private final JdbcTemplate jdbcTemplate;
 
-//    @Value("${message.findByUsersId}")
-//    private String sqlFindByUsersId;
+    @Value("${chat.findMessageByChatId}")
+    private String sqlFindMessageByChatId;
 
     @Value("${chat.insert}")
     private String sqlCreateChat;
@@ -38,16 +39,16 @@ public class ChatRepositoryImpl implements ChatRepository {
     @Value("${chat.findByUsersId}")
     private String sqlFindByUsersId;
 
+    @Value("${chat.sendMessage}")
+    private String sqlCreateMessage;
 
-//    @Override
-//    public List<Chat> listMessage(int user1_id, int user2_id) {
-//        Object[] params = {user1_id, user2_id};
-//        return jdbcTemplate.query(sqlFindByUsersId, params, new MessageRowMapper());
-//    }
+    @Value("${chat.findMessageById}")
+    private String sqlFindByMessageId;
 
     @Override
-    public List<Chat> listMessage(int user1_id, int user2_id) {
-        return null;
+    public List<Message> listMessage(int chat_id) {
+        Object[] params = { chat_id };
+        return jdbcTemplate.query(sqlFindMessageByChatId, params, new MessageRowMapper());
     }
 
     @Override
@@ -69,10 +70,25 @@ public class ChatRepositoryImpl implements ChatRepository {
         return chats.isEmpty() ? Optional.empty() : Optional.of(chats.get(0));
     }
 
+
     @Override
     public Optional<Chat> createLocalChat(int[] param) {
         Object[] params = {param[0], param[1], param[2]};
         jdbcTemplate.update(sqlCreateLocalChat, params);
         return findLocalChat(param[2]);
+    }
+
+    @Override
+    public Optional<Message> findMessage(int message_id) {
+        Object[] params = { message_id };
+        List<Message> messages = jdbcTemplate.query(sqlFindByMessageId, params, new MessageRowMapper());
+        return messages.isEmpty() ? Optional.empty() : Optional.of(messages.get(0));
+    }
+
+    @Override
+    public Optional<Message> sendMessage(int [] param, String content) {
+        Object[] params = {param[0], param[1], content};
+        int message_id = jdbcTemplate.queryForObject(sqlCreateMessage, params, Integer.class);
+        return findMessage(message_id);
     }
 }

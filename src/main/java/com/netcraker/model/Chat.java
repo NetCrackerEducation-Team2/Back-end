@@ -8,5 +8,6 @@ import lombok.Setter;
 public class Chat {
     private int friendId;
     private int userCurrentId;
+    private int chatId;
 }
 

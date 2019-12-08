@@ -12,10 +12,10 @@ import java.sql.SQLException;
 public class MessageRowMapper implements RowMapper<Message> {
     @Override
     public Message mapRow(ResultSet resultSet, int i) throws SQLException {
-        return null;
-//        Chat chat = new Chat();
-//        chat.setContent(resultSet.getString("content"));
-//       // chatMessage.setUser1_id(resultSet.getInt("user_id"));
-//        return chat;
+        Message message = new Message();
+        message.setContent(resultSet.getString("content"));
+        message.setFromUser(resultSet.getInt("user_id"));
+        message.setChatId(resultSet.getInt("chat_id"));
+        return message;
     }
 }

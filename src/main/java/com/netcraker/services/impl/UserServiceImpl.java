@@ -195,11 +195,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findById(int userId) {
-        return userRepository.findById(userId);
-    }
-
-    @Override
     @NonNull
     public List<Integer> getListId() {
         List<Integer> listId = userRepository.getListId();

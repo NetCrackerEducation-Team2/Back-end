@@ -12,7 +12,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping({"/api/ws"})
@@ -20,30 +19,19 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChatController {
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatService chatService;
 
     @PostMapping
     public ResponseEntity<?> sendMessage(@RequestBody Message message){
-        if(message.getToUser()!=null && !message.getToUser().equals("")){
-            this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.getToUser(),message);
-            this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.getFromUser(),message);
-        }else {
-            this.simpMessagingTemplate.convertAndSend("/socket-publisher",message);
-        }
-            return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
+        chatService.sendMessage(message);
+        return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
     }
 
-//    @GetMapping
-//    public ResponseEntity<?> getMessages(@RequestParam int user1_id, @RequestParam int user2_id) {
-//        List<Chat> messages  = chatService.getContent(user1_id, user2_id);
-//        messages.forEach(
-//                chatMessage -> {
-//                    this.simpMessagingTemplate.convertAndSend("/socket-publisher",chatMessage.getContent());
-//                }
-//        );
-//        return new ResponseEntity<>(messages, new HttpHeaders(), HttpStatus.OK);
-//    }
+    @GetMapping
+    public ResponseEntity<?> getMessages(@RequestParam int friendId, @RequestParam int currentUserId) {
+        List<Message> messages  = chatService.getMessages(friendId, currentUserId);
+        return new ResponseEntity<>(messages, new HttpHeaders(), HttpStatus.OK);
+    }
 
     @PostMapping("/create")
     public ResponseEntity<?> createChat(@RequestBody @Validated Chat chat) {

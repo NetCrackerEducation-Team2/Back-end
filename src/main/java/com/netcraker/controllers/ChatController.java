@@ -39,5 +39,9 @@ public class ChatController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-
+    @GetMapping("/getChat")
+    public ResponseEntity<?> getChat(@RequestParam int friendId, @RequestParam int currentUserId) {
+        Chat chat =  chatService.getChat(friendId, currentUserId);
+        return new ResponseEntity<>(chat, new HttpHeaders(), HttpStatus.OK);
+    }
 }

@@ -9,4 +9,5 @@ public interface ChatService {
     Chat createChat(int friendId, int userCurrentId);
     Message sendMessage(Message message);
     List<Message> getMessages(int friendId, int userCurrentId);
+    Chat getChat(int friendId, int userCurrentId);
 }

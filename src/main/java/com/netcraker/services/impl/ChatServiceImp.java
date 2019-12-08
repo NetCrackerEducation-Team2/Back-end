@@ -1,6 +1,7 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.CreationException;
+import com.netcraker.exceptions.FindException;
 import com.netcraker.model.Chat;
 import com.netcraker.model.Message;
 import com.netcraker.model.User;
@@ -57,9 +58,15 @@ public class ChatServiceImp implements ChatService {
         if (!sendingMessage.isPresent()) {
             throw new CreationException("Error in creating message!");
         }
-        this.simpMessagingTemplate.convertAndSend("/socket-publisher/" + message.getToUser(), message);
-        this.simpMessagingTemplate.convertAndSend("/socket-publisher/" + message.getFromUser(), message);
+        message.setChatId(chatFromDB.get().getChatId());
+        this.simpMessagingTemplate.convertAndSend("/socket-publisher/" + message.getChatId(), message);
+        //this.simpMessagingTemplate.convertAndSend("/socket-publisher/" + message.getFromUser(), message);
         return message;
+    }
+
+    @Override
+    public Chat getChat(int friendId, int userCurrentId) {
+        return chatRepository.findLocalChat(new int[]{friendId, userCurrentId}).orElseThrow(() -> new FindException("Error in getting chat!"));
     }
 
 }

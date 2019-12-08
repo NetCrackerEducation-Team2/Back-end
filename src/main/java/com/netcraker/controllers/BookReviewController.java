@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,15 +44,9 @@ public class BookReviewController {
             @PathVariable("bookId") int bookId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "pageSize", defaultValue = "5") int pageSize) {
-        return ResponseEntity.ok().body(bookReviewService.getPage(bookId, page, pageSize));
-    }
-
-    @GetMapping
-    public ResponseEntity<Page<BookReview>> getBookReviews(
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "5") int pageSize) {
-        Page<BookReview> pagination = bookReviewService.getBookReviewsPagination(page, pageSize);
-        return new ResponseEntity<>(pagination, HttpStatus.OK);
+        Page<BookReview> res = bookReviewService.getPage(bookId, page, pageSize);
+        System.out.println(res);
+        return ResponseEntity.ok().body(res);
     }
 
     @PutMapping
@@ -127,5 +122,12 @@ public class BookReviewController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "pageSize", defaultValue = "5") int pageSize) {
         return ResponseEntity.ok().body(reviewCommentService.getPage(bookReviewId, page, pageSize));
+    }
+
+    @PostMapping("/comment/add")
+    public ResponseEntity<ReviewComment> addReviewComment(@RequestBody ReviewComment newComment) {
+        newComment.setCreationTime(LocalDateTime.now());
+        return ResponseEntity.ok().body(reviewCommentService.createReviewComment(newComment)
+                .orElseThrow(() -> new FindException("Cannot find review comment")));
     }
 }

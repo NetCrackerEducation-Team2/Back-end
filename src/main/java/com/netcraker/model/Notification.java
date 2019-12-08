@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @GenericModel("notifications")
-public class Notification {
+public class Notification implements Entity {
     @EntityId("notification_id")
     private int notificationId;
     private NotificationObject notificationObject;
@@ -23,5 +23,10 @@ public class Notification {
         String action = notificationObject.getNotificationMessage().getNotificationMessageText();
         String actor = notificationObject.getUser().getFullName();
         return actor + ": " + action;
+    }
+
+    @Override
+    public Integer getId() {
+        return getNotificationId();
     }
 }

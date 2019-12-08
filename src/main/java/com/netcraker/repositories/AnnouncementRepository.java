@@ -1,12 +1,9 @@
 package com.netcraker.repositories;
 
 import com.netcraker.model.Announcement;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public interface AnnouncementRepository extends BaseOptionalRepository<Announcement> {
+public interface AnnouncementRepository extends GenericRepository<Announcement> {
     void publish(int id);
     void unpublish(int id);
     List<Announcement> getAll();

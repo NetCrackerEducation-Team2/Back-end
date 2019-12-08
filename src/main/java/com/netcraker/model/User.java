@@ -22,7 +22,6 @@ public class User {
     @Email @NotBlank
     private String email;
     @Size(min = 6)
-    @JsonIgnore
     private String password;
     private Timestamp createdAt;
     private Boolean enabled;

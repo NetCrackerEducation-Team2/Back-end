@@ -26,7 +26,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
 
     @Value("${common.template.count}")
     private String templateCount;
-    @Value("${common.template.read}")
+    @Value("${books.template.count}")
     private String templateRead;
     @Value("${common.template.publish}")
     private String templatePublish;
@@ -55,7 +55,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
                     query = insertParams(templateCount, count, subject.name());
                     break;
                 case READ:
-                    query = insertParams(templateRead, count, subject.name());
+                    query = insertParams(templateRead + " " + env.getProperty("books.condition.read"), count, subject.name());
                     break;
                 case PUBLISH:
                     query = insertParams(templatePublish, count, subject.name());

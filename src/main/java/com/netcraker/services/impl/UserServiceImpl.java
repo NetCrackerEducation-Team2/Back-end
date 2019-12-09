@@ -8,6 +8,7 @@ import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Page;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
+import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
@@ -38,14 +39,15 @@ public class UserServiceImpl implements UserService {
     private final PageService pageService;
     private final UserRepository userRepository;
     private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
-    private final RoleRepositoryImpl roleRepository;
+    private final RoleRepository roleRepository;
     private final UserRoleRepositoryImpl userRoleRepositoryImpl;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-
     @Override
     public User createUsualUser(User user) {
+        Role USER_ROLE = roleRepository.findByName("USER").orElseThrow(InternalError::new);
+        user.setRoles(Collections.singletonList(USER_ROLE));
         user.setEnabled(false);
         final User registered = createUser(user);
         final AuthorizationLinks authorizationLink = authorizationRepositoryImpl.creteAuthorizationLinks(registered);
@@ -116,8 +118,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize) {
-        // TODO should we set user roles here?
-        searchExpression = "%" + searchExpression + "%";
+        searchExpression = "%" + searchExpression.trim() + "%";
         Role user = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
         if (!currentUser.isPresent() || roleRepository.getAllRoleById(currentUser.get().getUserId()).contains(user)) {
             int total = userRepository.getFindByEmailOrFullNameFilterByRoleCount(searchExpression, user);

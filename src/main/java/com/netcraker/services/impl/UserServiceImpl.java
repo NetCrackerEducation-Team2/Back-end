@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
             throw new FailedToRegisterException("Email is already used");
         }
         //for hashing
-        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+        //user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         final User registered = userRepository.insert(user)
                 .orElseThrow(() -> new FailedToRegisterException("Error in creating user! Email is free, but creation query failure."));
@@ -145,7 +145,6 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             return null;
         }
-        assert user != null;
         final List<Role> roles = roleRepository.getAllRoleById(user.getUserId());
         user.setRoles(roles);
         return user;
@@ -193,11 +192,6 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.update(user)
                 .orElseThrow(() -> new UpdateException("Cannot update password"));
-    }
-
-    @Override
-    public List<User> findById(int userId) {
-        return userRepository.findById(userId);
     }
 
     @Override

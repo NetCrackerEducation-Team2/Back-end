@@ -1,8 +1,12 @@
 package com.netcraker.repositories.impl;
 
+import com.netcraker.model.Book;
 import com.netcraker.model.BookReview;
+import com.netcraker.model.User;
 import com.netcraker.model.mapper.BookReviewRowMapper;
+import com.netcraker.repositories.BookRepository;
 import com.netcraker.repositories.BookReviewRepository;
+import com.netcraker.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +32,13 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(BookReviewRepositoryImp.class);
     private final JdbcTemplate jdbcTemplate;
+    private final UserRepository userRepository;
+    private final BookRepository bookRepository;
 
     @Value("${book_reviews.getById}")
     private String sqlGetById;
-    // If nothing happened, you can delete this
-    //@Value("${book_reviews.getAll}")
-    //private String sqlGetReviews;
+    @Value("${book_reviews.getAll}")
+    private String sqlGetReviews;
     @Value("${book_reviews.insert}")
     private String sqlInsert;
     @Value("${book_reviews.update}")
@@ -62,6 +67,21 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    @Override
+    public void loadReferences(BookReview bookReview) {
+        Optional<User> optionalUser = userRepository.getById(bookReview.getUserId());
+        Optional<Book> optionalBook = bookRepository.getById(bookReview.getBookId());
+        if(optionalBook.isPresent() && optionalUser.isPresent()){
+            bookReview.setBook(optionalBook.get());
+            bookReview.setUser(optionalUser.get());
+        }
+    }
+
+    @Override
+    public List<BookReview> getBookReviews(int limit, int offset) {
+        return jdbcTemplate.query(sqlGetReviews, new Object[]{limit, offset}, new BookReviewRowMapper());
     }
 
     @Override

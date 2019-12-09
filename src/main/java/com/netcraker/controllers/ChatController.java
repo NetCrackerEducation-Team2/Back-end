@@ -1,62 +1,70 @@
 package com.netcraker.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netcraker.model.ChatMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.netcraker.model.Chat;
+import com.netcraker.model.Message;
+import com.netcraker.services.ChatService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
-@Controller
-@RequestMapping(value = "/api/ws")
+@RestController
+@RequestMapping({"/api/ws"})
 @CrossOrigin(methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
+@RequiredArgsConstructor
 public class ChatController {
-    @Autowired
 
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private final ChatService chatService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> useSimpleRest(@RequestBody Map<String, String> message){
-        if(message.containsKey("message")){
-            if(message.containsKey("toId") && message.get("toId")!=null && !message.get("toId").equals("")){
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.get("toId"),message);
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+message.get("fromId"),message);
-            }else{
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher",message);
-            }
-            return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    @PostMapping
+    public ResponseEntity<?> sendMessage(@RequestBody Message message){
+        chatService.sendMessage(message);
+        return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
     }
 
-    @MessageMapping("/send/message")
-    public Map<String, String> useSocketCommunication(String message){
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> messageConverted = null;
-        try {
-            messageConverted = mapper.readValue(message, Map.class);
-        } catch (IOException e) {
-            messageConverted = null;
-        }
-        if(messageConverted!=null){
-            if(messageConverted.containsKey("toId") && messageConverted.get("toId")!=null && !messageConverted.get("toId").equals("")){
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+messageConverted.get("toId"),messageConverted);
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher/"+messageConverted.get("fromId"),message);
-            }else{
-                this.simpMessagingTemplate.convertAndSend("/socket-publisher",messageConverted);
-            }
-        }
-        return messageConverted;
+    @PostMapping("/group")
+    public ResponseEntity<?> sendGroupMessage(@RequestBody Message message){
+        chatService.sendMessageGroupChat(message);
+        return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
     }
 
+    @GetMapping("/getGroupChats")
+    public ResponseEntity<?> getGroupChats(@RequestParam int userCurrentId){
+        List<Chat> chats = chatService.getGroupChats(userCurrentId);
+        return new ResponseEntity<>(chats, new HttpHeaders(), HttpStatus.OK);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<?> getMessages(@RequestParam int friendId, @RequestParam int currentUserId) {
+        List<Message> messages  = chatService.getMessages(friendId, currentUserId);
+        return new ResponseEntity<>(messages, new HttpHeaders(), HttpStatus.OK);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createChat(@RequestBody @Validated Chat chat) {
+        chatService.createChat(chat.getFriendId(), chat.getUserCurrentId());
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/getChat")
+    public ResponseEntity<?> getChat(@RequestParam int friendId, @RequestParam int currentUserId) {
+        Chat chat =  chatService.getChat(friendId, currentUserId);
+        return new ResponseEntity<>(chat, new HttpHeaders(), HttpStatus.OK);
+    }
+    @GetMapping("/getGroupMessages")
+    public ResponseEntity<?> getGroupChatMessages(@RequestParam String chatName) {
+        List<Message> messages =  chatService.getGroupChatMessages(chatName);
+        return new ResponseEntity<>(messages, new HttpHeaders(), HttpStatus.OK);
+    }
+    @PostMapping("/create/groupChat")
+    public ResponseEntity<?> createGroupChat(@RequestBody @Validated Chat chat) {
+        chatService.createGroupChat(chat.getUsersId(), chat.getChatName());
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 }

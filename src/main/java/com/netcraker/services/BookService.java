@@ -11,13 +11,11 @@ import java.util.Optional;
 public interface BookService {
     Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize);
 
-    void downloadBook(String fileName, HttpServletResponse response);
+    void downloadBook(String filePath, HttpServletResponse response);
 
     Optional<Book> createBook(Book book);
 
     Optional<Book> getBookById(int bookId);
 
     Optional<Book> getBookBySlug(String slug);
-
-    void insureBookPhoto(Book book);
 }

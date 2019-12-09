@@ -4,8 +4,12 @@ import com.netcraker.model.Activity;
 import com.netcraker.model.Announcement;
 import com.netcraker.model.Page;
 import com.netcraker.model.User;
+import com.netcraker.model.constants.NotificationTypeMessage;
+import com.netcraker.model.constants.NotificationTypeName;
+import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.AnnouncementRepository;
 import com.netcraker.services.*;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.PropertySource;
@@ -59,8 +63,8 @@ public class AnnouncementServiceImp implements AnnouncementService {
         User announcementCreator = userService.findByUserId(announcementAuthorId);
         activityService.saveActivity(Activity.builder().announcementActivity(announcement, announcementCreator).build());
         final Optional<Announcement> inserted = announcementRepository.insert(announcement);
-        //eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, announcement.getUserId()));
-        notificationService.sendNotification(10, 12, inserted.orElse(null));
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.ANNOUNCEMENTS, announcement.getUserId()));
+        notificationService.sendNotification(NotificationTypeName.ANNOUNCEMENTS, NotificationTypeMessage.CREATE_ANNOUNCEMENT, inserted.orElse(null));
         return inserted;
     }
 
@@ -84,7 +88,10 @@ public class AnnouncementServiceImp implements AnnouncementService {
 
     @Override
     public boolean deleteAnnouncement(int id) {
-        return announcementRepository.delete(id);
+        return announcementRepository.delete(Announcement.builder()
+                .announcementId(id)
+                .title("")
+                .description("").build());
     }
 
     @Override

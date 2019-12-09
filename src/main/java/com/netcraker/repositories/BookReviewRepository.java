@@ -10,6 +10,7 @@ public interface BookReviewRepository extends BaseOptionalRepository<BookReview>
     List<BookReview> getPage(int bookId, int pageSize, int offset);
     List<BookReview> getBookReviews(int pageSize, int offset);
     int getCount();
+    void loadReferences(BookReview bookReview);
     void publish(int id);
     void unpublish(int id);
 }

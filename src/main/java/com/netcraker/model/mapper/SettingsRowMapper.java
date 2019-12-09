@@ -14,7 +14,7 @@ public class SettingsRowMapper implements RowMapper<Settings> {
         return Settings.builder()
                 .settingsId(resultSet.getInt("setting_id"))
                 .userId(resultSet.getInt("user_id"))
-                .disableNotifications(resultSet.getBoolean("disable_notification"))
+                .disableNotifications(resultSet.getBoolean("disable_notifications"))
                 .makePrivate(resultSet.getBoolean("make_private"))
                 .showMyFavouriteBooks(resultSet.getBoolean("show_my_favourite_books"))
                 .showMyAnnouncements(resultSet.getBoolean("show_my_announcements"))

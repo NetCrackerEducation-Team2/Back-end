@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@Component
+@Component("announcements")
 public class AnnouncementRowMapper implements RowMapper<Announcement> {
     @Override
     public Announcement mapRow(ResultSet resultSet, int i) throws SQLException {

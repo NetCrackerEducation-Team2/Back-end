@@ -3,6 +3,8 @@ package com.netcraker.services.impl;
 import com.netcraker.model.Activity;
 import com.netcraker.model.BookReview;
 import com.netcraker.model.Page;
+import com.netcraker.model.constants.NotificationTypeMessage;
+import com.netcraker.model.constants.NotificationTypeName;
 import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.BookReviewRepository;
 import com.netcraker.services.*;
@@ -41,7 +43,7 @@ public class BookReviewServiceImp implements BookReviewService {
 
         final Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
-        notificationService.sendNotification(11, 13, inserted);
+        notificationService.sendNotification(NotificationTypeName.BOOK_REVIEWS, NotificationTypeMessage.CREATE_BOOK_REVIEWS, inserted);
         return inserted;
     }
 
@@ -80,8 +82,9 @@ public class BookReviewServiceImp implements BookReviewService {
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        List<BookReview> list = bookReviewRepo.getBookReviews(pageSize, offset);
-        return new Page<>(currentPage, pagesCount, list);
+        List<BookReview> bookReviews = bookReviewRepo.getBookReviews(pageSize,offset);
+        bookReviews.forEach(bookReviewRepo::loadReferences);
+        return new Page<>(currentPage, pagesCount, bookReviews);
     }
 
     @Override

@@ -48,8 +48,7 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
         return getById(user.getUserId());
     }
     public Optional<UserRole> getById(int userId) {
-        Object[] params = { userId };
-        List<UserRole> userRoles =  jdbcTemplate.query(sqlSelectByUserId, params, new UserRoleRowMapper());
+        List<UserRole> userRoles =  jdbcTemplate.query(sqlSelectByUserId, new UserRoleRowMapper(), userId);
         return userRoles.isEmpty() ? Optional.empty() : Optional.of(userRoles.get(0));
     }
     public List<UserRole> getAll(int userId) {

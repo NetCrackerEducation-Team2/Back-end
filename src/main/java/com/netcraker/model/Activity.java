@@ -17,4 +17,20 @@ public class Activity {
     private String description;
     private Integer userId;
     private Timestamp creationTime;
+
+    public static class ActivityBuilder {
+        public ActivityBuilder announcementActivity(Announcement announcement, User user) {
+            return this.name("CREATE_ANNOUNCEMENT")
+                    .description(user.getFullName() + " created new announcement \"" + announcement.getTitle() + "\"")
+                    .userId(user.getUserId())
+                    .creationTime(new Timestamp(System.currentTimeMillis()));
+        }
+
+        public ActivityBuilder addBookReviewActivity(Book book, User user) {
+            return this.name("CREATE_REVIEW")
+                    .description(user.getFullName() + " created new book review for book " + book.getTitle())
+                    .userId(user.getUserId())
+                    .creationTime(new Timestamp(System.currentTimeMillis()));
+        }
+    }
 }

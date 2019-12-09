@@ -1,13 +1,11 @@
 package com.netcraker.services.impl;
 
+import com.netcraker.model.Activity;
 import com.netcraker.model.Announcement;
 import com.netcraker.model.Page;
-import com.netcraker.model.constants.TableName;
+import com.netcraker.model.User;
 import com.netcraker.repositories.AnnouncementRepository;
-import com.netcraker.services.AnnouncementService;
-import com.netcraker.services.NotificationService;
-import com.netcraker.services.PageService;
-import com.netcraker.services.events.DataBaseChangeEvent;
+import com.netcraker.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.PropertySource;
@@ -25,6 +23,8 @@ public class AnnouncementServiceImp implements AnnouncementService {
     private final PageService pageService;
     private final NotificationService notificationService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ActivityService activityService;
+    private final UserService userService;
 
     @Override
     public Page<Announcement> getAnnouncementsPagination(int page, int pageSize) {
@@ -32,16 +32,17 @@ public class AnnouncementServiceImp implements AnnouncementService {
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        List<Announcement> list = announcementRepository.getAnnouncements(pageSize,offset);
+        List<Announcement> list = announcementRepository.getAnnouncements(pageSize, offset);
         return new Page<>(currentPage, pagesCount, list);
     }
+
     @Override
     public Page<Announcement> getPublishAnnouncementsPagination(int page, int pageSize) {
         int totalPublish = announcementRepository.getPublishedCount();
         int pagesCount = pageService.getPagesCount(totalPublish, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        List<Announcement> list = announcementRepository.getPublishedAnnouncements(pageSize,offset);
+        List<Announcement> list = announcementRepository.getPublishedAnnouncements(pageSize, offset);
         return new Page<>(currentPage, pagesCount, list);
     }
 
@@ -53,8 +54,10 @@ public class AnnouncementServiceImp implements AnnouncementService {
     @Override
     @Transactional
     public Optional<Announcement> addAnnouncement(Announcement announcement) {
+        // creating corresponding activity
         int announcementAuthorId = announcement.getUserId();
-        // TODO asem insert to activity table
+        User announcementCreator = userService.findByUserId(announcementAuthorId);
+        activityService.saveActivity(Activity.builder().announcementActivity(announcement, announcementCreator).build());
         final Optional<Announcement> inserted = announcementRepository.insert(announcement);
         //eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, announcement.getUserId()));
         notificationService.sendNotification(10, 12, inserted.orElse(null));
@@ -65,6 +68,7 @@ public class AnnouncementServiceImp implements AnnouncementService {
     public Optional<Announcement> updateAnnouncement(Announcement announcement) {
         return announcementRepository.update(announcement);
     }
+
     @Override
     public void publishAnnouncement(int id) {
         announcementRepository.publish(id);

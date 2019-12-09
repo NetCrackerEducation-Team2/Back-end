@@ -47,8 +47,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUsualUser(User user) {
         Role USER_ROLE = roleRepository.findByName("USER").orElseThrow(InternalError::new);
-        user.setRoles(Collections.singletonList(USER_ROLE));
         user.setEnabled(false);
+        user.setRoles(Collections.singletonList(USER_ROLE));
         final User registered = createUser(user);
         final AuthorizationLinks authorizationLink = authorizationRepositoryImpl.creteAuthorizationLinks(registered);
         emailSender.sendActivationCode(user, authorizationLink);

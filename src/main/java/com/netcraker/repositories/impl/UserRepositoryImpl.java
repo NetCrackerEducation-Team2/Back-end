@@ -143,10 +143,11 @@ public class UserRepositoryImpl implements UserRepository {
         Object[] params = {entity.getFullName(), entity.getPassword(), entity.getEmail(),
                 new Timestamp(System.currentTimeMillis()), entity.getEnabled(), entity.getPhotoPath()};
         jdbcTemplate.update(sqlInsert, params);
+        Optional<User> user = findByEmail(entity.getEmail());
         for (Role role : entity.getRoles()) {
-            userRoleRepository.insert(entity, role);
+            userRoleRepository.insert(user.get(), role);
         }
-        return findByEmail(entity.getEmail());
+        return user;
     }
 
     @Override

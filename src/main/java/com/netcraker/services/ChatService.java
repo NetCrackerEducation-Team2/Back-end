@@ -10,4 +10,8 @@ public interface ChatService {
     Message sendMessage(Message message);
     List<Message> getMessages(int friendId, int userCurrentId);
     Chat getChat(int friendId, int userCurrentId);
+    Chat createGroupChat(int[] usersId, String chatName);
+    Message sendMessageGroupChat(Message message);
+    List<Message> getGroupChatMessages(String chatName);
+    List<Chat> getGroupChats(int userCurrentId);
 }

@@ -27,6 +27,19 @@ public class ChatController {
         return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
     }
 
+    @PostMapping("/group")
+    public ResponseEntity<?> sendGroupMessage(@RequestBody Message message){
+        chatService.sendMessageGroupChat(message);
+        return new ResponseEntity<>(message, new HttpHeaders(), HttpStatus.OK);
+    }
+
+    @GetMapping("/getGroupChats")
+    public ResponseEntity<?> getGroupChats(@RequestParam int userCurrentId){
+        List<Chat> chats = chatService.getGroupChats(userCurrentId);
+        return new ResponseEntity<>(chats, new HttpHeaders(), HttpStatus.OK);
+    }
+
+
     @GetMapping
     public ResponseEntity<?> getMessages(@RequestParam int friendId, @RequestParam int currentUserId) {
         List<Message> messages  = chatService.getMessages(friendId, currentUserId);
@@ -43,5 +56,15 @@ public class ChatController {
     public ResponseEntity<?> getChat(@RequestParam int friendId, @RequestParam int currentUserId) {
         Chat chat =  chatService.getChat(friendId, currentUserId);
         return new ResponseEntity<>(chat, new HttpHeaders(), HttpStatus.OK);
+    }
+    @GetMapping("/getGroupMessages")
+    public ResponseEntity<?> getGroupChatMessages(@RequestParam String chatName) {
+        List<Message> messages =  chatService.getGroupChatMessages(chatName);
+        return new ResponseEntity<>(messages, new HttpHeaders(), HttpStatus.OK);
+    }
+    @PostMapping("/create/groupChat")
+    public ResponseEntity<?> createGroupChat(@RequestBody @Validated Chat chat) {
+        chatService.createGroupChat(chat.getUsersId(), chat.getChatName());
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

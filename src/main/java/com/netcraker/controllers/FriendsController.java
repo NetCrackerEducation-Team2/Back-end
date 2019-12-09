@@ -26,9 +26,15 @@ public class FriendsController extends BaseController {
         return friendsService.getFriendInfo(getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new), targetUserId);
     }
 
-    @GetMapping("/friends/friendRequest")
+    @GetMapping("/friendRequest")
     public ResponseEntity<String> getFriendRequestStatus(@RequestParam int friendRequestId) {
         return new ResponseEntity<>(friendsService.getFriendRequestStatus(friendRequestId), HttpStatus.OK);
+    }
+
+    @GetMapping("/friends/{userId}")
+    public ResponseEntity<List<User>> getFriends(@PathVariable int userId) {
+        List<User> friends = friendsService.getFriends(userId);
+        return new ResponseEntity<>(friends, HttpStatus.OK);
     }
 
     @PostMapping("/friends/friendRequest")

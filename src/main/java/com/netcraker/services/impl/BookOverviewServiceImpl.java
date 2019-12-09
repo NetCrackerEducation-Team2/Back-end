@@ -40,8 +40,9 @@ public class BookOverviewServiceImpl implements BookOverviewService {
         int pagesCount = pageService.getPagesCount(total, pageSize);
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
-        List<BookOverview> list = bookOverviewRepository.getBookOverviews(pageSize,offset);
-        return new Page<>(currentPage, pagesCount, list);
+        List<BookOverview> bookOverviews = bookOverviewRepository.getBookOverviews(pageSize,offset);
+        bookOverviews.forEach(bookOverviewRepository::loadReferences);
+        return new Page<>(currentPage, pagesCount, bookOverviews);
     }
 
     @Override

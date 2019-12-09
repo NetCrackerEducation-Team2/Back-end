@@ -78,12 +78,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> findById(int id) {
-        Object[] params = {id};
-        return jdbcTemplate.query(sqlListUsers, params, new UserRowMapper());
-    }
-
-    @Override
     public Optional<User> activateUser(String email) {
         Optional<User> entity = findByEmail(email);
         if (!entity.isPresent())

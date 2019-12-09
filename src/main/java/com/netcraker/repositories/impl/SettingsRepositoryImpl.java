@@ -77,18 +77,20 @@ public class SettingsRepositoryImpl implements SettingsRepository {
     public Optional<Settings> update(Settings settings) {
         try {
             jdbcTemplate.execute(sqlUpdate, (PreparedStatementCallback<Boolean>) ps -> {
+                ps.setInt(1, settings.getUserId());
                 ps.setBoolean(2, settings.getDisableNotifications());
                 ps.setBoolean(3, settings.getMakePrivate());
                 ps.setBoolean(4, settings.getShowMyFavouriteBooks());
                 ps.setBoolean(5, settings.getShowMyAnnouncements());
                 ps.setBoolean(6, settings.getShowMyBookReviews());
                 ps.setBoolean(7, settings.getShowMyBookOverviews());
+                ps.setInt(8, settings.getSettingsId());
                 return ps.execute();
             });
         } catch (DataAccessException e) {
             return Optional.empty();
         }
-        return getById(settings.getUserId());
+        return getById(settings.getSettingsId());
     }
 
     @Override

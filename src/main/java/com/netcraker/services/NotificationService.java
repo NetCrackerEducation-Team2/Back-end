@@ -29,5 +29,6 @@ import com.netcraker.model.vo.NotificationMessage;
 public interface NotificationService {
     Page<NotificationMessage> getUserNotificationMessages(int id, int page, int pageSize);
     <T> boolean sendNotification(NotificationTypeName notificationTypeName, NotificationTypeMessage notificationTypeMessage, T entity);
+    <T> boolean sendNotification(NotificationTypeName notificationTypeName, String notificationMessage, T entity);
     Page<Notification> getUserNotifications(Pageable pageable);
 }

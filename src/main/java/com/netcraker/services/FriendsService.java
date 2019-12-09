@@ -21,4 +21,6 @@ public interface FriendsService {
     boolean acceptFriendRequest(int invitationId);
 
     boolean declineFriendRequest(int invitationId);
+
+    String getFriendRequestStatus(int friendRequestId);
 }

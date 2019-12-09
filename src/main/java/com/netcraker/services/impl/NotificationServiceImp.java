@@ -5,6 +5,7 @@ import com.netcraker.model.*;
 import com.netcraker.model.constants.NotificationTypeMessage;
 import com.netcraker.model.constants.NotificationTypeName;
 import com.netcraker.model.vo.NotificationMessage;
+import com.netcraker.repositories.NotificationMessageRepository;
 import com.netcraker.repositories.NotificationObjectRepository;
 import com.netcraker.repositories.NotificationRepository;
 import com.netcraker.services.NotificationService;
@@ -30,6 +31,7 @@ public class NotificationServiceImp implements NotificationService {
     private final NotificationObjectRepository notificationObjectRepository;
     private final PageService pageService;
     private final UserInfoService userInfoService;
+    private final NotificationMessageRepository notificationMessageRepository;
 
     private static NotificationObject makeNotificationObject(int notificationTypeId, int notificationMessageId, int entityId, int userId) {
         return NotificationObject.builder()
@@ -60,18 +62,28 @@ public class NotificationServiceImp implements NotificationService {
                 userNotifications.getCountPages(),
                 userNotifications.getArray().stream()
                         .map(notification -> NotificationMessage.builder()
-                            .notificationId(notification.getNotificationId())
-                            .notificationMessage(notification.getNotificationMessage())
-                            .creationTime(notification.getNotificationObject().getCreationTime())
-                            .build()
+                                .notificationId(notification.getNotificationId())
+                                .notificationMessage(notification.getNotificationMessage())
+                                .creationTime(notification.getNotificationObject().getCreationTime())
+                                .build()
                         ).collect(Collectors.toList()));
     }
 
     @Override
     @Transactional
     public <T> boolean sendNotification(NotificationTypeName notificationTypeName, NotificationTypeMessage notificationTypeMessage, T entity) {
-        int notificationTypeId;
         int notificationMessageId = getNotificationMessageId(notificationTypeMessage);
+        return sendNotification(notificationTypeName, notificationMessageId, entity);
+    }
+
+    @Transactional
+    @Override
+    public <T> boolean sendNotification(NotificationTypeName notificationTypeName, String notificationMessage, T entity) {
+        return sendNotification(notificationTypeName, insertNewNotificationMessage(notificationMessage), entity);
+    }
+
+    private <T> boolean sendNotification(NotificationTypeName notificationTypeName, int notificationMessageId, T entity) {
+        int notificationTypeId;
         int entityId;
         int userId;
         int notifierId;
@@ -110,6 +122,15 @@ public class NotificationServiceImp implements NotificationService {
             notificationRepository.insert(notification);
         }
         return true;
+    }
+
+    private int insertNewNotificationMessage(String message) {
+        return notificationMessageRepository.insert(
+                com.netcraker.model.NotificationMessage
+                        .builder()
+                        .notificationMessageText(message)
+                        .build()
+        ).orElseThrow(() -> new InternalError("Could not insert notification message")).getId();
     }
 
     private int getNotificationMessageId(NotificationTypeMessage notificationTypeMessage) {

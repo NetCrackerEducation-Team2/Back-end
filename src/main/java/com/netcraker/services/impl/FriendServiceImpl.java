@@ -5,14 +5,10 @@ import com.netcraker.exceptions.InvalidRequest;
 import com.netcraker.exceptions.OperationForbiddenException;
 import com.netcraker.exceptions.RequiresAuthenticationException;
 import com.netcraker.model.*;
-import com.netcraker.model.constants.NotificationTypeMessage;
 import com.netcraker.model.constants.NotificationTypeName;
 import com.netcraker.repositories.FriendInvitationRepository;
 import com.netcraker.repositories.FriendRepository;
-import com.netcraker.services.FriendsService;
-import com.netcraker.services.NotificationService;
-import com.netcraker.services.PageService;
-import com.netcraker.services.UserInfoService;
+import com.netcraker.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -30,6 +27,7 @@ public class FriendServiceImpl implements FriendsService {
     private final UserInfoService userInfoService;
     private final PageService pageService;
     private final NotificationService notificationService;
+    private final UserService userService;
 
     @Override
     public List<User> getFriends(int userId) {
@@ -44,6 +42,7 @@ public class FriendServiceImpl implements FriendsService {
                 .build();
     }
 
+    @Transactional
     @Override
     public void sendFriendRequest(int sourceUserId, int destinationUserId) {
         FriendStatus friendInfo = getFriendInfo(sourceUserId, destinationUserId);
@@ -57,10 +56,15 @@ public class FriendServiceImpl implements FriendsService {
                             .build()
             );
             FriendInvitation friendInvitation = result.orElseThrow(FailedToSendFriendRequestException::new);
-            notificationService.sendNotification(NotificationTypeName.INVITATIONS, NotificationTypeMessage.RECEIVED_FRIEND_INVITATION, friendInvitation);
+            notificationService.sendNotification(NotificationTypeName.INVITATIONS, generateFriendInvitationNotificationMessage(sourceUserId), friendInvitation);
         } else {
             throw new InvalidRequest("Friend request has been already sent or you are already friends");
         }
+    }
+
+    private String generateFriendInvitationNotificationMessage(int sourceUserId) {
+        User sourceUser = userService.findByUserId(sourceUserId);
+        return "User '" + sourceUser.getFullName() + "' (email '" + sourceUser.getEmail() + ")' sent you friend invitation";
     }
 
     @Override
@@ -82,7 +86,7 @@ public class FriendServiceImpl implements FriendsService {
         User user = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
         FriendInvitation friendInvitation = friendInvitationRepository.getById(invitationId).orElseThrow(NoSuchElementException::new);
         if (friendInvitation.getAccepted() != null) {
-            throw new OperationForbiddenException("Invitation has been already " + (friendInvitation.getAccepted() ? "accepted" : "declined"));
+            throw new OperationForbiddenException("Message: Invitation has been already " + (friendInvitation.getAccepted() ? "accepted" : "declined"));
         }
         if (friendInvitation.getInvitationTarget().equals(user.getUserId())) {
             friendRepository.addFriends(friendInvitation.getInvitationSource(), friendInvitation.getInvitationTarget());
@@ -100,7 +104,7 @@ public class FriendServiceImpl implements FriendsService {
         User user = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
         FriendInvitation friendInvitation = friendInvitationRepository.getById(invitationId).orElseThrow(NoSuchElementException::new);
         if (friendInvitation.getAccepted() != null) {
-            throw new OperationForbiddenException("Invitation has been already " + (friendInvitation.getAccepted() ? "accepted" : "declined"));
+            throw new OperationForbiddenException("Message: Invitation has been already " + (friendInvitation.getAccepted() ? "accepted" : "declined"));
         }
         if (friendInvitation.getInvitationTarget().equals(user.getUserId())) {
             friendInvitation.setAccepted(false);
@@ -118,5 +122,19 @@ public class FriendServiceImpl implements FriendsService {
         int page = pageService.getRestrictedPage(pageable.getPage(), pagesCount);
         int offset = page * pageable.getPageSize();
         return new Page<>(page, pagesCount, friendRepository.getFriendsPageable(user.getUserId(), pageable.getPageSize(), offset));
+    }
+
+    @Override
+    public String getFriendRequestStatus(int friendRequestId) {
+        FriendInvitation invitation = friendInvitationRepository.getById(friendRequestId).orElseThrow(NoSuchElementException::new);
+        if (Objects.equals(invitation.getInvitationTarget(), userInfoService.getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new))) {
+            Boolean status = invitation.getAccepted();
+            if (status == null) {
+                return "Awaiting";
+            }
+            return status ? "Accepted" : "Declined";
+        } else {
+            throw new OperationForbiddenException();
+        }
     }
 }

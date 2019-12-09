@@ -1,8 +1,7 @@
 package com.netcraker.controllers;
 
 import com.netcraker.exceptions.RequiresAuthenticationException;
-import com.netcraker.model.FriendStatus;
-import com.netcraker.model.User;
+import com.netcraker.model.*;
 import com.netcraker.services.FriendsService;
 import com.netcraker.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -13,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(methods = {RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.DELETE})
+@CrossOrigin(methods = {RequestMethod.POST, RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.DELETE, RequestMethod.PUT})
 public class FriendsController extends BaseController {
     private final FriendsService friendsService;
 
@@ -45,5 +44,28 @@ public class FriendsController extends BaseController {
         friendsService.deleteFromFriends(getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new), friendId);
         // TODO should be returned OK status? Maybe we should pass own status code in response body?
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/friends/awaitingFriendRequests")
+    public List<FriendInvitation> getAllAwaitingFriendRequests(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        return friendsService.getAwaitingFriendInvitations(Pageable.of(page, pageSize));
+    }
+
+    @CrossOrigin
+    @PutMapping("/friend/friendRequest/accept/{invitationId}")
+    public ResponseEntity<Boolean> acceptFriendRequest(@PathVariable int invitationId) {
+        return new ResponseEntity<>(friendsService.acceptFriendRequest(invitationId), HttpStatus.OK);
+    }
+
+    @CrossOrigin
+    @PutMapping("/friend/friendRequest/decline/{invitationId}")
+    public ResponseEntity<Boolean> declineFriendRequest(@PathVariable int invitationId) {
+        return new ResponseEntity<>(friendsService.declineFriendRequest(invitationId), HttpStatus.OK);
+    }
+
+    @GetMapping("/friends")
+    public Page<User> getFriends(@RequestParam int page, @RequestParam int pageSize) {
+        Page<User> friends = friendsService.getFriends(Pageable.of(page, pageSize));
+        return friends;
     }
 }

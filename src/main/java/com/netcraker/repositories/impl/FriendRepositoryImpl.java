@@ -9,6 +9,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -24,7 +26,12 @@ public class FriendRepositoryImpl implements FriendRepository {
     private String sqlCheckAwaitingFriendRequestAccept;
     @Value("${friends.deleteByUsersId}")
     private String sqlDeleteByUsersId;
-
+    @Value("${friends.insert}")
+    private String sqlInsertFriends;
+    @Value("${friends.sqlGetFriendsPageable}")
+    private String sqlGetFriendsPageable;
+    @Value("${friends.getFriendsPageableCount}")
+    private String sqlGetFriendsPageableCount;
     @Override
     public List<User> getFriendsList(int userId) {
         return jdbcTemplate.query(sqlGetFriendsList, UserRowMapper.builder().build(), userId, userId);
@@ -44,5 +51,32 @@ public class FriendRepositoryImpl implements FriendRepository {
     public boolean deleteFromFriends(int userId, int friendId) {
         int countUpdatedRows = jdbcTemplate.update(sqlDeleteByUsersId, userId, friendId, friendId, userId);
         return countUpdatedRows > 0;
+    }
+
+    @Override
+    public void addFriends(int userId, int user2Id) {
+        int affectedRows = jdbcTemplate.update(conn -> {
+            try {
+                PreparedStatement ps = conn.prepareStatement(sqlInsertFriends);
+                ps.setInt(1, userId);
+                ps.setInt(2, user2Id);
+                return ps;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        if (affectedRows != 1) {
+            throw new RuntimeException("Can not make friends");
+        }
+    }
+
+    @Override
+    public List<User> getFriendsPageable(int userId, int limit, int offset) {
+        return jdbcTemplate.query(sqlGetFriendsPageable, UserRowMapper.builder().build(), userId, userId, limit, offset);
+    }
+
+    @Override
+    public int getFriendsPageableCount(int userId) {
+        return jdbcTemplate.queryForObject(sqlGetFriendsPageableCount, int.class, userId, userId);
     }
 }

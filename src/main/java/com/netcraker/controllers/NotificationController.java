@@ -1,8 +1,8 @@
 package com.netcraker.controllers;
 
-import com.netcraker.exceptions.CreationException;
 import com.netcraker.model.Notification;
 import com.netcraker.model.Page;
+import com.netcraker.model.Pageable;
 import com.netcraker.model.vo.NotificationMessage;
 import com.netcraker.services.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +20,11 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<Page<NotificationMessage>> getNotificationMessages(
+    public ResponseEntity<Page<Notification>> getNotificationMessages(
             @RequestParam int userId,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "5") int pageSize) {
-        Page<NotificationMessage> pagination = notificationService.getUserNotification(userId, page, pageSize);
+        Page<Notification> pagination = notificationService.getUserNotifications(Pageable.of(page, pageSize));
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
 }

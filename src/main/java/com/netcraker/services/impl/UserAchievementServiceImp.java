@@ -1,5 +1,6 @@
 package com.netcraker.services.impl;
 
+import com.netcraker.exceptions.FindException;
 import com.netcraker.model.Achievement;
 import com.netcraker.model.Page;
 import com.netcraker.model.UserAchievement;
@@ -50,5 +51,13 @@ public class UserAchievementServiceImp implements UserAchievementService {
     @Override
     public boolean exists(int userId, int achievementId) {
         return userAchievementRepo.countByUserIdAchievementId(userId, achievementId) > 0;
+    }
+
+    @Override
+    public int countByUserId(int userId) {
+        if (userId < 0) {
+            throw new FindException("user id cannot be less than 0");
+        }
+        return userAchievementRepo.countByUserId(userId);
     }
 }

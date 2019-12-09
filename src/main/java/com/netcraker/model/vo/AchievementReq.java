@@ -20,7 +20,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AchievementReq {
-    @Size(min = 4)
+    @Size(min = 4, max = 255)
     private String name;
     @NotNull
     private Verb verb;
@@ -28,7 +28,8 @@ public class AchievementReq {
     private TableName subject;
     @Nullable
     private Map<Parameter, List<String>> extraParams;
-    @Min(1)
+    @NotNull
+    @Min(0)
     private Integer count;
     @Nullable
     private String description;

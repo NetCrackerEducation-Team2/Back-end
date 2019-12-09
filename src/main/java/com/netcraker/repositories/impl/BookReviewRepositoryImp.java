@@ -37,8 +37,9 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
 
     @Value("${book_reviews.getById}")
     private String sqlGetById;
-    @Value("${book_reviews.getAll}")
-    private String sqlGetReviews;
+    // If nothing happened, you can delete this
+    //@Value("${book_reviews.getAll}")
+    //private String sqlGetReviews;
     @Value("${book_reviews.insert}")
     private String sqlInsert;
     @Value("${book_reviews.update}")
@@ -119,11 +120,6 @@ public class BookReviewRepositoryImp implements BookReviewRepository {
             return Optional.empty();
         }
         return getById((Integer) keyHolder.getKeys().get("book_review_id"));
-    }
-
-    @Override
-    public List<BookReview> getBookReviews(int limit, int offset) {
-        return jdbcTemplate.query(sqlGetReviews, new Object[]{limit, offset}, new BookReviewRowMapper());
     }
 
     @Override

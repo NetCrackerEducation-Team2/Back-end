@@ -56,6 +56,11 @@ public class AchievementController {
         return ResponseEntity.ok(userAchievementService.getPage(userId, pageSize, page));
     }
 
+    @GetMapping("user/{userId}/count")
+    public ResponseEntity<Integer> countByUserId(@PathVariable int userId) {
+        return ResponseEntity.ok(userAchievementService.countByUserId(userId));
+    }
+
     private CreationException newCreationException() {
         return new CreationException("Cannot create achievement");
     }

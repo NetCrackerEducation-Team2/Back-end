@@ -29,7 +29,6 @@ public class FriendsController extends BaseController {
     @PostMapping("/friends/friendRequest")
     public ResponseEntity<String> sendFriendRequest(@RequestParam int destinationUserId) {
         friendsService.sendFriendRequest(getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new), destinationUserId);
-        // TODO asem should we return OK status or CREATED? If 'CREATED' how to pass blocking access to non OK response at frontend side?
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

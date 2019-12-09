@@ -116,7 +116,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize) {
-        // TODO should we set user roles here?
         searchExpression = "%" + searchExpression + "%";
         Role user = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
         if (!currentUser.isPresent() || roleRepository.getAllRoleById(currentUser.get().getUserId()).contains(user)) {

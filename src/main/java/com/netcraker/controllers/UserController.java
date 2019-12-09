@@ -66,14 +66,4 @@ public class UserController {
         String currentUserEmail = (String) request.getAttribute("currentUserEmail");
         return Optional.ofNullable(userService.findByEmail(currentUserEmail));
     }
-
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<?> getUsersById(@PathVariable int userId) {
-        final List<User> usersFromDb = userService.findById(userId);
-        logger.info(String.valueOf(usersFromDb));
-        if (usersFromDb == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(usersFromDb);
-    }
 }

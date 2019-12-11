@@ -6,10 +6,13 @@ import com.netcraker.exceptions.OperationForbiddenException;
 import com.netcraker.exceptions.RequiresAuthenticationException;
 import com.netcraker.model.*;
 import com.netcraker.model.constants.NotificationTypeName;
+import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.FriendInvitationRepository;
 import com.netcraker.repositories.FriendRepository;
 import com.netcraker.services.*;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class FriendServiceImpl implements FriendsService {
     private final PageService pageService;
     private final NotificationService notificationService;
     private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<User> getFriends(int userId) {
@@ -89,9 +93,13 @@ public class FriendServiceImpl implements FriendsService {
             throw new OperationForbiddenException("Message: Invitation has been already " + (friendInvitation.getAccepted() ? "accepted" : "declined"));
         }
         if (friendInvitation.getInvitationTarget().equals(user.getUserId())) {
-            friendRepository.addFriends(friendInvitation.getInvitationSource(), friendInvitation.getInvitationTarget());
+            final int invitationSource = friendInvitation.getInvitationSource();
+            final int invitationTarget = friendInvitation.getInvitationTarget();
+            friendRepository.addFriends(invitationSource, invitationTarget);
             friendInvitation.setAccepted(true);
             friendInvitationRepository.update(friendInvitation);
+            eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.FRIENDS, invitationSource));
+            eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.FRIENDS, invitationTarget));
             return true;
         } else { // if user attempts to accept not his/her invitation
             throw new OperationForbiddenException();

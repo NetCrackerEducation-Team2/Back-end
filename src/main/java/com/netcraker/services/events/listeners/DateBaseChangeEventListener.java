@@ -7,6 +7,7 @@ import com.netcraker.services.UserAchievementService;
 import com.netcraker.services.UserService;
 import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class DateBaseChangeEventListener {
 
@@ -30,6 +32,7 @@ public class DateBaseChangeEventListener {
     @Async
     @EventListener
     public void handleDataBaseChangeEvent(DataBaseChangeEvent event) {
+        log.info("DateBaseChangeEventListener is handling {}", event);
         final TableName tableName = event.getAffectedTable();
         final int userId = event.getUserId().intValue();
 
@@ -38,23 +41,21 @@ public class DateBaseChangeEventListener {
             final List<Integer> allUserIds = userService.getListId();
 
             for (int uId : allUserIds) {
-                final Optional<Achievement> optAchievement = checkAchievementCondition(tableName, uId);
-
-                if (optAchievement.isPresent()) {
-                    final Achievement achievement = optAchievement.get();
-                    if (userAchievementService.addUserAchievement(uId, achievement.getAchievementId())) {
-                        simpMessagingTemplate.convertAndSend(destinationTopic + uId, achievement.getAchievementId());
-                    }
-                }
+                sendAchievementMessage(tableName, uId);
             }
         } else {
-            final Optional<Achievement> optAchievement = checkAchievementCondition(tableName, userId);
+            sendAchievementMessage(tableName, userId);
+        }
+    }
 
-            if (optAchievement.isPresent()) {
-                final Achievement achievement = optAchievement.get();
-                if (userAchievementService.addUserAchievement(userId, achievement.getAchievementId())) {
-                    simpMessagingTemplate.convertAndSend(destinationTopic + userId, achievement.getAchievementId());
-                }
+    private void sendAchievementMessage(TableName tableName, int userId) {
+        final Optional<Achievement> optAchievement = checkAchievementCondition(tableName, userId);
+
+        if (optAchievement.isPresent()) {
+            final Achievement achievement = optAchievement.get();
+            if (userAchievementService.addUserAchievement(userId, achievement.getAchievementId())) {
+                log.info("User {} completed achievement {}", userId, achievement);
+                simpMessagingTemplate.convertAndSend(destinationTopic + userId, achievement.getAchievementId());
             }
         }
     }

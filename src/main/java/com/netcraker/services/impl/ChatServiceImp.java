@@ -5,10 +5,13 @@ import com.netcraker.exceptions.FindException;
 import com.netcraker.model.Chat;
 import com.netcraker.model.Message;
 import com.netcraker.model.User;
+import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.ChatRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.services.ChatService;
+import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +25,7 @@ public class ChatServiceImp implements ChatService {
     private final ChatRepository chatRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<Message> getMessages(int friendId, int userCurrentId) {
@@ -80,6 +84,8 @@ public class ChatServiceImp implements ChatService {
         }
         message.setChatId(chatFromDB.get().getChatId());
         this.simpMessagingTemplate.convertAndSend("/socket-publisher/" + message.getChatId(), message);
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.MESSAGES, message.getFromUser()));
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.MESSAGES, message.getToUser()));
         return message;
     }
 
@@ -91,6 +97,7 @@ public class ChatServiceImp implements ChatService {
             throw new CreationException("Error in creating message!");
         }
         this.simpMessagingTemplate.convertAndSend("/socket-publisher/" + message.getChatName(), message);
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.MESSAGES, message.getFromUser()));
         return message;
     }
 

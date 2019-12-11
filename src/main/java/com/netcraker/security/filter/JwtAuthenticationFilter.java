@@ -57,8 +57,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         logger.info("Attempt to authenticate");
 
-        logger.info("Method: " + request.getMethod());
-
         if (!request.getMethod().equalsIgnoreCase("POST")
                 && !request.getMethod().equalsIgnoreCase("OPTIONS")) {
             throw new FailedToLoginException("Only 'POST', 'OPTIONS' requests at /auth/login are allowed");
@@ -79,25 +77,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         if (password != null && email != null && password.length() != 0 && email.length() != 0) {
 
-            logger.info("email: " + jwtRequest.getEmail());
-            logger.info("password: " + jwtRequest.getPassword());
-
             Authentication authenticationToken =
                     new UsernamePasswordAuthenticationToken(email, password);
 
-
-            logger.info("encoded password: " + passwordEncoder.encode(password));
-            Authentication authenticate = authenticationManager.authenticate(authenticationToken);
-
-            try {
-                logger.info("authentication in json: " +
-                        new ObjectMapper().writeValueAsString(authenticationToken));
-                logger.info("authenticate in json: " +
-                        new ObjectMapper().writeValueAsString(authenticate));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            return authenticate;
+            return authenticationManager.authenticate(authenticationToken);
         }
         throw new FailedToLoginException("Bad request (username and password must be not empty)");
     }
@@ -117,8 +100,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 //                .collect(Collectors.toList());
 
         String signingKey = SecurityConstants.SECRET_KEY;
-
-
 
         Map<String, Object> claims = new HashMap<>();
 
@@ -142,7 +123,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             response.getWriter().write(mapper.writeValueAsString(jwtResponse));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
@@ -151,7 +132,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(request.getInputStream(), JwtRequest.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
             return new JwtRequest();
         }
     }

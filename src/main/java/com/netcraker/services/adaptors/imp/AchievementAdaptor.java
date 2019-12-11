@@ -7,6 +7,7 @@ import com.netcraker.model.constants.TableName;
 import com.netcraker.model.constants.Verb;
 import com.netcraker.model.vo.AchievementReq;
 import com.netcraker.services.adaptors.Adaptor;
+import com.netcraker.utils.AchievementUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -17,6 +18,8 @@ import org.springframework.util.ObjectUtils;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.netcraker.utils.AchievementUtils.insertParams;
 
 
 @Service
@@ -45,52 +48,31 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
             throw new CreationException("Invalid values for achievement (wrong verb value)");
         }
 
-        String query;
+        final String query = createCommonQuery(subject, verb, extraParams, count);
 
-        if (extraParams != null) {
-            query = createCommonParameterizedQuery(subject, verb, extraParams, count);
-        } else {
-            switch (verb) {
-                case HAS:
-                    query = insertParams(templateCount, count, subject.name());
-                    break;
-                case READ:
-                    query = insertParams(templateRead + " " + env.getProperty("books.condition.read"), count, subject.name());
-                    break;
-                case PUBLISH:
-                    query = insertParams(templatePublish, count, subject.name());
-                    break;
-                default:
-                    throw new CreationException("Cannot create achievement (only `HAS`, `READ`, `PUBLISH` verbs are allowed)");
-            }
-        }
         String description = achievementReq.getDescription() != null ? achievementReq.getDescription() : AchievementUtils.DEFAULT_DESCRIPTION;
         return Achievement.builder().name(name).sqlQuery(query).tableName(subject).description(description).build();
     }
 
-    private String insertParams(String template, Object... params) {
-        return String.format(template, params);
-    }
-
-    private String createCommonParameterizedQuery(TableName subject, Verb verb, Map<Parameter, List<String>> extraParams, int count) {
+    private String createCommonQuery(TableName subject, Verb verb, Map<Parameter, List<String>> extraParams, int count) {
         final StringJoiner query = new StringJoiner(" ");
 
-        if (verb == Verb.READ) {
-            query.add(createBookParameterizedQuery(extraParams, count));
-        } else if (verb == Verb.HAS) {
-            query.add(insertParams(env.getProperty("common.template.count"), count, subject));
-        } else {
-            throw new IllegalArgumentException("Invalid verb value (additional parameters are applied only to `HAS`, `READ` verbs)");
+        query.add(beginQuery(verb, subject, extraParams, count));
+
+        // Check creation time parameter
+        List<String> creationTimeParams = Collections.emptyList();
+        if (extraParams != null) {
+            creationTimeParams = extraParams.get(Parameter.CREATION_TIME);
         }
 
-        // Common query
-        final List<String> creationTimeParams = extraParams.get(Parameter.CREATION_TIME);
-
-        if (ObjectUtils.isEmpty(creationTimeParams) || creationTimeParams.get(0) == null || creationTimeParams.get(1) == null) {
+        if (subject == TableName.MESSAGES
+                || ObjectUtils.isEmpty(creationTimeParams)
+                || creationTimeParams.get(0) == null
+                || creationTimeParams.get(1) == null) {
             return query.toString();
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(AchievementUtils.DATE_FORMAT);
         Date parsedLowBound, parsedHighBound;
 
         try {
@@ -102,13 +84,12 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
 
             query.add(insertParams(env.getProperty("common.condition.creation_time"), subject, lowBound, highBound));
         } catch (Exception e) {
-            e.printStackTrace();
             throw new CreationException(e);
         }
         return query.toString();
     }
 
-    private String createBookParameterizedQuery(Map<Parameter, List<String>> extraParams, int count) {
+    private String createBookQuery(Map<Parameter, List<String>> extraParams, int count) {
         final Set<Parameter> parameters = extraParams.keySet();
         final StringJoiner query = new StringJoiner(" ");
         final StringJoiner conditionalBuffer = new StringJoiner(" ");
@@ -129,7 +110,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
                 query.add(env.getProperty("books.join.genre"));
 
                 String genreName = selectedGenres.get(0);
-                if (!AchievementUtils.isValidString(genreName)) {
+                if (AchievementUtils.isNonValidString(genreName)) {
                     throw new CreationException("Invalid value for genre name");
                 }
 
@@ -140,7 +121,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
 
                 for (int i = 1; i < selectedGenres.size(); i++) {
                     genreName = selectedGenres.get(i);
-                    if (!AchievementUtils.isValidString(genreName)) {
+                    if (AchievementUtils.isNonValidString(genreName)) {
                         throw new CreationException("Invalid value for genre name");
                     }
                     tempCondition = insertParams(env.getProperty("books.condition.add.genre.name"), genreName);
@@ -151,7 +132,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
                 conditionalBuffer.add(")");
             }
 
-            // Book queries
+            // Book conditions
             if (p == Parameter.BOOK_PAGES) {
                 final List<String> pageRange = extraParams.get(Parameter.BOOK_PAGES);
 
@@ -184,14 +165,13 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
                 if (ObjectUtils.isEmpty(releaseParam)) {
                     continue;
                 }
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat dateFormat = new SimpleDateFormat(AchievementUtils.DATE_FORMAT);
                 Date lowBound, highBound;
 
                 try {
                     lowBound = dateFormat.parse(releaseParam.get(0));
                     highBound = dateFormat.parse(releaseParam.get(1));
                 } catch (Exception e) {
-                    e.printStackTrace();
                     throw new CreationException(e);
                 }
 
@@ -214,7 +194,7 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
                 }
             }
 
-            // Reserved book queries
+            // Reserved book conditions
             final int limit = AchievementUtils.extractLimit(p, extraParams);
 
             if (p == Parameter.RESERVED_BOOK_NEWEST) {
@@ -234,69 +214,20 @@ public class AchievementAdaptor implements Adaptor<AchievementReq, Achievement> 
         }
 
         query.add(conditionalBuffer.toString());
-
-        System.out.println("Prepared book query : " + insertParams(query.toString(), count));
-
         return insertParams(query.toString(), count);
     }
 
-    private static class AchievementUtils {
-
-        private static final int DEFAULT_LIMIT_VALUE = 10;
-        static final String DEFAULT_DESCRIPTION = "No description present";
-
-        static boolean isValidString(String str) {
-            return !str.contains("'") && !str.contains("\"");
-        }
-
-
-        static int extractLimit(Parameter parameter, Map<Parameter, List<String>> extraParams) {
-            final List<String> limitParam = extraParams.get(parameter);
-
-            if (ObjectUtils.isEmpty(limitParam) || ObjectUtils.isEmpty(limitParam.get(0))) {
-                return DEFAULT_LIMIT_VALUE;
+    private String beginQuery(Verb verb, TableName subject, Map<Parameter, List<String>> extraParams, int count) {
+        if (verb == Verb.READ) {
+            return extraParams != null ? createBookQuery(extraParams, count) : templateRead;
+        } else if (verb == Verb.HAS) {
+            if (subject == TableName.FRIENDS) {
+                return insertParams(env.getProperty("friends.template.count"), count);
             }
-
-            switch (parameter) {
-                case BOOK_PAGES:
-                case BOOK_RATE_SUM:
-                case BOOK_PUBLISHING_HOUSE:
-                case BOOK_GENRE:
-                case BOOK_VOTERS_COUNT:
-                case BOOK_RELEASE:
-                case CREATION_TIME:
-                    return DEFAULT_LIMIT_VALUE;
-            }
-
-            return Integer.parseInt(limitParam.get(0));
+            return insertParams(templateCount, count, subject);
+        } else if (verb == Verb.PUBLISH) {
+            return insertParams(templatePublish, count, subject);
         }
-
-        static boolean isValidVerb(Verb verb, TableName tableName) {
-            switch (verb) {
-                case HAS:
-                    switch (tableName) {
-                        case BOOK_REVIEWS:
-                        case BOOK_OVERVIEWS:
-                        case ANNOUNCEMENTS:
-                        case BOOKS:
-                            return false;
-                        default:
-                            return true;
-                    }
-                case PUBLISH:
-                    switch (tableName) {
-                        case BOOK_REVIEWS:
-                        case BOOK_OVERVIEWS:
-                        case ANNOUNCEMENTS:
-                            return true;
-                        default:
-                            return false;
-                    }
-                case READ:
-                    return TableName.BOOKS == tableName;
-                default:
-                    throw new IllegalArgumentException("Invalid verb value (only `HAS`, `READ`, `PUBLISH` are allowed)");
-            }
-        }
+        throw new CreationException("Cannot create achievement(only `READ`, `HAS`, `PUBLISH` verb values allowed)");
     }
 }

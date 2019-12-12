@@ -34,8 +34,8 @@ public class UserBooksServiceImpl implements UserBookService {
     }
 
     @Override
-    public UserBook addUsersBook(int bookId, String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
+    public UserBook addUsersBook(int bookId, int userId) {
+        User user = userRepository.getById(userId)
                 .orElseThrow(() -> new FindException("User is not found!"));
 
         Optional<UserBook> userBook = userBookRepository.findByUserAndBook(user.getUserId(), bookId);

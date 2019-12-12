@@ -28,9 +28,9 @@ public class UserBookController {
     @PutMapping("/addUserBook")
     public ResponseEntity<UserBook> addBookToUsersList(
             @RequestParam(value = "book") int bookId,
-            @RequestParam(value = "user") String userEmail
+            @RequestParam(value = "user") int userId
     ) {
-        return ResponseEntity.ok().body(userBookService.addUsersBook(bookId, userEmail));
+        return ResponseEntity.ok().body(userBookService.addUsersBook(bookId, userId));
     }
 
     @PutMapping("/deleteUserBook")

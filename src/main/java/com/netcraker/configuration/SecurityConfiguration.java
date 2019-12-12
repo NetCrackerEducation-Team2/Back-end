@@ -40,9 +40,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "api/profile/**","**", "/api/books").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/announcements/**", "/auth/**", "/admins/create","/ws/**","/api/searching-history/add").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**","**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "/api/ws/**", "/api/ws/getChat", "api/profile/**", "/api/friends/**","**", "/api/books").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/announcements/**", "/auth/**", "/admins/create", "/ws/**", "/api/ws/**", "/api/searching-history/add").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**", "/api/friends/**","/api/ws/**","**").permitAll()
 //                .antMatchers(HttpMethod.POST, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
 //                .antMatchers(HttpMethod.DELETE, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
 //                .antMatchers(HttpMethod.PUT, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
@@ -61,9 +61,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     protected PasswordEncoder passwordEncoder() {
-        // Code below is only for test purpose
-        // In production change to return an instance of BCryptPasswordEncoder
-       return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder();
+
     }
 
     @Override

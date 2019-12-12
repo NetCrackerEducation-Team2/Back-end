@@ -6,6 +6,7 @@ import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.model.mapper.UserRowMapper;
 import com.netcraker.repositories.UserRepository;
+import com.netcraker.repositories.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Optional;
 public class UserRepositoryImpl implements UserRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(UserRepositoryImpl.class);
+    private final UserRoleRepository userRoleRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${user.findByEmail}")
@@ -72,12 +75,6 @@ public class UserRepositoryImpl implements UserRepository {
         Object[] params = {email};
         List<User> users = jdbcTemplate.query(sqlFindByEmail, params, new UserRowMapper());
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
-    }
-
-    @Override
-    public List<User> findById(int id) {
-        Object[] params = {id};
-        return jdbcTemplate.query(sqlListUsers, params, new UserRowMapper());
     }
 
     @Override
@@ -139,20 +136,22 @@ public class UserRepositoryImpl implements UserRepository {
         List<User> users = jdbcTemplate.query(sqlGetById, params, new UserRowMapper());
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
-
+    @Transactional
     @Override
     public Optional<User> insert(User entity) {
         logger.info("trying to add user to db: " + entity);
         Object[] params = {entity.getFullName(), entity.getPassword(), entity.getEmail(),
                 new Timestamp(System.currentTimeMillis()), entity.getEnabled(), entity.getPhotoPath()};
         jdbcTemplate.update(sqlInsert, params);
-
-        return findByEmail(entity.getEmail());
+        Optional<User> user = findByEmail(entity.getEmail());
+        for (Role role : entity.getRoles()) {
+            userRoleRepository.insert(user.get(), role);
+        }
+        return user;
     }
 
     @Override
     public Optional<User> update(User entity) {
-
         Object[] params = {entity.getPassword(),
                 entity.getEmail(),
                 entity.getEnabled(),

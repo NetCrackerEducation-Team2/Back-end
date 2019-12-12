@@ -8,6 +8,7 @@ import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Page;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
+import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.repositories.impl.RoleRepositoryImpl;
@@ -38,15 +39,16 @@ public class UserServiceImpl implements UserService {
     private final PageService pageService;
     private final UserRepository userRepository;
     private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
-    private final RoleRepositoryImpl roleRepository;
+    private final RoleRepository roleRepository;
     private final UserRoleRepositoryImpl userRoleRepositoryImpl;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-
     @Override
     public User createUsualUser(User user) {
+        Role USER_ROLE = roleRepository.findByName("USER").orElseThrow(InternalError::new);
         user.setEnabled(false);
+        user.setRoles(Collections.singletonList(USER_ROLE));
         final User registered = createUser(user);
         final AuthorizationLinks authorizationLink = authorizationRepositoryImpl.creteAuthorizationLinks(registered);
         emailSender.sendActivationCode(user, authorizationLink);
@@ -104,7 +106,7 @@ public class UserServiceImpl implements UserService {
             throw new FailedToRegisterException("Email is already used");
         }
         //for hashing
-        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         final User registered = userRepository.insert(user)
                 .orElseThrow(() -> new FailedToRegisterException("Error in creating user! Email is free, but creation query failure."));
@@ -116,8 +118,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize) {
-        // TODO should we set user roles here?
-        searchExpression = "%" + searchExpression + "%";
+        searchExpression = "%" + searchExpression.trim() + "%";
         Role user = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
         if (!currentUser.isPresent() || roleRepository.getAllRoleById(currentUser.get().getUserId()).contains(user)) {
             int total = userRepository.getFindByEmailOrFullNameFilterByRoleCount(searchExpression, user);
@@ -145,7 +146,6 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             return null;
         }
-        assert user != null;
         final List<Role> roles = roleRepository.getAllRoleById(user.getUserId());
         user.setRoles(roles);
         return user;
@@ -193,11 +193,6 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.update(user)
                 .orElseThrow(() -> new UpdateException("Cannot update password"));
-    }
-
-    @Override
-    public List<User> findById(int userId) {
-        return userRepository.findById(userId);
     }
 
     @Override

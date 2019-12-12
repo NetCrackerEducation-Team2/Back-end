@@ -20,5 +20,7 @@ public class BookReview {
     @NotNull @Min(1)
     private Integer bookId;
     private boolean published;
+    private Book book;
+    private User user;
     private LocalDateTime creationTime;
 }

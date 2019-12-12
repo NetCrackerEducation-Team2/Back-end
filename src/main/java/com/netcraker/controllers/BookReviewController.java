@@ -38,6 +38,13 @@ public class BookReviewController {
                 .body(bookReviewService.createBookReview(bookReview)
                         .orElseThrow(() -> new CreationException("Cannot create book review")));
     }
+    @GetMapping
+    public ResponseEntity<Page<BookReview>> getBookReviews(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        Page<BookReview> pagination = bookReviewService.getBookReviewsPagination(page, pageSize);
+        return new ResponseEntity<>(pagination, HttpStatus.OK);
+    }
 
     @GetMapping("all/{bookId}")
     public ResponseEntity<Page<BookReview>> getBookReview(

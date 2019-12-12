@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping({"/api/users-book"})
-@CrossOrigin(methods={RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+@CrossOrigin(methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 @RequiredArgsConstructor
 public class UserBookController {
 
@@ -25,4 +25,35 @@ public class UserBookController {
         return ResponseEntity.ok().body(userBookService.getPage(userId, page, pageSize));
     }
 
+    @PutMapping("/addUserBook")
+    public ResponseEntity<UserBook> addBookToUsersList(
+            @RequestParam(value = "book") int bookId,
+            @RequestParam(value = "user") String userEmail
+    ) {
+        return ResponseEntity.ok().body(userBookService.addUsersBook(bookId, userEmail));
+    }
+
+    @PutMapping("/deleteUserBook")
+    public ResponseEntity<?> deleteBookFromUsersList(
+            @RequestParam(value = "userBook") int userBook
+    ) {
+        userBookService.deleteUsersBook(userBook);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/markReadUserBook")
+    public ResponseEntity<UserBook> markReadUserBook(
+            @RequestParam(value = "userBook") int userBook,
+            @RequestParam(value = "value") boolean value
+    ) {
+        return ResponseEntity.ok().body(userBookService.setReadMark(userBook, value));
+    }
+
+    @PutMapping("/markFavoriteUserBook")
+    public ResponseEntity<UserBook> markFavoriteUserBook(
+            @RequestParam(value = "userBook") int userBook,
+            @RequestParam(value = "value") boolean value
+    ) {
+        return ResponseEntity.ok().body(userBookService.setFavoriteMark(userBook, value));
+    }
 }

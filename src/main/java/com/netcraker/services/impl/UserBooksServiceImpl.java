@@ -28,22 +28,42 @@ public class UserBooksServiceImpl implements UserBookService {
     }
 
     @Override
-    public void setReadMark(int usersBookId, boolean value) {
+    public UserBook addUsersBook(UserBook newUserBook) {
+        UserBook res = userBookRepository.(newUserBook);
+        return userBookRepository
+                .getById(usersBookId)
+                .orElseThrow(() -> new FindException("UserBook is not found"));
+
+    }
+
+    @Override
+    public void deleteUsersBook(int usersBookId) {
+        userBookRepository.delete(usersBookId);
+    }
+
+    @Override
+    public UserBook setReadMark(int usersBookId, boolean value) {
         UserBook userBook = userBookRepository
                 .getById(usersBookId)
                 .orElseThrow(() -> new FindException("UserBook is not found"));
 
         userBook.setReadMark(value);
         userBookRepository.update(userBook);
+        return userBookRepository
+                .getById(usersBookId)
+                .orElseThrow(() -> new FindException("UserBook is not found"));
     }
 
     @Override
-    public void setFavoriteMark(int usersBookId, boolean value) {
+    public UserBook setFavoriteMark(int usersBookId, boolean value) {
         UserBook userBook = userBookRepository
                 .getById(usersBookId)
                 .orElseThrow(() -> new FindException("UserBook is not found"));
 
         userBook.setFavoriteMark(value);
         userBookRepository.update(userBook);
+        return userBookRepository
+                .getById(usersBookId)
+                .orElseThrow(() -> new FindException("UserBook is not found"));
     }
 }

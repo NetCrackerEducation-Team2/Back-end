@@ -1,5 +1,6 @@
 package com.netcraker.services.impl;
 
+import com.netcraker.exceptions.CreationException;
 import com.netcraker.exceptions.RequiresAuthenticationException;
 import com.netcraker.model.*;
 import com.netcraker.model.constants.NotificationTypeMessage;
@@ -12,8 +13,10 @@ import com.netcraker.services.NotificationService;
 import com.netcraker.services.PageService;
 import com.netcraker.services.UserInfoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +27,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationServiceImp implements NotificationService {
-
-    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+    private final SimpMessagingTemplate simpMessagingTemplate;
     private final NotificationRepository notificationRepository;
     private final NotificationObjectRepository notificationObjectRepository;
     private final PageService pageService;
     private final UserInfoService userInfoService;
     private final NotificationMessageRepository notificationMessageRepository;
+    private final static String destinationTopic = "/topic/notifications/";
 
     private static NotificationObject makeNotificationObject(int notificationTypeId, int notificationMessageId, int entityId, int userId) {
         return NotificationObject.builder()
@@ -114,14 +118,31 @@ public class NotificationServiceImp implements NotificationService {
 
         NotificationObject nObj = NotificationServiceImp.makeNotificationObject(notificationTypeId, notificationMessageId, entityId, userId);
         nObj.setSendAll(sendAll);
-        logger.info("Trying to creating notification object: " + nObj.toString());
+        log.info("Trying to creating notification object: " + nObj.toString());
         Optional<NotificationObject> nObjCreated = notificationObjectRepository.insert(nObj);
-        if (!sendAll && nObjCreated.isPresent()) {
+        if (!nObjCreated.isPresent()) {
+            throw new CreationException("Error in creating notification object!");
+        }
+        if (!sendAll) {
             NotificationObject notificationObject = nObjCreated.orElse(null);
             Notification notification = NotificationServiceImp.makeNotification(notificationObject.getNotificationObjectId(), notifierId);
-            notificationRepository.insert(notification);
+
+            Optional<Notification> createdNotification = notificationRepository.insert(notification);
+            if (!createdNotification.isPresent()) {
+                throw new CreationException("Error in creating notification!");
+            }
+            System.out.println(notifierId);
+            this.simpMessagingTemplate.convertAndSend(destinationTopic + notifierId, makeNotificationMessage(createdNotification.orElse(null)));
         }
         return true;
+    }
+
+    private NotificationMessage makeNotificationMessage(Notification notification){
+        return NotificationMessage.builder()
+                .notificationId(notification.getNotificationId())
+                .notificationMessage(notification.getNotificationMessage())
+                .creationTime(notification.getNotificationObject().getCreationTime())
+                .build();
     }
 
     private int insertNewNotificationMessage(String message) {

@@ -21,16 +21,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
-        logger.info("JwtAuthorizationFilter constructed ");
+        logger.info("JwtAuthorizationFilter constructed");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
 
-        logger.info("JwtAuthorizationFilter is doing filter");
-        logger.info("Method: " + request.getMethod());
-        logger.info("URI: " + request.getRequestURI());
+        logger.info("JwtAuthorizationFilter is filtering");
 
         if (request.getRequestURI().startsWith("/auth/")) {
             filterChain.doFilter(request, response);
@@ -43,7 +41,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        logger.info("Authentication set in Security context holder");
+        logger.info("Authentication set in security context holder");
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }
@@ -69,19 +67,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     return new UsernamePasswordAuthenticationToken(username, null, null);
                 }
             }
-//            catch (ExpiredJwtException exception) {
-////                s("Request to parse expired JWT : {} failed : {}", token, exception.getMessage());
-//            } catch (UnsupportedJwtException exception) {
-////                log.warn("Request to parse unsupported JWT : {} failed : {}", token, exception.getMessage());
-//            } catch (MalformedJwtException exception) {
-////                log.warn("Request to parse invalid JWT : {} failed : {}", token, exception.getMessage());
-//            } catch (SignatureException exception) {
-////                log.warn("Request to parse JWT with invalid signature : {} failed : {}", token, exception.getMessage());
-//            } catch (IllegalArgumentException exception) {
-////                log.warn("Request to parse empty or null JWT : {} failed : {}", token, exception.getMessage());
-//            }
             catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
         }
         return null;

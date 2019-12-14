@@ -17,6 +17,14 @@ public class UserBookController {
     @Autowired
     private UserBookService userBookService;
 
+    @GetMapping("/getUserBook")
+    public ResponseEntity<UserBook> getUsersBook(
+            @RequestParam(value = "book") int bookId,
+            @RequestParam(value = "user") int userId
+    ) {
+        return ResponseEntity.ok().body(userBookService.getUserBook(bookId, userId));
+    }
+
     @GetMapping("/get-page-by-user/{userId}")
     public ResponseEntity<Page<UserBook>> getUsersBooksPageByUser(
             @PathVariable("userId") int userId,

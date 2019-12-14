@@ -26,6 +26,12 @@ public class UserBooksServiceImpl implements UserBookService {
     private final UserRepository userRepository;
 
     @Override
+    public UserBook getUserBook(int bookId, int userId) {
+        Optional<UserBook> item = userBookRepository.findByUserAndBook(userId, bookId);
+        return item.orElse(UserBook.builder().userBookId(-1).build());
+    }
+
+    @Override
     public Page<UserBook> getPage(int userId, int page, int pageSize) {
         int pages = pageService.getPagesCount(userBookRepository.countByUserId(userId), pageSize);
 

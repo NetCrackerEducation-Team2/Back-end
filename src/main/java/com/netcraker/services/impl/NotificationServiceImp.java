@@ -132,7 +132,7 @@ public class NotificationServiceImp implements NotificationService {
                 throw new CreationException("Error in creating notification!");
             }
             System.out.println(notifierId);
-            this.simpMessagingTemplate.convertAndSend(destinationTopic + notifierId, makeNotificationMessage(createdNotification.orElse(null)));
+            this.simpMessagingTemplate.convertAndSend(destinationTopic + notifierId, this.getNotificationCount(notifierId));
         }
         return true;
     }
@@ -185,5 +185,10 @@ public class NotificationServiceImp implements NotificationService {
         int offset = currentPage * pageable.getPageSize();
         List<Notification> list = notificationRepository.getUserNotifications(user.getUserId(), pageable.getPageSize(), offset).orElse(Collections.emptyList());
         return new Page<>(currentPage, pagesCount, list);
+    }
+
+    @Override
+    public int getNotificationCount(int id) {
+        return notificationRepository.getUserNotificationsCount(id);
     }
 }

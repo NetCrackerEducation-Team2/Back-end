@@ -16,6 +16,8 @@ package com.netcraker.services;
       (14, 'Your book review was published by moderator.')
       (15, 'Your announcement was published by moderator.')
       (16, 'Your book review was published by moderator.')
+      (17, 'Your announcement was unpublished by moderator.')
+      (18, 'Your announcement was published by moderator.')
 */
 
 import com.netcraker.model.Notification;
@@ -31,4 +33,5 @@ public interface NotificationService {
     <T> boolean sendNotification(NotificationTypeName notificationTypeName, NotificationTypeMessage notificationTypeMessage, T entity);
     <T> boolean sendNotification(NotificationTypeName notificationTypeName, String notificationMessage, T entity);
     Page<Notification> getUserNotifications(Pageable pageable);
+    int getNotificationCount(int id);
 }

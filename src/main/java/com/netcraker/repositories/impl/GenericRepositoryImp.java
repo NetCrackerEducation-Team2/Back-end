@@ -80,6 +80,7 @@ public abstract class GenericRepositoryImp<T extends Entity> implements GenericR
         return jdbcTemplate.queryForObject(getSqlCountQuery(), int.class);
     }
 
+
     protected PreparedStatement setInsertQueryParams(T entity, PreparedStatement ps) {
         setParams(entity, ps, 1);
         return ps;

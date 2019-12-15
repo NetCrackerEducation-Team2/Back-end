@@ -11,3 +11,5 @@ alter table review_comments rename column author_id to user_id;
 alter table users_achviments rename to users_achievements;
 alter table users_achievements rename column users_achviments_id to users_achievements_id;
 alter table users_achievements rename column achievements_id to achievement_id;
+
+ALTER TABLE notification_objects ALTER COLUMN creation_time TYPE timestamp with time zone;

@@ -70,9 +70,8 @@ public class AnnouncementServiceImp implements AnnouncementService {
     @Override
     public void publishAnnouncement(int id) {
         announcementRepository.publish(id);
-        //Announcement announcement = announcementRepository.getById(id).orElse(null);
-        //notificationService.sendNotification(10, 15, announcement);
-
+        Announcement announcement = announcementRepository.getById(id).orElse(null);
+        notificationService.sendNotification(NotificationTypeName.ANNOUNCEMENTS, NotificationTypeMessage.PUBLISH_ANNOUNCEMENT, announcement);
     }
 
     @Override

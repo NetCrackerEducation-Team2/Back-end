@@ -45,7 +45,6 @@ public class NotificationRepositoryImp extends GenericRepositoryImp<Notification
     @Value("${notifications.count}")
     private String sqlGetCount;
 
-
     public NotificationRepositoryImp(NotificationRowMapper notificationObjectRowMapper, JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
         this.notificationRowMapper = notificationObjectRowMapper;
@@ -87,7 +86,6 @@ public class NotificationRepositoryImp extends GenericRepositoryImp<Notification
     protected String getSqlCountQuery() {
         return sqlGetCount;
     }
-
 
     @Override
     public int getUserNotificationsCount(int user_id) {

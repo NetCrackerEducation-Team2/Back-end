@@ -27,4 +27,11 @@ public class NotificationController {
         Page<Notification> pagination = notificationService.getUserNotifications(Pageable.of(page, pageSize));
         return new ResponseEntity<>(pagination, HttpStatus.OK);
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getNotificationCount(
+            @RequestParam int userId) {
+        int count = notificationService.getNotificationCount(userId);
+        return new ResponseEntity<>(count, HttpStatus.OK);
+    }
 }

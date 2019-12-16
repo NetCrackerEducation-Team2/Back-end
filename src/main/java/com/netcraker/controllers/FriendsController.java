@@ -23,6 +23,7 @@ public class FriendsController extends BaseController {
 
     @GetMapping("/friends/getFriendInfo")
     public FriendStatus getFriendInfo(@RequestParam int targetUserId) {
+        // fixme move to service
         return friendsService.getFriendInfo(getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new), targetUserId);
     }
 

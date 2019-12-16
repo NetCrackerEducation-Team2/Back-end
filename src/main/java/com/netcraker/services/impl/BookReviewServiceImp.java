@@ -38,7 +38,9 @@ public class BookReviewServiceImp implements BookReviewService {
         BookReview insertedBookReview = inserted.orElseThrow(InternalError::new);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
         notificationService.sendNotification(NotificationTypeName.BOOK_REVIEWS, NotificationTypeMessage.CREATE_BOOK_REVIEWS, insertedBookReview);
-        // inserting corresponding activity
+
+        // posting corresponding activity
+
         activityService.saveActivity(
                 Activity.builder()
                         .addBookReviewActivity(

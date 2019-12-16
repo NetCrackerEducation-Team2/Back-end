@@ -4,10 +4,7 @@ import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.exceptions.FindException;
 import com.netcraker.exceptions.NoUserRoleProvided;
 import com.netcraker.exceptions.UpdateException;
-import com.netcraker.model.AuthorizationLinks;
-import com.netcraker.model.Page;
-import com.netcraker.model.Role;
-import com.netcraker.model.User;
+import com.netcraker.model.*;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
@@ -156,6 +153,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateAdminModerator(User newUser) {
         Optional<User> userFromDB = userRepository.findByEmail(newUser.getEmail());
+        List<Role> roles = roleRepository.getAllRoleById(userFromDB.get().getUserId());
+        if (roles.size() == 1) {
+            for (Role role: roles) {
+                if(role.getName().equals("SUPER_ADMIN")){
+                    throw new UpdateException("Error in updating");
+                }
+            }
+        }
         if(!userFromDB.get().getEnabled()){
             throw new UpdateException("Error in updating");
         }
@@ -178,6 +183,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteAdminModerator(String email) {
         final User user = userRepository.findByEmail(email).get();
+        List<Role> roles = roleRepository.getAllRoleById(user.getUserId());
+        if (roles.size() == 1) {
+            for (Role role: roles) {
+                if(role.getName().equals("SUPER_ADMIN")){
+                    throw new UpdateException("Error in deleting");
+                }
+            }
+        }
         if(user.getEnabled()){
             user.setEnabled(false);
             userRepository.update(user);

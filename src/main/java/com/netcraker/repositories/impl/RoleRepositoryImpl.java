@@ -41,6 +41,9 @@ public class RoleRepositoryImpl implements RoleRepository {
     @Value("${role.findByUserId}")
     private String sqlSelectByUserId;
 
+    @Value("${role.findAllByUserId}")
+    private String sqlSelectAllByUserId;
+
     @Value("${role.sqlGetAll}")
     private String sqlGetAll;
 
@@ -52,8 +55,14 @@ public class RoleRepositoryImpl implements RoleRepository {
     }
     public List<Role> getAllRoleById(int userId) {
         Object[] params = { userId };
-        return jdbcTemplate.query(sqlSelectByUserId, params, new RoleRowMapper());
+        return jdbcTemplate.query(sqlSelectAllByUserId, params, new RoleRowMapper());
     }
+
+    public Role getRoleByUserId(int userId) {
+        Object[] params = { userId };
+        return jdbcTemplate.queryForObject(sqlSelectByUserId, params, new RoleRowMapper());
+    }
+
     public Optional<Role> getById(int roleId) {
         Object[] params = { roleId };
         List<Role> roles =  jdbcTemplate.query(sqlSelectRoleId, params, new RoleRowMapper());

@@ -147,7 +147,7 @@ public class UserRepositoryImpl implements UserRepository {
         for (Role role : entity.getRoles()) {
             userRoleRepository.insert(user.get(), role);
         }
-        return user;
+        return findByEmail(entity.getEmail());
     }
 
     @Override
@@ -165,7 +165,6 @@ public class UserRepositoryImpl implements UserRepository {
             throw new UpdateException("User is not found!");
         if (changedRowsCount > 1)
             throw new UpdateException("Multiple update! Only one user can be changed!");
-        Optional<User> user = getById(entity.getUserId());
         return getById(entity.getUserId());
     }
 

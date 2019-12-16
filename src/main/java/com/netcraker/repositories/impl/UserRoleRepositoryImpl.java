@@ -56,18 +56,15 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
         return jdbcTemplate.query(sqlSelectByUserId, params, new UserRoleRowMapper());
     }
 
-    public Optional<UserRole> update(User user, Role role) {
-        Object[] params = {role.getRoleId() , user.getUserId()};
-        int changedRowsCount = jdbcTemplate.update(sqlUpdateRoleUser, params);
-
-        if (changedRowsCount == 0){
-            throw new UpdateException("Role or user is not found!");
-        }
-        if (changedRowsCount > 1){
-            throw new UpdateException("Multiple update!");
-        }
-        return getById(user.getUserId());
-    }
+//    public Optional<UserRole> update(User user, Role role, int oldRole) {
+//        Object[] params = {role.getRoleId() , user.getUserId(), oldRole};
+//        int changedRowsCount = jdbcTemplate.update(sqlUpdateRoleUser, params);
+//
+//        if (changedRowsCount == 0){
+//            throw new UpdateException("Role or user is not found!");
+//        }
+//        return getById(user.getUserId());
+//    }
 
     public boolean delete(int id)  {
         Object[] params = { id };

@@ -29,15 +29,13 @@ public class AdminModeratorController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("User must have only valid properties");
         }
-        List<Role> roles = user.getRoles();
-        userService.createAdminModerator(user, roles);
+        userService.createAdminModerator(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("admins/update")
     public ResponseEntity<?> updateAdminModerator(@RequestBody User user) {
-        List<Role> roles = user.getRoles();
-        userService.updateAdminModerator(user, roles);
+        userService.updateAdminModerator(user);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

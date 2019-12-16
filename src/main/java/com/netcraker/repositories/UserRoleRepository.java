@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRoleRepository extends BaseOptionalRepository<UserRole> {
-    Optional<UserRole> update(User user, Role role);
+//    Optional<UserRole> update(User user, Role role, int oldRole);
     Optional<UserRole> insert(User user, Role role);
     List<UserRole> getAll(int userId);
 }

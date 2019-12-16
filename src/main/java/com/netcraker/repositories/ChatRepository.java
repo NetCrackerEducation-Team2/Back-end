@@ -2,12 +2,14 @@ package com.netcraker.repositories;
 
 import com.netcraker.model.Chat;
 import com.netcraker.model.Message;
+import com.netcraker.model.User;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ChatRepository {
     int insert();
+    List<User> listChatUsers(String chatName);
     Optional<Chat> createLocalChat(int[] param);
     Optional<Chat> createGroupChat(String chatName, int chatId);
     Optional<Chat> findLocalChat(int chatId);

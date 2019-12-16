@@ -2,10 +2,8 @@ package com.netcraker.repositories.impl;
 
 import com.netcraker.model.Chat;
 import com.netcraker.model.Message;
-import com.netcraker.model.mapper.ChatRowMapper;
-import com.netcraker.model.mapper.GroupChatReferenceRowMapper;
-import com.netcraker.model.mapper.GroupChatRowMapper;
-import com.netcraker.model.mapper.MessageRowMapper;
+import com.netcraker.model.User;
+import com.netcraker.model.mapper.*;
 import com.netcraker.repositories.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -64,6 +62,15 @@ public class ChatRepositoryImpl implements ChatRepository {
 
     @Value("${chat.findMessageById}")
     private String sqlFindByMessageId;
+
+    @Value("${chat.getChatUsers}")
+    private String getChatUsers;
+
+    @Override
+    public List<User> listChatUsers(String chatName) {
+        Object[] param = { chatName };
+        return jdbcTemplate.query(getChatUsers, param, new UserRowMapper());
+    }
 
     @Override
     public List<Message> listMessage(int chat_id) {

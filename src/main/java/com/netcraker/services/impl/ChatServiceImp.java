@@ -34,6 +34,11 @@ public class ChatServiceImp implements ChatService {
     }
 
     @Override
+    public List<User> getUsers(String chatName) {
+        return chatRepository.listChatUsers(chatName);
+    }
+
+    @Override
     public List<Message> getGroupChatMessages(String chatName) {
         Optional<Chat> chatFromDB = chatRepository.findGroupChat(chatName);
         return generationMessages(chatFromDB);
@@ -65,7 +70,7 @@ public class ChatServiceImp implements ChatService {
     public Chat createChat(int friendId, int userCurrentId) {
         Optional<Chat> chatFromDB = chatRepository.findLocalChat(new int[]{friendId, userCurrentId});
         if (chatFromDB.isPresent()) {
-            throw new CreationException("Error in creating chat! Creation query failure");
+            return chatFromDB.orElseThrow(() -> new CreationException("Error in creating chat! Creation query failure"));
         }
         if (friendId == 0) {
             throw new CreationException("Error in creating chat! Didn't select a friend");
@@ -103,7 +108,8 @@ public class ChatServiceImp implements ChatService {
 
     @Override
     public Chat getChat(int friendId, int userCurrentId) {
-        return chatRepository.findLocalChat(new int[]{friendId, userCurrentId}).orElseThrow(() -> new FindException("Error in getting chat!"));
+        Chat chat = chatRepository.findLocalChat(new int[]{friendId, userCurrentId}).orElseThrow(() -> new FindException("Error in getting chat!"));
+        return chat;
     }
 
     @Override
@@ -131,6 +137,33 @@ public class ChatServiceImp implements ChatService {
             }
         }
         return newGroupChat;
+    }
+
+    @Override
+    public Chat addChatUser(int[] usersId, String chatName) {
+        if(chatName==null){
+            throw  new CreationException("Error in creating chat! Didn't select a friend or names are equals");
+        }
+        Optional<Chat> chatFromDB = chatRepository.findGroupChat(chatName);
+        if (!chatFromDB.isPresent()) {
+            return chatFromDB.orElseThrow(()-> new CreationException("Error in creating chat! Creation query failure"));
+        }
+        ///check
+        if (usersId.length == 0 ) {
+            throw new CreationException("Error in creating chat! Didn't select a friend or names are equals");
+        }
+
+//        int chatId = chatRepository.insert();
+//        Chat newGroupChat = chatRepository.createGroupChat(chatName, chatId)
+//                .orElseThrow(() -> new CreationException("Error in creating group chat! Creation query failure."));
+
+        for (int id: usersId) {
+            Optional<Chat> groupChatReference = chatRepository.createGroupChatReference(id, chatFromDB.get().getGroupChatId());
+            if(!groupChatReference.isPresent()) {
+                throw new CreationException("Error in creating reference in chat! Didn't select a friend");
+            }
+        }
+        return chatFromDB.orElseThrow(()->new CreationException("error in adding friends"));
     }
 
 }

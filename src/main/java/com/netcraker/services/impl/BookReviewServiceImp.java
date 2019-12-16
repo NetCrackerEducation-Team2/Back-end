@@ -14,6 +14,7 @@ import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,11 +28,13 @@ public class BookReviewServiceImp implements BookReviewService {
     private final ApplicationEventPublisher eventPublisher;
     private final NotificationService notificationService;
 
+    @Transactional
     @Override
     public Optional<BookReview> createBookReview(BookReview bookReview) {
-        final Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
+        Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
+        BookReview insertedBookReview = inserted.orElseThrow(InternalError::new);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
-        notificationService.sendNotification(NotificationTypeName.BOOK_REVIEWS, NotificationTypeMessage.CREATE_BOOK_REVIEWS, inserted);
+        notificationService.sendNotification(NotificationTypeName.BOOK_REVIEWS, NotificationTypeMessage.CREATE_BOOK_REVIEWS, insertedBookReview);
         return inserted;
     }
 

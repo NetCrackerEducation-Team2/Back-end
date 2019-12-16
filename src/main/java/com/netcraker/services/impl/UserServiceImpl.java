@@ -1,9 +1,6 @@
 package com.netcraker.services.impl;
 
-import com.netcraker.exceptions.FailedToRegisterException;
-import com.netcraker.exceptions.FindException;
-import com.netcraker.exceptions.NoUserRoleProvided;
-import com.netcraker.exceptions.UpdateException;
+import com.netcraker.exceptions.*;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Page;
 import com.netcraker.model.Role;
@@ -11,12 +8,11 @@ import com.netcraker.model.User;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
-import com.netcraker.repositories.impl.RoleRepositoryImpl;
 import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.PageService;
+import com.netcraker.services.UserInfoService;
 import com.netcraker.services.UserService;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepositoryImpl userRoleRepositoryImpl;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
+    private final UserInfoService userInfoService;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Override
     public User createUsualUser(User user) {
@@ -117,22 +114,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize) {
+    public Page<User> searchUser(String searchExpression, int page, int pageSize) {
+        User currentUser = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
         searchExpression = "%" + searchExpression.trim() + "%";
         Role user = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
-        if (!currentUser.isPresent() || roleRepository.getAllRoleById(currentUser.get().getUserId()).contains(user)) {
-            int total = userRepository.getFindByEmailOrFullNameFilterByRoleCount(searchExpression, user);
-            int pagesCount = pageService.getPagesCount(total, pageSize);
-            int currentPage = pageService.getRestrictedPage(page, pagesCount);
-            int offset = currentPage * pageSize;
-            return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRole(searchExpression, user, offset, pageSize));
+        if (roleRepository.getAllRoleById(currentUser.getUserId()).contains(user)) {
+           return searchFromCasualUsers(searchExpression, currentUser, page, pageSize);
         } else {
-            int total = userRepository.getFindByEmailOrFullNameFilterByRoleWithoutCount(searchExpression, user);
-            int pagesCount = pageService.getPagesCount(total, pageSize);
-            int currentPage = pageService.getRestrictedPage(page, pagesCount);
-            int offset = currentPage * pageSize;
-            return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRoleWithout(searchExpression, user, offset, pageSize));
+            return searchFromAdmins(searchExpression, currentUser, page, pageSize);
         }
+    }
+
+    private Page<User> searchFromCasualUsers(String searchExpression, User currentUser, int page, int pageSize) {
+        final Role USER = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
+        int total = userRepository.getFindByEmailOrFullNameFilterByRoleCount(searchExpression, USER, currentUser.getUserId());
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRole(searchExpression, USER, currentUser.getUserId(), offset, pageSize));
+    }
+
+    private Page<User> searchFromAdmins(String searchExpression, User currentUser, int page, int pageSize) {
+        final Role USER = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
+        int total = userRepository.getFindByEmailOrFullNameFilterByRoleWithoutCount(searchExpression, USER, currentUser.getUserId());
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRoleWithout(searchExpression, USER, currentUser.getUserId(), offset, pageSize));
     }
 
     @Override

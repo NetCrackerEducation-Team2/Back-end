@@ -19,6 +19,6 @@ public interface UserService {
     boolean activateUser(String code);
     boolean equalsPassword(User user, String password);
     User changePassword(int userId, String oldPass, String newPass);
-    Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize);
+    Page<User> searchUser(String searchExpression, int page, int pageSize);
     @NonNull List<Integer> getListId();
 }

@@ -51,18 +51,37 @@ public class FriendServiceImpl implements FriendsService {
     public void sendFriendRequest(int sourceUserId, int destinationUserId) {
         FriendStatus friendInfo = getFriendInfo(sourceUserId, destinationUserId);
         if (!friendInfo.isFriend() && !friendInfo.isAwaitFriendRequestConfirmation()) {
+            FriendInvitation invitation = FriendInvitation.builder()
+                    .invitationSource(sourceUserId)
+                    .invitationTarget(destinationUserId)
+                    .accepted(null)
+                    .creationTime(new Timestamp(System.currentTimeMillis()))
+                    .build();
+            validateFriendInvitation(invitation);
             Optional<FriendInvitation> result = friendInvitationRepository.insert(
-                    FriendInvitation.builder()
-                            .invitationSource(sourceUserId)
-                            .invitationTarget(destinationUserId)
-                            .accepted(null)
-                            .creationTime(new Timestamp(System.currentTimeMillis()))
-                            .build()
+                    invitation
             );
+
             FriendInvitation friendInvitation = result.orElseThrow(FailedToSendFriendRequestException::new);
             notificationService.sendNotification(NotificationTypeName.INVITATIONS, generateFriendInvitationNotificationMessage(sourceUserId), friendInvitation);
         } else {
             throw new InvalidRequest("Friend request has been already sent or you are already friends");
+        }
+    }
+
+    private void validateFriendInvitation(FriendInvitation invitation) {
+        // check for adding to friend myself
+        if (invitation.getInvitationSource().equals(invitation.getInvitationTarget())) {
+            throw new OperationForbiddenException("Sending friend invitation to myself is not allowed");
+        }
+        // checking for users roles
+        User userSource = userService.findByUserId(invitation.getInvitationSource());
+        User userTarget = userService.findByUserId(invitation.getInvitationTarget());
+        // if source is casual user than target must be user too
+        boolean isSourceUser = userSource.getRoles().stream().map(Role::getName).anyMatch(roleName -> roleName.equalsIgnoreCase("USER"));
+        boolean isTargetUser = userTarget.getRoles().stream().map(Role::getName).anyMatch(roleName -> roleName.equalsIgnoreCase("USER"));
+        if (isSourceUser != isTargetUser) {
+            throw new OperationForbiddenException("Users & admins can not be friends)");
         }
     }
 

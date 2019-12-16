@@ -21,7 +21,6 @@ public class Announcement implements Entity {
     private Integer userId;
     private boolean published;
     private LocalDateTime creationTime;
-    private Integer bookId;
 
     @Override
     public Integer getId() {

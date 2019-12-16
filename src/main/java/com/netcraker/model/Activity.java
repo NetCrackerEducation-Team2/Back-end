@@ -26,7 +26,7 @@ public class Activity {
                     .creationTime(new Timestamp(System.currentTimeMillis()));
         }
 
-        public ActivityBuilder addBookReviewActivity(Book book, User user) {
+        public ActivityBuilder addBookReviewActivity(BookReview bookReview, Book book, User user) {
             return this.name("CREATE_REVIEW")
                     .description(user.getFullName() + " created new book review for book " + book.getTitle())
                     .userId(user.getUserId())

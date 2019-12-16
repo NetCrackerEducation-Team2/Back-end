@@ -33,17 +33,19 @@ public class BookReviewServiceImp implements BookReviewService {
     @Transactional
     @Override
     public Optional<BookReview> createBookReview(BookReview bookReview) {
+        // inserting book review
+        Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
+        BookReview insertedBookReview = inserted.orElseThrow(InternalError::new);
+        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
+        notificationService.sendNotification(NotificationTypeName.BOOK_REVIEWS, NotificationTypeMessage.CREATE_BOOK_REVIEWS, insertedBookReview);
         // inserting corresponding activity
         activityService.saveActivity(
                 Activity.builder()
                         .addBookReviewActivity(
+                                insertedBookReview,
                                 bookService.getBookById(bookReview.getBookId()).orElseThrow(NoSuchElementException::new),
                                 userService.findByUserId(bookReview.getUserId())
                         ).build());
-
-        final Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
-        eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
-        notificationService.sendNotification(NotificationTypeName.BOOK_REVIEWS, NotificationTypeMessage.CREATE_BOOK_REVIEWS, inserted);
         return inserted;
     }
 

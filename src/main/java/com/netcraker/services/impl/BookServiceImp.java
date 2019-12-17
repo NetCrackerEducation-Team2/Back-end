@@ -1,14 +1,13 @@
 package com.netcraker.services.impl;
 
-import com.netcraker.model.Book;
-import com.netcraker.model.BookFilteringParam;
-import com.netcraker.model.Page;
+import com.netcraker.exceptions.RequiresAuthenticationException;
+import com.netcraker.model.*;
+import com.netcraker.model.vo.SuggestBookReq;
 import com.netcraker.repositories.BookRepository;
-import com.netcraker.services.BookService;
-import com.netcraker.services.FileService;
-import com.netcraker.services.PageService;
+import com.netcraker.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +22,8 @@ public class BookServiceImp implements BookService {
     private final BookRepository bookRepository;
     private final PageService pageService;
     private final FileService fileService;
+    private final UserInfoService userInfoService;
+    private final BookOverviewService bookOverviewService;
 
     @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize) {
@@ -56,7 +57,23 @@ public class BookServiceImp implements BookService {
 
     @Override
     public Optional<Book> createBook(Book book) {
-//        book.setSlug(new Slugify().slugify(book.getTitle()));
         return bookRepository.insert(book);
+    }
+
+    @Transactional
+    @Override
+    public Book suggestBook(SuggestBookReq suggestBookRequest) {
+        User currentUser = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
+
+        // saving book
+        Book book = this.bookRepository.insert(suggestBookRequest.convertToBook()).orElseThrow(InternalError::new);
+        // saving book overview
+        BookOverview bookOverview = suggestBookRequest.convertToBookOverview();
+        bookOverview.setBook(book);
+        bookOverview.setBookId(book.getBookId());
+        bookOverview.setUser(currentUser);
+        bookOverview.setUserId(currentUser.getUserId());
+        bookOverview = bookOverviewService.addBookOverview(bookOverview).orElseThrow(InternalError::new);
+        return book;
     }
 }

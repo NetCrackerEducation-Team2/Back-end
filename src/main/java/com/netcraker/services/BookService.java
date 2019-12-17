@@ -3,6 +3,7 @@ package com.netcraker.services;
 import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
+import com.netcraker.model.vo.SuggestBookReq;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -18,4 +19,6 @@ public interface BookService {
     Optional<Book> getBookById(int bookId);
 
     Optional<Book> getBookBySlug(String slug);
+
+    Book suggestBook(SuggestBookReq suggestBookRequest);
 }

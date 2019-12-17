@@ -20,16 +20,16 @@ import java.util.Optional;
 public class RoleIServiceImpl implements RoleService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoleIServiceImpl.class);
-    private final RoleRepository roleRepositoryImpl;
-    private final UserRoleRepository userRoleRepositoryImpl;
+    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
 
     @Override
     public Role createRole(Role role) {
-        Optional<Role> roleFromDB = roleRepositoryImpl.findByName(role.getName());
+        Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
         if (roleFromDB.isPresent()) {
             throw new FailedToRegisterException("Role is already created");
         }
-        Optional<Role> createdRoleOpt = roleRepositoryImpl.insert(role);
+        Optional<Role> createdRoleOpt = roleRepository.insert(role);
         if (!createdRoleOpt.isPresent()) {
             throw new FailedToRegisterException("Error in creating role! Creation query failure");
         }
@@ -41,22 +41,22 @@ public class RoleIServiceImpl implements RoleService {
 
     @Override
     public Role findByRoleId(int roleId) {
-        return roleRepositoryImpl.getById(roleId).orElse(null);
+        return roleRepository.getById(roleId).orElse(null);
     }
 
     @Override
     public Role findByRoleName(String name) {
-        return roleRepositoryImpl.findByName(name).orElse(null);
+        return roleRepository.findByName(name).orElse(null);
     }
 
     @Override
     public void update(Role role) {
-        roleRepositoryImpl.update(role);
+        roleRepository.update(role);
     }
 
     @Override
     public void delete(int id) {
-        userRoleRepositoryImpl.delete(id);
-        roleRepositoryImpl.delete(id);
+        userRoleRepository.delete(id);
+        roleRepository.delete(id);
     }
 }

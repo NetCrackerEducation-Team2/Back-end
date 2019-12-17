@@ -33,7 +33,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final PageService pageService;
     private final UserRepository userRepository;
-    private final AuthorizationRepository authorizationRepositoryImpl;
+    private final AuthorizationRepository authorizationRepository;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
         user.setEnabled(false);
         user.setRoles(Collections.singletonList(USER_ROLE));
         final User registered = createUser(user);
-        final AuthorizationLinks authorizationLink = authorizationRepositoryImpl.creteAuthorizationLinks(registered);
+        final AuthorizationLinks authorizationLink = authorizationRepository.creteAuthorizationLinks(registered);
         emailSender.sendActivationCode(user, authorizationLink);
         return registered;
     }
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean activateUser(String token) {
-        Optional<AuthorizationLinks> authorizationLinks = authorizationRepositoryImpl.findByActivationCode(token);
+        Optional<AuthorizationLinks> authorizationLinks = authorizationRepository.findByActivationCode(token);
         if(!authorizationLinks.isPresent() || authorizationLinks.get().isUsed()) {
             return false;
         }
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         authorizationLinks.get().setUsed(true);
         user.setEnabled(true);
         userRepository.update(user);
-        authorizationRepositoryImpl.updateAuthorizationLinks(authorizationLinks.get());
+        authorizationRepository.updateAuthorizationLinks(authorizationLinks.get());
         return true;
     }
 

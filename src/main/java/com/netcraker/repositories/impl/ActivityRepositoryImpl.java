@@ -60,7 +60,7 @@ public class ActivityRepositoryImpl implements ActivityRepository {
     @Override
     public Optional<Activity> getById(int id) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, new ActivityRowMapper()));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlGetById, new ActivityRowMapper(), id));
         } catch (IncorrectResultSizeDataAccessException e) {
             return Optional.empty();
         }
@@ -72,11 +72,10 @@ public class ActivityRepositoryImpl implements ActivityRepository {
         try {
             jdbcTemplate.update(conn -> {
                 PreparedStatement ps = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
-                ps.setInt(1, activity.getActivityId());
-                ps.setString(2, activity.getName());
-                ps.setString(3, activity.getDescription());
-                ps.setInt(4, activity.getUserId());
-                ps.setTimestamp(5, activity.getCreationTime());
+                ps.setString(1, activity.getName());
+                ps.setString(2, activity.getDescription());
+                ps.setInt(3, activity.getUserId());
+                ps.setTimestamp(4, activity.getCreationTime());
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {

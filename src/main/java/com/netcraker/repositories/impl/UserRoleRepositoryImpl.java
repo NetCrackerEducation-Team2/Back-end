@@ -6,6 +6,7 @@ import com.netcraker.model.User;
 import com.netcraker.model.UserRole;
 import com.netcraker.model.mapper.UserRoleRowMapper;
 import com.netcraker.model.mapper.UserRowMapper;
+import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(UserRoleRepositoryImpl.class);
     private final JdbcTemplate jdbcTemplate;
+    private final RoleRepository roleRepository;
 
     @Value("${roleUser.create}")
     private String sqlCreateRoleUser;
@@ -88,4 +90,8 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
         return Optional.empty();
     }
 
+    @Override
+    public List<Role> getUserRoles(int userId) {
+        return roleRepository.getAllRoleById(userId);
+    }
 }

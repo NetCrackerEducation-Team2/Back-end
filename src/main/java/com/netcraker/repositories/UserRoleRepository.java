@@ -11,4 +11,5 @@ public interface UserRoleRepository extends BaseOptionalRepository<UserRole> {
     Optional<UserRole> update(User user, Role role);
     Optional<UserRole> insert(User user, Role role);
     List<UserRole> getAll(int userId);
+    List<Role> getUserRoles(int userId);
 }

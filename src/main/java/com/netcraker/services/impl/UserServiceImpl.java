@@ -1,22 +1,18 @@
 package com.netcraker.services.impl;
 
-import com.netcraker.exceptions.FailedToRegisterException;
-import com.netcraker.exceptions.FindException;
-import com.netcraker.exceptions.NoUserRoleProvided;
-import com.netcraker.exceptions.UpdateException;
+import com.netcraker.exceptions.*;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Page;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
+import com.netcraker.repositories.UserRoleRepository;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
-import com.netcraker.repositories.impl.RoleRepositoryImpl;
-import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.PageService;
+import com.netcraker.services.UserInfoService;
 import com.netcraker.services.UserService;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +32,16 @@ import java.util.Optional;
 @PropertySource("classpath:email-messages.properties")
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final PageService pageService;
     private final UserRepository userRepository;
     private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
     private final RoleRepository roleRepository;
-    private final UserRoleRepositoryImpl userRoleRepositoryImpl;
+    private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final UserInfoService userInfoService;
+
     @Override
     public User createUsualUser(User user) {
         Role USER_ROLE = roleRepository.findByName("USER").orElseThrow(InternalError::new);
@@ -92,7 +90,7 @@ public class UserServiceImpl implements UserService {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepositoryImpl.insert(registered,roleFind)
+            userRoleRepository.insert(registered, roleFind)
                     .orElseThrow(() -> new FailedToRegisterException("Error in creating relationship between user and role"));
 
         }
@@ -117,27 +115,42 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> searchUser(String searchExpression, Optional<User> currentUser, int page, int pageSize) {
+    public Page<User> searchUser(String searchExpression, int page, int pageSize) {
+        User currentUser = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
         searchExpression = "%" + searchExpression.trim() + "%";
         Role user = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
-        if (!currentUser.isPresent() || roleRepository.getAllRoleById(currentUser.get().getUserId()).contains(user)) {
-            int total = userRepository.getFindByEmailOrFullNameFilterByRoleCount(searchExpression, user);
-            int pagesCount = pageService.getPagesCount(total, pageSize);
-            int currentPage = pageService.getRestrictedPage(page, pagesCount);
-            int offset = currentPage * pageSize;
-            return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRole(searchExpression, user, offset, pageSize));
+        if (roleRepository.getAllRoleById(currentUser.getUserId()).contains(user)) {
+            return searchFromCasualUsers(searchExpression, currentUser, page, pageSize);
         } else {
-            int total = userRepository.getFindByEmailOrFullNameFilterByRoleWithoutCount(searchExpression, user);
-            int pagesCount = pageService.getPagesCount(total, pageSize);
-            int currentPage = pageService.getRestrictedPage(page, pagesCount);
-            int offset = currentPage * pageSize;
-            return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRoleWithout(searchExpression, user, offset, pageSize));
+            return searchFromAdmins(searchExpression, currentUser, page, pageSize);
         }
+    }
+
+    private Page<User> searchFromCasualUsers(String searchExpression, User currentUser, int page, int pageSize) {
+        final Role USER = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
+        int total = userRepository.getFindByEmailOrFullNameFilterByRoleCount(searchExpression, USER, currentUser.getUserId());
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRole(searchExpression, USER, currentUser.getUserId(), offset, pageSize));
+    }
+
+    private Page<User> searchFromAdmins(String searchExpression, User currentUser, int page, int pageSize) {
+        final Role USER = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
+        int total = userRepository.getFindByEmailOrFullNameFilterByRoleWithoutCount(searchExpression, USER, currentUser.getUserId());
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        return new Page<>(page, pagesCount, userRepository.findByEmailOrFullNameFilterByRoleWithout(searchExpression, USER, currentUser.getUserId(), offset, pageSize));
     }
 
     @Override
     public User findByUserId(int userId) {
-        return userRepository.getById(userId).orElse(null);
+        User user = userRepository.getById(userId).orElse(null);
+        if (user != null) {
+            user.setRoles(userRoleRepository.getUserRoles(userId));
+        }
+        return user;
     }
 
     @Override
@@ -167,7 +180,7 @@ public class UserServiceImpl implements UserService {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepositoryImpl.update(newUser, roleFind);
+            userRoleRepository.update(newUser, roleFind);
         }
     }
 

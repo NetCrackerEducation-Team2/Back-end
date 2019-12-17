@@ -23,8 +23,7 @@ public class FriendsController extends BaseController {
 
     @GetMapping("/friends/getFriendInfo")
     public FriendStatus getFriendInfo(@RequestParam int targetUserId) {
-        // fixme move to service
-        return friendsService.getFriendInfo(getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new), targetUserId);
+        return friendsService.getFriendInfo(targetUserId);
     }
 
     @GetMapping("/friendRequest")
@@ -66,6 +65,11 @@ public class FriendsController extends BaseController {
     @PutMapping("/friend/friendRequest/decline/{invitationId}")
     public ResponseEntity<Boolean> declineFriendRequest(@PathVariable int invitationId) {
         return new ResponseEntity<>(friendsService.declineFriendRequest(invitationId), HttpStatus.OK);
+    }
+
+    @GetMapping("/friends/friendRequestStatus")
+    public FriendInvitation findFriendInvitation(@RequestParam int invitationId) {
+        return friendsService.findFriendInvitation(invitationId).orElse(null);
     }
 
     @GetMapping("/friends")

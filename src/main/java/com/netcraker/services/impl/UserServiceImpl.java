@@ -5,10 +5,10 @@ import com.netcraker.exceptions.FindException;
 import com.netcraker.exceptions.NoUserRoleProvided;
 import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.*;
+import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
-import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
-import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
+import com.netcraker.repositories.UserRoleRepository;
 import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.PageService;
 import com.netcraker.services.UserService;
@@ -33,9 +33,9 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final PageService pageService;
     private final UserRepository userRepository;
-    private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
+    private final AuthorizationRepository authorizationRepositoryImpl;
     private final RoleRepository roleRepository;
-    private final UserRoleRepositoryImpl userRoleRepositoryImpl;
+    private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         }
         for (Role role : user.getRoles()) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
-            setRoles.add(roleFromDB.get());
+            roleFromDB.ifPresent(setRoles::add);
         }
         user.setRoles(setRoles);
         return createUser(user);
@@ -153,7 +153,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateAdminModerator(User newUser) {
         Optional<User> userFromDB = userRepository.findByEmail(newUser.getEmail());
-        List<Role> roles = roleRepository.getAllRoleById(userFromDB.get().getUserId());
+        List<Role> roles = new ArrayList<>();
+        if(userFromDB.isPresent()){
+            roles = roleRepository.getAllRoleById(userFromDB.get().getUserId());
+        }
         if (roles.size() == 1) {
             for (Role role: roles) {
                 if(role.getName().equals("SUPER_ADMIN")){
@@ -169,14 +172,14 @@ public class UserServiceImpl implements UserService {
         userFromDB.get().setPassword(newUser.getPassword());
         userFromDB.get().setRoles(newUser.getRoles());
         userRepository.update(userFromDB.get());
-        userRoleRepositoryImpl.delete(userFromDB.get().getUserId());
+        userRoleRepository.delete(userFromDB.get().getUserId());
         List<Role> setRoles = new ArrayList<>();
         for (Role role : newUser.getRoles()) {
             Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
-            setRoles.add(roleFromDB.get());
+            roleFromDB.ifPresent(setRoles::add);
         }
         for (Role role : setRoles) {
-            userRoleRepositoryImpl.insert(userFromDB.get(), role);
+            userRoleRepository.insert(userFromDB.get(), role);
         }
     }
 

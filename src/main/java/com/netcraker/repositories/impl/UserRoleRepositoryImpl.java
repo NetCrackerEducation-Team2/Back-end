@@ -1,11 +1,8 @@
 package com.netcraker.repositories.impl;
-
-import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.model.UserRole;
 import com.netcraker.model.mapper.UserRoleRowMapper;
-import com.netcraker.model.mapper.UserRowMapper;
 import com.netcraker.repositories.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

@@ -2,6 +2,7 @@ package com.netcraker.services.impl;
 
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
+import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.security.filter.JwtAuthenticationFilter;
 import com.netcraker.services.*;
@@ -20,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RecoveryServiceImp implements RecoveryService {
     private final AuthEmailSenderService emailSender;
-    private final AuthorizationRepositoryImpl authRepo;
+    private final AuthorizationRepository authRepo;
     private final UserService userService;
     private final PasswordEncoder encoder;
     private final PasswordGenerator passGenerator;

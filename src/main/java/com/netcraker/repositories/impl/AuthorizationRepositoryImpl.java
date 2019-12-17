@@ -3,6 +3,7 @@ package com.netcraker.repositories.impl;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
 import com.netcraker.model.mapper.LinkRowMapper;
+import com.netcraker.repositories.AuthorizationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @PropertySource("classpath:sqlQueries.properties")
-public class AuthorizationRepositoryImpl {
+public class AuthorizationRepositoryImpl implements AuthorizationRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${authorizationLink.create}")
@@ -31,15 +32,16 @@ public class AuthorizationRepositoryImpl {
     @Value("${authorizationLink.findByUserId}")
     private String sqlFindLinkByUserId;
 
+    @Override
     public AuthorizationLinks creteAuthorizationLinks(User user) {
         String token = UUID.randomUUID().toString();
         Object[] param = {token, new Timestamp(System.currentTimeMillis()),
                         user.getUserId(), true, false};
         jdbcTemplate.update(sqlCreateLink, param);
-        AuthorizationLinks authorizationLinks = findByActivationCode(token);
-        return authorizationLinks;
+        return findByActivationCode(token);
     }
 
+    @Override
     public AuthorizationLinks createRecoveryLink(User user) {
         String token = UUID.randomUUID().toString();
         Object[] param = {token, new Timestamp(System.currentTimeMillis()),
@@ -48,14 +50,17 @@ public class AuthorizationRepositoryImpl {
         return findByActivationCode(token);
     }
 
+    @Override
     public AuthorizationLinks findByActivationCode(String token) {
         Object[] param = {token};
         return jdbcTemplate.queryForObject(sqlFindLinkByToken, param, new LinkRowMapper());
     }
+    @Override
     public AuthorizationLinks findByUserId(int user_id) {
         Object[] param = {user_id};
         return jdbcTemplate.queryForObject(sqlFindLinkByUserId, param, new LinkRowMapper());
     }
+    @Override
     public AuthorizationLinks updateAuthorizationLinks(AuthorizationLinks authorizationLinks) {
         jdbcTemplate.update(sqlUpdateLink, authorizationLinks.isUsed(), authorizationLinks.getToken());
         return authorizationLinks;

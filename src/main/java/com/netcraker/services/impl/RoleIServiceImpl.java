@@ -2,8 +2,8 @@ package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.model.Role;
-import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
-import com.netcraker.repositories.impl.RoleRepositoryImpl;
+import com.netcraker.repositories.RoleRepository;
+import com.netcraker.repositories.UserRoleRepository;
 import com.netcraker.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,9 +18,10 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RoleIServiceImpl implements RoleService {
+
     private static final Logger logger = LoggerFactory.getLogger(RoleIServiceImpl.class);
-    private final RoleRepositoryImpl roleRepositoryImpl;
-    private final UserRoleRepositoryImpl userRoleRepositoryImpl;
+    private final RoleRepository roleRepositoryImpl;
+    private final UserRoleRepository userRoleRepositoryImpl;
 
     @Override
     public Role createRole(Role role) {

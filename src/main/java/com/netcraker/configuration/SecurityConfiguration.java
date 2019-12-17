@@ -43,11 +43,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/announcements/**", "/auth/**", "/api/ws/**", "/api/ws/getChat", "api/profile/**", "/api/friends/**","**", "/api/books").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/announcements/**", "/auth/**", "/admins/create", "/ws/**", "/api/ws/**", "/api/searching-history/add").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**", "/api/announcements/**", "/api/friends/**","/api/ws/**","**").permitAll()
-//                .antMatchers(HttpMethod.POST, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
-//                .antMatchers(HttpMethod.DELETE, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
-//                .antMatchers(HttpMethod.PUT, "api/achievement").hasAnyRole("ADMIN","SUPER ADMIN")
-                // for test, in production uncomment upper comments
-//                .antMatchers(HttpMethod.DELETE, "/api/announcements/**").permitAll()
                 .antMatchers("api/achievement").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/announcements/**", "/api/announcements/**", "/api/book-overviews/**,", "/api/book-review/**", "/api/books-recommendations/**").permitAll()
                 .antMatchers("/books", "/book/download", "/announcements", "/auth/**").permitAll()

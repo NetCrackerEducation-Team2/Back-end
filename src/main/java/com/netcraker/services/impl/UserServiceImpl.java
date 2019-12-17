@@ -7,8 +7,8 @@ import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
+import com.netcraker.repositories.UserRoleRepository;
 import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
-import com.netcraker.repositories.impl.UserRoleRepositoryImpl;
 import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.PageService;
 import com.netcraker.services.UserInfoService;
@@ -32,15 +32,16 @@ import java.util.Optional;
 @PropertySource("classpath:email-messages.properties")
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final PageService pageService;
     private final UserRepository userRepository;
     private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
     private final RoleRepository roleRepository;
-    private final UserRoleRepositoryImpl userRoleRepositoryImpl;
+    private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
     private final UserInfoService userInfoService;
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Override
     public User createUsualUser(User user) {
         Role USER_ROLE = roleRepository.findByName("USER").orElseThrow(InternalError::new);
@@ -89,7 +90,7 @@ public class UserServiceImpl implements UserService {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepositoryImpl.insert(registered,roleFind)
+            userRoleRepository.insert(registered, roleFind)
                     .orElseThrow(() -> new FailedToRegisterException("Error in creating relationship between user and role"));
 
         }
@@ -119,7 +120,7 @@ public class UserServiceImpl implements UserService {
         searchExpression = "%" + searchExpression.trim() + "%";
         Role user = roleRepository.findByName("USER").orElseThrow(NoUserRoleProvided::new);
         if (roleRepository.getAllRoleById(currentUser.getUserId()).contains(user)) {
-           return searchFromCasualUsers(searchExpression, currentUser, page, pageSize);
+            return searchFromCasualUsers(searchExpression, currentUser, page, pageSize);
         } else {
             return searchFromAdmins(searchExpression, currentUser, page, pageSize);
         }
@@ -145,7 +146,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUserId(int userId) {
-        return userRepository.getById(userId).orElse(null);
+        User user = userRepository.getById(userId).orElse(null);
+        if (user != null) {
+            user.setRoles(userRoleRepository.getUserRoles(userId));
+        }
+        return user;
     }
 
     @Override
@@ -175,7 +180,7 @@ public class UserServiceImpl implements UserService {
                 throw new FindException("Role not found");
             }
             Role roleFind = roleFromDB.get();
-            userRoleRepositoryImpl.update(newUser, roleFind);
+            userRoleRepository.update(newUser, roleFind);
         }
     }
 

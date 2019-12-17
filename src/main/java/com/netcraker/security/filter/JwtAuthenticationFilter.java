@@ -82,10 +82,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         final com.netcraker.model.User userFromDb = userService.findByEmail(user.getUsername());
         List<String> roles = new ArrayList<>();
         userFromDb.getRoles().forEach(role -> roles.add(role.getName()));
-//                user.getAuthorities()
-//                .stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
 
         String signingKey = SecurityConstants.SECRET_KEY;
 

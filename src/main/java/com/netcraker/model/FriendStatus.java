@@ -9,4 +9,5 @@ public class FriendStatus {
     private Integer targetUserId;
     private boolean isFriend;
     private boolean isAwaitFriendRequestConfirmation;
+    private boolean isDeclinedFriendRequest;
 }

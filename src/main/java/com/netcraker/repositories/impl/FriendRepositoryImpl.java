@@ -32,6 +32,8 @@ public class FriendRepositoryImpl implements FriendRepository {
     private String sqlGetFriendsPageable;
     @Value("${friends.getFriendsPageableCount}")
     private String sqlGetFriendsPageableCount;
+    @Value("${friends.checkDeclinedFriendRequest}")
+    private String sqlCheckDeclinedFriendRequest;
     @Override
     public List<User> getFriendsList(int userId) {
         return jdbcTemplate.query(sqlGetFriendsList, UserRowMapper.builder().build(), userId, userId);
@@ -51,6 +53,11 @@ public class FriendRepositoryImpl implements FriendRepository {
     public boolean deleteFromFriends(int userId, int friendId) {
         int countUpdatedRows = jdbcTemplate.update(sqlDeleteByUsersId, userId, friendId, friendId, userId);
         return countUpdatedRows > 0;
+    }
+
+    @Override
+    public boolean isDeclinedFriendRequest(int sourceUserId, int targetUserId) {
+        return jdbcTemplate.queryForObject(sqlCheckDeclinedFriendRequest, boolean.class, sourceUserId, targetUserId);
     }
 
     @Override

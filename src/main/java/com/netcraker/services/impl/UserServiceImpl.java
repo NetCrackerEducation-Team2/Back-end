@@ -1,10 +1,10 @@
 package com.netcraker.services.impl;
 
-import com.netcraker.exceptions.FailedToRegisterException;
-import com.netcraker.exceptions.FindException;
-import com.netcraker.exceptions.NoUserRoleProvided;
-import com.netcraker.exceptions.UpdateException;
-import com.netcraker.model.*;
+import com.netcraker.exceptions.*;
+import com.netcraker.model.AuthorizationLinks;
+import com.netcraker.model.Page;
+import com.netcraker.model.Role;
+import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
@@ -16,11 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.dao.DataAccessException;
 import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,28 +68,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean activateUser(String token) {
-        AuthorizationLinks authorizationLinks;
-        try {
-            authorizationLinks = authorizationRepositoryImpl.findByActivationCode(token);
-        } catch (DataAccessException e) {
-            e.printStackTrace();
+        Optional<AuthorizationLinks> authorizationLinks = authorizationRepositoryImpl.findByActivationCode(token);
+        if(!authorizationLinks.isPresent() || authorizationLinks.get().isUsed()) {
             return false;
         }
-
-        if (authorizationLinks == null || authorizationLinks.isUsed()) {
-            return false;
-        }
-        logger.info("Auth link has user's id:" + authorizationLinks.getUserId());
-        Optional<User> userOpt = userRepository.getById(authorizationLinks.getUserId());
+        logger.info("Auth link has user's id:" + authorizationLinks.get().getUserId());
+        Optional<User> userOpt = userRepository.getById(authorizationLinks.get().getUserId());
 
         if (!userOpt.isPresent()) {
             return false;
         }
         User user = userOpt.get();
-        authorizationLinks.setUsed(true);
+        authorizationLinks.get().setUsed(true);
         user.setEnabled(true);
         userRepository.update(user);
-        authorizationRepositoryImpl.updateAuthorizationLinks(authorizationLinks);
+        authorizationRepositoryImpl.updateAuthorizationLinks(authorizationLinks.get());
         return true;
     }
 
@@ -185,8 +178,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteAdminModerator(String email) {
-        final User user = userRepository.findByEmail(email).get();
-        List<Role> roles = roleRepository.getAllRoleById(user.getUserId());
+        Optional<User> user = userRepository.findByEmail(email);
+        if(!user.isPresent()){
+            throw new DeleteException("Error in deleting");
+        }
+        List<Role> roles = roleRepository.getAllRoleById(user.get().getUserId());
         if (roles.size() == 1) {
             for (Role role: roles) {
                 if(role.getName().equals("SUPER_ADMIN")){
@@ -194,11 +190,11 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }
-        if(user.getEnabled()){
-            user.setEnabled(false);
-            userRepository.update(user);
+        if(user.get().getEnabled()){
+            user.get().setEnabled(false);
+            userRepository.update(user.get());
         } else {
-            throw new UpdateException("Error in deleting");
+            throw new DeleteException("Error in deleting");
         }
     }
 

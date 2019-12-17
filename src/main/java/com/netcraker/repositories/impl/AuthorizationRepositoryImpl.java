@@ -12,6 +12,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -38,7 +40,8 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
         Object[] param = {token, new Timestamp(System.currentTimeMillis()),
                         user.getUserId(), true, false};
         jdbcTemplate.update(sqlCreateLink, param);
-        return findByActivationCode(token);
+        Optional<AuthorizationLinks> authorizationLinks = findByActivationCode(token);
+        return authorizationLinks.orElseGet(authorizationLinks::get);
     }
 
     @Override
@@ -47,13 +50,15 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
         Object[] param = {token, new Timestamp(System.currentTimeMillis()),
                 user.getUserId(), false, false};
         jdbcTemplate.update(sqlCreateLink, param);
-        return findByActivationCode(token);
+        Optional<AuthorizationLinks> authorizationLinks = findByActivationCode(token);
+        return authorizationLinks.orElseGet(authorizationLinks::get);
     }
 
     @Override
-    public AuthorizationLinks findByActivationCode(String token) {
+    public Optional<AuthorizationLinks> findByActivationCode(String token) {
         Object[] param = {token};
-        return jdbcTemplate.queryForObject(sqlFindLinkByToken, param, new LinkRowMapper());
+        List<AuthorizationLinks> authorizationLinks = jdbcTemplate.query(sqlFindLinkByToken, param, new LinkRowMapper());
+        return authorizationLinks.isEmpty() ? Optional.empty() : Optional.of(authorizationLinks.get(0));
     }
     @Override
     public AuthorizationLinks findByUserId(int user_id) {

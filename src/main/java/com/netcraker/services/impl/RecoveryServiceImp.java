@@ -3,13 +3,13 @@ package com.netcraker.services.impl;
 import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.User;
 import com.netcraker.repositories.AuthorizationRepository;
-import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
-import com.netcraker.security.filter.JwtAuthenticationFilter;
-import com.netcraker.services.*;
+import com.netcraker.services.AuthEmailSenderService;
+import com.netcraker.services.PasswordGenerator;
+import com.netcraker.services.RecoveryService;
+import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,20 +38,13 @@ public class RecoveryServiceImp implements RecoveryService {
     @Transactional
     @Override
     public Optional<User> recoverPassword(String recoveryCode) {
-        AuthorizationLinks linkFromDb;
-        try {
-            linkFromDb = authRepo.findByActivationCode(recoveryCode);
-        } catch (DataAccessException e) {
+        Optional<AuthorizationLinks> linkFromDb = authRepo.findByActivationCode(recoveryCode);
+        if(!linkFromDb.isPresent() || linkFromDb.get().isUsed()){
             logger.error("RecoveryServiceImpl::recoverPassword. Stack trace: ");
-            e.printStackTrace();
             return Optional.empty();
         }
 
-        if (linkFromDb == null || linkFromDb.isUsed()) {
-            return Optional.empty();
-        }
-
-        final User userFromDb = userService.findByUserId(linkFromDb.getUserId());
+        final User userFromDb = userService.findByUserId(linkFromDb.get().getUserId());
 
         final String newPassword = passGenerator.generatePassword();
 
@@ -60,8 +53,8 @@ public class RecoveryServiceImp implements RecoveryService {
         userFromDb.setPassword(encoder.encode(newPassword));
         userService.updateUser(userFromDb, userFromDb);
 
-        linkFromDb.setUsed(true);
-        authRepo.updateAuthorizationLinks(linkFromDb);
+        linkFromDb.get().setUsed(true);
+        authRepo.updateAuthorizationLinks(linkFromDb.get());
 
         return Optional.of(userFromDb);
     }

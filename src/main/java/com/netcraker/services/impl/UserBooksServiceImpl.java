@@ -5,6 +5,7 @@ import com.netcraker.exceptions.FindException;
 import com.netcraker.model.Page;
 import com.netcraker.model.User;
 import com.netcraker.model.UserBook;
+import com.netcraker.model.UserBookFilteringParam;
 import com.netcraker.repositories.UserBookRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.services.PageService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +31,17 @@ public class UserBooksServiceImpl implements UserBookService {
     public UserBook getUserBook(int bookId, int userId) {
         Optional<UserBook> item = userBookRepository.findByUserAndBook(userId, bookId);
         return item.orElse(UserBook.builder().userBookId(-1).build());
+    }
+
+    @Override
+    public Page<UserBook> getFilteredBooksPagination(HashMap<UserBookFilteringParam, Object> filteringParams, int page, int pageSize) {
+        int total = userBookRepository.countFiltered(filteringParams);
+        int pagesCount = pageService.getPagesCount(total, pageSize);
+        int currentPage = pageService.getRestrictedPage(page, pagesCount);
+        int offset = currentPage * pageSize;
+        List<UserBook> userBooks = userBookRepository.getFiltered(filteringParams, pageSize, offset);
+        //userBooks.forEach(bookRepository::loadReferences);
+        return new Page<>(currentPage, pagesCount, pageSize, userBooks);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.netcraker.repositories.impl;
 
 import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.UserBook;
+import com.netcraker.model.UserBookFilteringParam;
 import com.netcraker.model.mapper.UserBookRowMapper;
 import com.netcraker.repositories.UserBookRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.sql.Date;
 import java.util.*;
 
 @Repository
@@ -48,6 +51,12 @@ public class UserBookRepositoryImpl implements UserBookRepository {
     @Value("${user_book.getByUserIdAndBookId}")
     private String sqlGetByUserIdAndBookId;
 
+    @Value("${user_book.getFiltered}")
+    private String sqlGetFiltered;
+
+    @Value("${user_book.countFiltered}")
+    private String sqlCountFiltered;
+
     @Override
     public Optional<UserBook> getById(int id) {
         Object[] params = {id};
@@ -75,7 +84,7 @@ public class UserBookRepositoryImpl implements UserBookRepository {
                 ps.setInt(++paramInd, entity.getUserId());
                 ps.setBoolean(++paramInd, entity.getFavoriteMark());
                 ps.setBoolean(++paramInd, entity.getReadMark());
-                ps.setDate(++paramInd, new java.sql.Date(new Date().getTime()));
+                ps.setDate(++paramInd, new java.sql.Date(new java.util.Date().getTime()));
                 return ps;
             }, keyHolder);
         } catch (DataAccessException e) {
@@ -118,5 +127,53 @@ public class UserBookRepositoryImpl implements UserBookRepository {
     @Override
     public int countByUserId(int userId) {
         return Objects.requireNonNull(jdbcTemplate.queryForObject(sqlCountByUserId, Integer.class, userId));
+    }
+
+    @Override
+    public List<UserBook> getFiltered(HashMap<UserBookFilteringParam, Object> filteringParams, int size, int offset) {
+        checkBookFilteringParams(filteringParams);
+        List<Object> params = getBookFilteringParams(filteringParams);
+        params.add(size);
+        params.add(offset);
+        return jdbcTemplate.query(sqlGetFiltered, params.toArray(), new UserBookRowMapper());
+    }
+
+    @Override
+    public int countFiltered(HashMap<UserBookFilteringParam, Object> filteringParams) {
+        checkBookFilteringParams(filteringParams);
+        List params = getBookFilteringParams(filteringParams);
+        return jdbcTemplate.queryForObject(sqlCountFiltered, params.toArray(), int.class);
+    }
+
+    private void checkBookFilteringParams(HashMap<UserBookFilteringParam, Object> filteringParams){
+        if(!checkUserBookFilteringParamsTypes(filteringParams)){
+            throw new IllegalArgumentException("One or more filtering params have incorrect types");
+        }
+        if(filteringParams.entrySet().size() != UserBookFilteringParam.values().length){
+            throw new IllegalArgumentException("Illegal number of filtering params");
+        }
+    }
+
+    private boolean checkUserBookFilteringParamsTypes(HashMap<UserBookFilteringParam, Object> filteringParams){
+        return filteringParams.entrySet().stream().allMatch((entry) ->
+                entry.getValue() == null || entry.getKey().getClazz().isInstance(entry.getValue()));
+    }
+
+    private List<Object> getBookFilteringParams(HashMap<UserBookFilteringParam, Object> filteringParams){
+        LocalDate localDate = (LocalDate) filteringParams.get(UserBookFilteringParam.ANNOUNCEMENT_DATE);
+        Date date = localDate == null ? null : Date.valueOf(localDate);
+        Object[] params = new Object[]{
+                filteringParams.get(UserBookFilteringParam.USER_ID),
+                filteringParams.get(UserBookFilteringParam.DONT_SEARCH_BY_READ_MARK),
+                filteringParams.get(UserBookFilteringParam.READ_MARK),
+                filteringParams.get(UserBookFilteringParam.DONT_SEARCH_BY_FAVORITE_MARK),
+                filteringParams.get(UserBookFilteringParam.FAVORITE_MARK),
+                filteringParams.get(UserBookFilteringParam.TITLE),
+                filteringParams.get(UserBookFilteringParam.GENRE),
+                filteringParams.get(UserBookFilteringParam.AUTHOR),
+                date};
+        List<Object> list = new ArrayList<>();
+        Collections.addAll(list, params);
+        return list;
     }
 }

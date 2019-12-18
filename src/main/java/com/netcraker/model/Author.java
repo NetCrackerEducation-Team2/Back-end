@@ -6,7 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Author {
-    private int authorId;
+    private Integer authorId;
     private @NonNull String fullName;
     private String description;
 }

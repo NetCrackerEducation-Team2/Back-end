@@ -2,6 +2,7 @@ package com.netcraker.controllers;
 
 import com.netcraker.model.Chat;
 import com.netcraker.model.Message;
+import com.netcraker.model.User;
 import com.netcraker.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -57,6 +58,12 @@ public class ChatController {
         Chat chat =  chatService.getChat(friendId, currentUserId);
         return new ResponseEntity<>(chat, new HttpHeaders(), HttpStatus.OK);
     }
+    @GetMapping("/getChatUsers")
+    public ResponseEntity<?> getChatUsers(@RequestParam String chatName) {
+        List<User> users =  chatService.getUsers(chatName);
+        return new ResponseEntity<>(users, new HttpHeaders(), HttpStatus.OK);
+    }
+
     @GetMapping("/getGroupMessages")
     public ResponseEntity<?> getGroupChatMessages(@RequestParam String chatName) {
         List<Message> messages =  chatService.getGroupChatMessages(chatName);
@@ -65,6 +72,12 @@ public class ChatController {
     @PostMapping("/create/groupChat")
     public ResponseEntity<?> createGroupChat(@RequestBody @Validated Chat chat) {
         chatService.createGroupChat(chat.getUsersId(), chat.getChatName());
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/addChatUser")
+    public ResponseEntity<?> addChatUser(@RequestBody @Validated Chat chat) {
+        chatService.addChatUser(chat.getUsersId(), chat.getChatName());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

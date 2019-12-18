@@ -5,25 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netcraker.exceptions.FailedToRegisterException;
 import com.netcraker.exceptions.FindException;
 import com.netcraker.exceptions.UpdateException;
-import com.netcraker.listeners.WebSocketEventListener;
 import com.netcraker.model.User;
 import com.netcraker.services.RecoveryService;
 import com.netcraker.services.UserService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.constraints.Email;
-import java.security.NoSuchAlgorithmException;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")

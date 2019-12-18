@@ -2,14 +2,10 @@ package com.netcraker.repositories.impl;
 
 import com.netcraker.model.Chat;
 import com.netcraker.model.Message;
-import com.netcraker.model.mapper.ChatRowMapper;
-import com.netcraker.model.mapper.GroupChatReferenceRowMapper;
-import com.netcraker.model.mapper.GroupChatRowMapper;
-import com.netcraker.model.mapper.MessageRowMapper;
+import com.netcraker.model.User;
+import com.netcraker.model.mapper.*;
 import com.netcraker.repositories.ChatRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,7 +19,6 @@ import java.util.Optional;
 @PropertySource("classpath:sqlQueries.properties")
 public class ChatRepositoryImpl implements ChatRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChatRepositoryImpl.class);
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${chat.findMessageByChatId}")
@@ -65,6 +60,15 @@ public class ChatRepositoryImpl implements ChatRepository {
     @Value("${chat.findMessageById}")
     private String sqlFindByMessageId;
 
+    @Value("${chat.getChatUsers}")
+    private String getChatUsers;
+
+    @Override
+    public List<User> listChatUsers(String chatName) {
+        Object[] param = { chatName };
+        return jdbcTemplate.query(getChatUsers, param, new UserRowMapper());
+    }
+
     @Override
     public List<Message> listMessage(int chat_id) {
         Object[] params = { chat_id };
@@ -73,7 +77,7 @@ public class ChatRepositoryImpl implements ChatRepository {
 
     @Override
     public Optional<Chat> findGroupChat(String chatName) {
-        Object[] params = {chatName};
+        Object[] params = { chatName };
         List<Chat> chats = jdbcTemplate.query(sqlFindByChatName, params, new GroupChatRowMapper());
         return chats.isEmpty() ? Optional.empty() : Optional.of(chats.get(0));
     }
@@ -85,14 +89,13 @@ public class ChatRepositoryImpl implements ChatRepository {
     }
 
     @Override
-    public Optional<Chat> createGroupChatReference(int userId, int chatId) {
+    public void createGroupChatReference(int userId, int chatId) {
         Object[] params = {userId, chatId};
-        int groupChatUsersId = jdbcTemplate.queryForObject(sqlCreateGroupChatReference, params, Integer.class);
-        return findReferenceGroupChat(groupChatUsersId);
+        jdbcTemplate.queryForObject(sqlCreateGroupChatReference, params, Integer.class);
     }
 
     @Override
-    public Optional<Chat>findReferenceGroupChat(int groupChatUsersId) {
+    public Optional<Chat>findReferenceGroupChat(Integer groupChatUsersId) {
         Object[] params = {groupChatUsersId};
         List<Chat> chats = jdbcTemplate.query(sqlFindReferenceById, params, new GroupChatReferenceRowMapper());
         return chats.isEmpty() ? Optional.empty() : Optional.of(chats.get(0));
@@ -105,7 +108,7 @@ public class ChatRepositoryImpl implements ChatRepository {
     }
 
     @Override
-    public int insert() {
+    public Integer insert() {
         return jdbcTemplate.queryForObject(sqlCreateChat, Integer.class);
     }
 
@@ -123,7 +126,6 @@ public class ChatRepositoryImpl implements ChatRepository {
         return chats.isEmpty() ? Optional.empty() : Optional.of(chats.get(0));
     }
 
-
     @Override
     public Optional<Chat> createLocalChat(int[] param) {
         Object[] params = {param[0], param[1], param[2]};
@@ -139,7 +141,7 @@ public class ChatRepositoryImpl implements ChatRepository {
     }
 
     @Override
-    public Optional<Message> findMessage(int message_id) {
+    public Optional<Message> findMessage(Integer message_id) {
         Object[] params = { message_id };
         List<Message> messages = jdbcTemplate.query(sqlFindByMessageId, params, new MessageRowMapper());
         return messages.isEmpty() ? Optional.empty() : Optional.of(messages.get(0));
@@ -148,7 +150,7 @@ public class ChatRepositoryImpl implements ChatRepository {
     @Override
     public Optional<Message> sendMessage(int [] param, String content) {
         Object[] params = {param[0], param[1], content};
-        int messageId = jdbcTemplate.queryForObject(sqlCreateMessage, params, Integer.class);
+        Integer messageId = jdbcTemplate.queryForObject(sqlCreateMessage, params, Integer.class);
         return findMessage(messageId);
     }
 }

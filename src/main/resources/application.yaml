@@ -7,8 +7,8 @@ spring:
     protocol: smtps
   #For deploy
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://db.cources.asem.site/netcracker_library
+    username: netcracker_library_user
+    password: yu`].tiW5[+.a8l
 server:
   port: 8081

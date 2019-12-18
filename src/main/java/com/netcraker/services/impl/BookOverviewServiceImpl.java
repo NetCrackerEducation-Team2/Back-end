@@ -7,13 +7,10 @@ import com.netcraker.repositories.BookOverviewRepository;
 import com.netcraker.services.BookOverviewService;
 import com.netcraker.services.PageService;
 import com.netcraker.services.events.DataBaseChangeEvent;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

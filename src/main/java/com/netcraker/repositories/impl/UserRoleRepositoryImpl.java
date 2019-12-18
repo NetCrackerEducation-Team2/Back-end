@@ -1,12 +1,10 @@
 package com.netcraker.repositories.impl;
-
-import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.model.UserRole;
 import com.netcraker.model.mapper.UserRoleRowMapper;
-import com.netcraker.model.mapper.UserRowMapper;
 import com.netcraker.repositories.RoleRepository;
+
 import com.netcraker.repositories.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -56,19 +54,6 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
     public List<UserRole> getAll(int userId) {
         Object[] params = { userId };
         return jdbcTemplate.query(sqlSelectByUserId, params, new UserRoleRowMapper());
-    }
-
-    public Optional<UserRole> update(User user, Role role) {
-        Object[] params = {role.getRoleId() , user.getUserId()};
-        int changedRowsCount = jdbcTemplate.update(sqlUpdateRoleUser, params);
-
-        if (changedRowsCount == 0){
-            throw new UpdateException("Role or user is not found!");
-        }
-        if (changedRowsCount > 1){
-            throw new UpdateException("Multiple update!");
-        }
-        return getById(user.getUserId());
     }
 
     public boolean delete(int id)  {

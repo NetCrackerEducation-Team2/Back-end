@@ -1,11 +1,10 @@
 package com.netcraker.services.impl;
 
-import com.netcraker.model.BookOverview;
-import com.netcraker.model.Page;
+import com.netcraker.model.*;
 import com.netcraker.model.constants.TableName;
 import com.netcraker.repositories.BookOverviewRepository;
-import com.netcraker.services.BookOverviewService;
-import com.netcraker.services.PageService;
+import com.netcraker.repositories.BookRepository;
+import com.netcraker.services.*;
 import com.netcraker.services.events.DataBaseChangeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,6 +19,9 @@ public class BookOverviewServiceImpl implements BookOverviewService {
     private final ApplicationEventPublisher eventPublisher;
     private final BookOverviewRepository bookOverviewRepository;
     private final PageService pageService;
+    private final ActivityService activityService;
+    private final BookRepository bookRepository;
+    private final UserService userService;
 
     @Override
     public Page<BookOverview> getBookOverviewsByBook(int bookId, int page, int pageSize) {
@@ -52,6 +54,12 @@ public class BookOverviewServiceImpl implements BookOverviewService {
     @Override
     public Optional<BookOverview> addBookOverview(BookOverview bookOverview) {
         final Optional<BookOverview> inserted = bookOverviewRepository.insert(bookOverview);
+        // inserting corresponding activity
+        BookOverview insertedBookOverview = inserted.orElseThrow(InternalError::new);
+        User user = userService.findByUserId(bookOverview.getUserId());
+        Book book = bookRepository.getById(insertedBookOverview.getBookId()).orElseThrow(InternalError::new);
+        activityService.saveActivity(Activity.builder().createBookOverviewActivity(book, user).build());
+        // posting event
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_OVERVIEWS,bookOverview.getUserId()));
         return inserted;
     }

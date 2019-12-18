@@ -54,6 +54,7 @@ public class UserBookController {
             map.put(UserBookFilteringParam.READ_MARK, readMark);
         } else {
             map.put(UserBookFilteringParam.DONT_SEARCH_BY_READ_MARK, true);
+            map.put(UserBookFilteringParam.READ_MARK, false);
         }
 
         if (favoriteMark != null) {
@@ -61,7 +62,9 @@ public class UserBookController {
             map.put(UserBookFilteringParam.FAVORITE_MARK, favoriteMark);
         } else {
             map.put(UserBookFilteringParam.DONT_SEARCH_BY_FAVORITE_MARK, true);
+            map.put(UserBookFilteringParam.FAVORITE_MARK, false);
         }
+        map.put(UserBookFilteringParam.ANNOUNCEMENT_DATE, date);
 
         Page<UserBook> pagination = userBookService.getFilteredBooksPagination(map, page, pageSize);
         return ResponseEntity.ok().body(pagination);

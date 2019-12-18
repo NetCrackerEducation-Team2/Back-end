@@ -39,7 +39,6 @@ public class UserBooksServiceImpl implements UserBookService {
         int currentPage = pageService.getRestrictedPage(page, pagesCount);
         int offset = currentPage * pageSize;
         List<UserBook> userBooks = userBookRepository.getFiltered(filteringParams, pageSize, offset);
-        //userBooks.forEach(bookRepository::loadReferences);
         return new Page<>(currentPage, pagesCount, pageSize, userBooks);
     }
 

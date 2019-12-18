@@ -98,4 +98,9 @@ public class BookServiceImp implements BookService {
         bookOverview = bookOverviewService.addBookOverview(bookOverview).orElseThrow(InternalError::new);
         return book;
     }
+
+    @Override
+    public Optional<Book> update(Book book) {
+        return bookRepository.update(book);
+    }
 }

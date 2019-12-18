@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public interface UserService {
     User createUsualUser(User user);
-    User createAdminModerator(User user, List<Role> role);
+    User createAdminModerator(User user);
     User findByUserId(int userId);
     User findByEmail(String email);
     void updateUser(User oldUser, User newUser);
-    void updateAdminModerator(User user, List<Role> roles);
+    void updateAdminModerator(User user);
     void deleteAdminModerator(String email);
     boolean activateUser(String code);
     boolean equalsPassword(User user, String password);

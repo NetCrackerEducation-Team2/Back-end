@@ -5,10 +5,10 @@ import com.netcraker.model.AuthorizationLinks;
 import com.netcraker.model.Page;
 import com.netcraker.model.Role;
 import com.netcraker.model.User;
+import com.netcraker.repositories.AuthorizationRepository;
 import com.netcraker.repositories.RoleRepository;
 import com.netcraker.repositories.UserRepository;
 import com.netcraker.repositories.UserRoleRepository;
-import com.netcraker.repositories.impl.AuthorizationRepositoryImpl;
 import com.netcraker.services.AuthEmailSenderService;
 import com.netcraker.services.PageService;
 import com.netcraker.services.UserInfoService;
@@ -17,12 +17,12 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.dao.DataAccessException;
 import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,12 +35,13 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final PageService pageService;
     private final UserRepository userRepository;
-    private final AuthorizationRepositoryImpl authorizationRepositoryImpl;
+    private final AuthorizationRepository authorizationRepository;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailSenderService emailSender;
     private final UserInfoService userInfoService;
+
 
     @Override
     public User createUsualUser(User user) {
@@ -48,54 +49,44 @@ public class UserServiceImpl implements UserService {
         user.setEnabled(false);
         user.setRoles(Collections.singletonList(USER_ROLE));
         final User registered = createUser(user);
-        final AuthorizationLinks authorizationLink = authorizationRepositoryImpl.creteAuthorizationLinks(registered);
+        final AuthorizationLinks authorizationLink = authorizationRepository.creteAuthorizationLinks(registered);
         emailSender.sendActivationCode(user, authorizationLink);
         return registered;
     }
 
     @Override
-    public boolean activateUser(String token) {
-        AuthorizationLinks authorizationLinks;
-        try {
-            authorizationLinks = authorizationRepositoryImpl.findByActivationCode(token);
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-            return false;
+    public User createAdminModerator(User user) {
+        user.setEnabled(true);
+        List<Role> setRoles = new ArrayList<>();
+        if(user.getRoles().isEmpty()) {
+            throw new FindException("Role not found");
         }
+        for (Role role : user.getRoles()) {
+            Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
+            roleFromDB.ifPresent(setRoles::add);
+        }
+        user.setRoles(setRoles);
+        return createUser(user);
+    }
 
-        if (authorizationLinks == null || authorizationLinks.isUsed()) {
+    @Override
+    public boolean activateUser(String token) {
+        Optional<AuthorizationLinks> authorizationLinks = authorizationRepository.findByActivationCode(token);
+        if(!authorizationLinks.isPresent() || authorizationLinks.get().isUsed()) {
             return false;
         }
-        logger.info("Auth link has user's id:" + authorizationLinks.getUserId());
-        Optional<User> userOpt = userRepository.getById(authorizationLinks.getUserId());
+        logger.info("Auth link has user's id:" + authorizationLinks.get().getUserId());
+        Optional<User> userOpt = userRepository.getById(authorizationLinks.get().getUserId());
 
         if (!userOpt.isPresent()) {
             return false;
         }
         User user = userOpt.get();
-        authorizationLinks.setUsed(true);
+        authorizationLinks.get().setUsed(true);
         user.setEnabled(true);
         userRepository.update(user);
-        authorizationRepositoryImpl.updateAuthorizationLinks(authorizationLinks);
+        authorizationRepository.updateAuthorizationLinks(authorizationLinks.get());
         return true;
-    }
-
-    @Override
-    public User createAdminModerator(User user, List<Role> roles) {
-        user.setEnabled(true);
-        final User registered = createUser(user);
-        for (Role role : roles) {
-            Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
-            if (!roleFromDB.isPresent()) {
-                throw new FindException("Role not found");
-            }
-            Role roleFind = roleFromDB.get();
-            userRoleRepository.insert(registered, roleFind)
-                    .orElseThrow(() -> new FailedToRegisterException("Error in creating relationship between user and role"));
-
-        }
-
-        return registered;
     }
 
     private User createUser(User user) {
@@ -171,22 +162,58 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAdminModerator(User newUser, List<Role> roles) {
-        newUser.setEnabled(true);
-        userRepository.update(newUser);
-        for (Role role : roles) {
-            Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
-            if (!roleFromDB.isPresent()) {
-                throw new FindException("Role not found");
+    public void updateAdminModerator(User newUser) {
+        Optional<User> userFromDB = userRepository.findByEmail(newUser.getEmail());
+        List<Role> roles = new ArrayList<>();
+        if(userFromDB.isPresent()){
+            roles = roleRepository.getAllRoleById(userFromDB.get().getUserId());
+        }
+        if (roles.size() == 1) {
+            for (Role role: roles) {
+                if(role.getName().equals("SUPER_ADMIN")){
+                    throw new UpdateException("Error in updating");
+                }
             }
-            Role roleFind = roleFromDB.get();
-            userRoleRepository.update(newUser, roleFind);
+        }
+        if(!userFromDB.get().getEnabled()){
+            throw new UpdateException("Error in updating");
+        }
+
+        userFromDB.get().setFullName(newUser.getFullName());
+        userFromDB.get().setPassword(passwordEncoder.encode(newUser.getPassword()));
+        userFromDB.get().setRoles(newUser.getRoles());
+        userRepository.update(userFromDB.get());
+        userRoleRepository.delete(userFromDB.get().getUserId());
+        List<Role> setRoles = new ArrayList<>();
+        for (Role role : newUser.getRoles()) {
+            Optional<Role> roleFromDB = roleRepository.findByName(role.getName());
+            roleFromDB.ifPresent(setRoles::add);
+        }
+        for (Role role : setRoles) {
+            userRoleRepository.insert(userFromDB.get(), role);
         }
     }
 
     @Override
     public void deleteAdminModerator(String email) {
-        userRepository.deleteByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
+        if(!user.isPresent()){
+            throw new DeleteException("Error in deleting");
+        }
+        List<Role> roles = roleRepository.getAllRoleById(user.get().getUserId());
+        if (roles.size() == 1) {
+            for (Role role: roles) {
+                if(role.getName().equals("SUPER_ADMIN")){
+                    throw new UpdateException("Error in deleting");
+                }
+            }
+        }
+        if(user.get().getEnabled()){
+            user.get().setEnabled(false);
+            userRepository.update(user.get());
+        } else {
+            throw new DeleteException("Error in deleting");
+        }
     }
 
     public boolean equalsPassword(User user, String rawPassword) {

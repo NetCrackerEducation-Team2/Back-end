@@ -3,6 +3,8 @@ import com.netcraker.model.Role;
 import com.netcraker.model.User;
 import com.netcraker.model.UserRole;
 import com.netcraker.model.mapper.UserRoleRowMapper;
+import com.netcraker.repositories.RoleRepository;
+
 import com.netcraker.repositories.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,6 +25,7 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(UserRoleRepositoryImpl.class);
     private final JdbcTemplate jdbcTemplate;
+    private final RoleRepository roleRepository;
 
     @Value("${roleUser.create}")
     private String sqlCreateRoleUser;
@@ -53,16 +56,6 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
         return jdbcTemplate.query(sqlSelectByUserId, params, new UserRoleRowMapper());
     }
 
-//    public Optional<UserRole> update(User user, Role role, int oldRole) {
-//        Object[] params = {role.getRoleId() , user.getUserId(), oldRole};
-//        int changedRowsCount = jdbcTemplate.update(sqlUpdateRoleUser, params);
-//
-//        if (changedRowsCount == 0){
-//            throw new UpdateException("Role or user is not found!");
-//        }
-//        return getById(user.getUserId());
-//    }
-
     public boolean delete(int id)  {
         Object[] params = { id };
         return jdbcTemplate.update(sqlDeleteUserRole, params) == 1;
@@ -82,4 +75,8 @@ public class UserRoleRepositoryImpl implements UserRoleRepository {
         return Optional.empty();
     }
 
+    @Override
+    public List<Role> getUserRoles(int userId) {
+        return roleRepository.getAllRoleById(userId);
+    }
 }

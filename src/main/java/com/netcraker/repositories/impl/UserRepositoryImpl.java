@@ -96,35 +96,37 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public int getFindByEmailOrFullNameFilterByRoleCount(String searchExpression, Role roleFiltering) {
-        return jdbcTemplate.queryForObject(sqlFindByEmailOrFullNameFilterByRoleCount, int.class, roleFiltering.getRoleId(), searchExpression, searchExpression);
+    public int getFindByEmailOrFullNameFilterByRoleCount(String searchExpression, Role roleFiltering, int userIdExclude) {
+        return jdbcTemplate.queryForObject(sqlFindByEmailOrFullNameFilterByRoleCount, int.class, roleFiltering.getRoleId(), searchExpression, searchExpression, userIdExclude);
 
     }
 
     @Override
-    public int getFindByEmailOrFullNameFilterByRoleWithoutCount(String searchExpression, Role roleFilteringWithout) {
-        return jdbcTemplate.queryForObject(sqlFindByEmailOrFullNameFilterByRoleWithoutCount, int.class, roleFilteringWithout.getRoleId(), searchExpression, searchExpression);
+    public int getFindByEmailOrFullNameFilterByRoleWithoutCount(String searchExpression, Role roleFilteringWithout, int userIdExclude) {
+        return jdbcTemplate.queryForObject(sqlFindByEmailOrFullNameFilterByRoleWithoutCount, int.class, roleFilteringWithout.getRoleId(), searchExpression, searchExpression, userIdExclude);
     }
 
     @Override
-    public List<User> findByEmailOrFullNameFilterByRole(String searchExpression, Role roleFiltering, int offset, int pageSize) {
+    public List<User> findByEmailOrFullNameFilterByRole(String searchExpression, Role roleFiltering, int userIdExclude, int offset, int pageSize) {
         return jdbcTemplate.query(sqlFindByEmailOrFullNameFilterByRole,
                 new UserRowMapper(),
                 roleFiltering.getRoleId(),
                 searchExpression,
                 searchExpression,
+                userIdExclude,
                 pageSize,
                 offset
         );
     }
 
     @Override
-    public List<User> findByEmailOrFullNameFilterByRoleWithout(String searchExpression, Role roleWithout, int offset, int pageSize) {
+    public List<User> findByEmailOrFullNameFilterByRoleWithout(String searchExpression, Role roleWithout, int userIdExclude, int offset, int pageSize) {
         return jdbcTemplate.query(sqlFindByEmailOrFullNameFilterByRoleWithout,
                 new UserRowMapper(),
                 roleWithout.getRoleId(),
                 searchExpression,
                 searchExpression,
+                userIdExclude,
                 pageSize,
                 offset
         );

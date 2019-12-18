@@ -4,6 +4,7 @@ import com.netcraker.exceptions.UpdateException;
 import com.netcraker.model.Page;
 import com.netcraker.model.User;
 import com.netcraker.model.vo.ChangePassword;
+import com.netcraker.services.UserInfoService;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -59,11 +60,6 @@ public class UserController {
                                  @RequestParam(required = false, defaultValue = "0") int page,
                                  @RequestParam(required = false, defaultValue = "5") int pageSize,
                                  HttpServletRequest request) {
-        return userService.searchUser(searchExpression, getCurrentUser(request), page, pageSize);
-    }
-    // FIXME use SecurityContext
-    private Optional<User> getCurrentUser(HttpServletRequest request) {
-        String currentUserEmail = (String) request.getAttribute("currentUserEmail");
-        return Optional.ofNullable(userService.findByEmail(currentUserEmail));
+        return userService.searchUser(searchExpression, page, pageSize);
     }
 }

@@ -21,6 +21,8 @@ public interface FriendRepository {
 
     boolean deleteFromFriends(int userId, int friendId);
 
+    boolean isDeclinedFriendRequest(int sourceUserId, int targetUserId);
+
     void addFriends(int userId, int user2Id);
 
     List<User> getFriendsPageable(int userId, int limit, int offset);

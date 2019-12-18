@@ -1,14 +1,13 @@
 package com.netcraker.services.impl;
 
-import com.netcraker.model.Book;
-import com.netcraker.model.BookFilteringParam;
-import com.netcraker.model.Page;
-import com.netcraker.repositories.BookRepository;
-import com.netcraker.services.BookService;
-import com.netcraker.services.FileService;
-import com.netcraker.services.PageService;
+import com.netcraker.exceptions.RequiresAuthenticationException;
+import com.netcraker.model.*;
+import com.netcraker.model.vo.SuggestBookReq;
+import com.netcraker.repositories.*;
+import com.netcraker.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,12 @@ public class BookServiceImp implements BookService {
     private final BookRepository bookRepository;
     private final PageService pageService;
     private final FileService fileService;
-
+    private final UserInfoService userInfoService;
+    private final BookOverviewService bookOverviewService;
+    private final BookAuthorRepository bookAuthorRepository;
+    private final BookGenreRepository bookGenreRepository;
+    private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
     @Override
     public Page<Book> getFilteredBooksPagination(HashMap<BookFilteringParam, Object> filteringParams, int page, int pageSize) {
         int total = bookRepository.countFiltered(filteringParams);
@@ -56,7 +60,47 @@ public class BookServiceImp implements BookService {
 
     @Override
     public Optional<Book> createBook(Book book) {
-//        book.setSlug(new Slugify().slugify(book.getTitle()));
         return bookRepository.insert(book);
+    }
+
+    private Optional<Book> insertBook(Book book) {
+        // inserting book authors
+        Book inserted = bookRepository.insert(book).orElseThrow(InternalError::new);
+        for (Author author : book.getAuthors()) {
+            // inserting new author if needed
+            if (author.getAuthorId() == null) {
+                author = authorRepository.insert(author).orElseThrow(InternalError::new);
+            }
+            bookAuthorRepository.insert(inserted.getBookId(), author.getAuthorId());
+        }
+        // inserting book genres
+        for (Genre genre : book.getGenres()) {
+            if (genre.getGenreId() == null) {
+                genre = genreRepository.insert(genre).orElseThrow(InternalError::new);
+            }
+            bookGenreRepository.insert(inserted.getBookId(), genre.getGenreId());
+        }
+        return Optional.of(inserted);
+    }
+
+    @Transactional
+    @Override
+    public Book suggestBook(SuggestBookReq suggestBookRequest) {
+        User currentUser = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
+        // saving book
+        Book book = insertBook(suggestBookRequest.convertToBook()).orElseThrow(InternalError::new);
+        // saving book overview
+        BookOverview bookOverview = suggestBookRequest.convertToBookOverview();
+        bookOverview.setBook(book);
+        bookOverview.setBookId(book.getBookId());
+        bookOverview.setUser(currentUser);
+        bookOverview.setUserId(currentUser.getUserId());
+        bookOverview = bookOverviewService.addBookOverview(bookOverview).orElseThrow(InternalError::new);
+        return book;
+    }
+
+    @Override
+    public Optional<Book> update(Book book) {
+        return bookRepository.update(book);
     }
 }

@@ -1,11 +1,9 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.exceptions.FindException;
-import com.netcraker.model.Page;
-import com.netcraker.model.UserBook;
+import com.netcraker.model.*;
 import com.netcraker.repositories.UserBookRepository;
-import com.netcraker.services.PageService;
-import com.netcraker.services.UserBookService;
+import com.netcraker.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +16,9 @@ import java.util.List;
 public class UserBooksServiceImpl implements UserBookService {
     private final PageService pageService;
     private final UserBookRepository userBookRepository;
+    private final ActivityService activityService;
+    private final BookService bookService;
+    private final UserService userService;
 
     @Override
     public Page<UserBook> getPage(int userId, int page, int pageSize) {
@@ -36,14 +37,17 @@ public class UserBooksServiceImpl implements UserBookService {
         userBook.setReadMark(value);
         userBookRepository.update(userBook);
     }
-
+    @Transactional
     @Override
     public void setFavoriteMark(int usersBookId, boolean value) {
         UserBook userBook = userBookRepository
                 .getById(usersBookId)
                 .orElseThrow(() -> new FindException("UserBook is not found"));
-
         userBook.setFavoriteMark(value);
         userBookRepository.update(userBook);
+        // posting corresponding activity
+        Book book = bookService.getBookById(userBook.getBookId()).orElseThrow(InternalError::new);
+        User user = userService.findByUserId(userBook.getUserId());
+        activityService.saveActivity(Activity.builder().addToFavouriteActivity(book, user).build()).orElseThrow(InternalError::new);
     }
 }

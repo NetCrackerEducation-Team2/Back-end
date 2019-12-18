@@ -39,10 +39,16 @@ public class FriendServiceImpl implements FriendsService {
     }
 
     @Override
-    public FriendStatus getFriendInfo(int currentUserId, int targetId) {
+    public FriendStatus getFriendInfo(int targetId) {
+        Integer currentUserId = userInfoService.getCurrentUser().map(User::getUserId).orElseThrow(RequiresAuthenticationException::new);
+        return getFriendInfo(currentUserId, targetId);
+    }
+
+    private FriendStatus getFriendInfo(int currentUserId, int targetUserId) {
         return FriendStatus.builder()
-                .targetUserId(targetId).isFriend(friendRepository.isFriends(currentUserId, targetId))
-                .isAwaitFriendRequestConfirmation(friendRepository.isAwaitingFriendRequestAccept(currentUserId, targetId))
+                .targetUserId(targetUserId).isFriend(friendRepository.isFriends(currentUserId, targetUserId))
+                .isAwaitFriendRequestConfirmation(friendRepository.isAwaitingFriendRequestAccept(currentUserId, targetUserId))
+                .isDeclinedFriendRequest(friendRepository.isDeclinedFriendRequest(currentUserId, targetUserId))
                 .build();
     }
 
@@ -50,19 +56,38 @@ public class FriendServiceImpl implements FriendsService {
     @Override
     public void sendFriendRequest(int sourceUserId, int destinationUserId) {
         FriendStatus friendInfo = getFriendInfo(sourceUserId, destinationUserId);
-        if (!friendInfo.isFriend() && !friendInfo.isAwaitFriendRequestConfirmation()) {
+        if (!friendInfo.isFriend() && !friendInfo.isAwaitFriendRequestConfirmation() && !friendInfo.isDeclinedFriendRequest()) {
+            FriendInvitation invitation = FriendInvitation.builder()
+                    .invitationSource(sourceUserId)
+                    .invitationTarget(destinationUserId)
+                    .accepted(null)
+                    .creationTime(new Timestamp(System.currentTimeMillis()))
+                    .build();
+            validateFriendInvitation(invitation);
             Optional<FriendInvitation> result = friendInvitationRepository.insert(
-                    FriendInvitation.builder()
-                            .invitationSource(sourceUserId)
-                            .invitationTarget(destinationUserId)
-                            .accepted(null)
-                            .creationTime(new Timestamp(System.currentTimeMillis()))
-                            .build()
+                    invitation
             );
+
             FriendInvitation friendInvitation = result.orElseThrow(FailedToSendFriendRequestException::new);
             notificationService.sendNotification(NotificationTypeName.INVITATIONS, generateFriendInvitationNotificationMessage(sourceUserId), friendInvitation);
         } else {
-            throw new InvalidRequest("Friend request has been already sent or you are already friends");
+            throw new InvalidRequest("Friend request has been already sent or you are already friends or user declined your previous friend request");
+        }
+    }
+
+    private void validateFriendInvitation(FriendInvitation invitation) {
+        // check for adding to friend myself
+        if (invitation.getInvitationSource().equals(invitation.getInvitationTarget())) {
+            throw new OperationForbiddenException("Sending friend invitation to myself is not allowed");
+        }
+        // checking for users roles
+        User userSource = userService.findByUserId(invitation.getInvitationSource());
+        User userTarget = userService.findByUserId(invitation.getInvitationTarget());
+        // if source is casual user than target must be user too
+        boolean isSourceUser = userSource.getRoles().stream().map(Role::getName).anyMatch(roleName -> roleName.equalsIgnoreCase("USER"));
+        boolean isTargetUser = userTarget.getRoles().stream().map(Role::getName).anyMatch(roleName -> roleName.equalsIgnoreCase("USER"));
+        if (isSourceUser != isTargetUser) {
+            throw new OperationForbiddenException("Users & admins can not be friends)");
         }
     }
 
@@ -116,6 +141,7 @@ public class FriendServiceImpl implements FriendsService {
         }
         if (friendInvitation.getInvitationTarget().equals(user.getUserId())) {
             friendInvitation.setAccepted(false);
+            // TODO asem make notification here
             friendInvitationRepository.update(friendInvitation);
             return true;
         } else { // if user attempts to decline not his/her invitation
@@ -130,6 +156,19 @@ public class FriendServiceImpl implements FriendsService {
         int page = pageService.getRestrictedPage(pageable.getPage(), pagesCount);
         int offset = page * pageable.getPageSize();
         return new Page<>(page, pagesCount, friendRepository.getFriendsPageable(user.getUserId(), pageable.getPageSize(), offset));
+    }
+
+    @Override
+    public Optional<FriendInvitation> findFriendInvitation(int friendInvitationId) {
+        Optional<FriendInvitation> invitation = friendInvitationRepository.getById(friendInvitationId);
+        // check for permissions - if there is no permissions - return an empty optional
+        User currentUser = userInfoService.getCurrentUser().orElseThrow(RequiresAuthenticationException::new);
+        return invitation
+                .filter(i ->
+                        (i.getInvitationSource().equals(currentUser.getUserId()))
+                                ||
+                                (i.getInvitationTarget().equals(currentUser.getUserId()))
+                        );
     }
 
     @Override

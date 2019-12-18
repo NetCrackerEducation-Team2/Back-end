@@ -4,6 +4,7 @@ import com.netcraker.exceptions.CreationException;
 import com.netcraker.model.Book;
 import com.netcraker.model.BookFilteringParam;
 import com.netcraker.model.Page;
+import com.netcraker.model.vo.SuggestBookReq;
 import com.netcraker.services.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -51,5 +52,10 @@ public class BookController {
     public ResponseEntity<Book> getBookById(@PathVariable int bookId){
         return ResponseEntity.ok().body(bookService.getBookById(bookId)
                 .orElseThrow(() -> new CreationException("Cannot find book by bookId")));
+    }
+
+    @PostMapping("/book")
+    public ResponseEntity<Book> suggestBook(@RequestBody SuggestBookReq suggestBookRequest) {
+        return new ResponseEntity<>(bookService.suggestBook(suggestBookRequest), HttpStatus.OK);
     }
 }

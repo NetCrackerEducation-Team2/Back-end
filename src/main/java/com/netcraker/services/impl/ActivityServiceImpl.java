@@ -26,6 +26,6 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public Optional<Activity> saveActivity(Activity activity) {
-        return Optional.empty();
+        return activityRepository.insert(activity);
     }
 }

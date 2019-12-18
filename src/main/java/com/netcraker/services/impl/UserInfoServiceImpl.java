@@ -1,6 +1,7 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.model.User;
+import com.netcraker.repositories.UserRepository;
 import com.netcraker.services.UserInfoService;
 import com.netcraker.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserInfoServiceImpl implements UserInfoService {
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
     public Optional<User> getCurrentUser() {
@@ -24,6 +25,6 @@ public class UserInfoServiceImpl implements UserInfoService {
         } else {
             email = principal.toString();
         }
-        return Optional.ofNullable(userService.findByEmail(email));
+        return userRepository.findByEmail(email);
     }
 }

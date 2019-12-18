@@ -21,4 +21,6 @@ public interface BookService {
     Optional<Book> getBookBySlug(String slug);
 
     Book suggestBook(SuggestBookReq suggestBookRequest);
+
+    Optional<Book> update(Book book);
 }

@@ -65,22 +65,22 @@ public class BookServiceImp implements BookService {
 
     private Optional<Book> insertBook(Book book) {
         // inserting book authors
-        book = bookRepository.insert(book).orElseThrow(InternalError::new);
+        Book inserted = bookRepository.insert(book).orElseThrow(InternalError::new);
         for (Author author : book.getAuthors()) {
             // inserting new author if needed
             if (author.getAuthorId() == null) {
                 author = authorRepository.insert(author).orElseThrow(InternalError::new);
             }
-            bookAuthorRepository.insert(book.getBookId(), author.getAuthorId());
+            bookAuthorRepository.insert(inserted.getBookId(), author.getAuthorId());
         }
         // inserting book genres
         for (Genre genre : book.getGenres()) {
             if (genre.getGenreId() == null) {
                 genre = genreRepository.insert(genre).orElseThrow(InternalError::new);
             }
-            bookGenreRepository.insert(book.getBookId(), genre.getGenreId());
+            bookGenreRepository.insert(inserted.getBookId(), genre.getGenreId());
         }
-        return Optional.of(book);
+        return Optional.of(inserted);
     }
 
     @Transactional
@@ -97,5 +97,10 @@ public class BookServiceImp implements BookService {
         bookOverview.setUserId(currentUser.getUserId());
         bookOverview = bookOverviewService.addBookOverview(bookOverview).orElseThrow(InternalError::new);
         return book;
+    }
+
+    @Override
+    public Optional<Book> update(Book book) {
+        return bookRepository.update(book);
     }
 }

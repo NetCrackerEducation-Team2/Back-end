@@ -1,6 +1,7 @@
 package com.netcraker.services.impl;
 
 import com.netcraker.model.Activity;
+import com.netcraker.model.Book;
 import com.netcraker.model.BookReview;
 import com.netcraker.model.Page;
 import com.netcraker.model.constants.NotificationTypeMessage;
@@ -36,6 +37,11 @@ public class BookReviewServiceImp implements BookReviewService {
         // inserting book review
         Optional<BookReview> inserted = bookReviewRepo.insert(bookReview);
         BookReview insertedBookReview = inserted.orElseThrow(InternalError::new);
+        // updating book rating
+        Book book = bookService.getBookById(insertedBookReview.getBookId()).orElseThrow(InternalError::new);
+        book.setRateSum(book.getRateSum() + insertedBookReview.getRating());
+        book.setVotersCount(book.getVotersCount() + 1);
+        bookService.update(book).orElseThrow(InternalError::new);
         eventPublisher.publishEvent(new DataBaseChangeEvent<>(TableName.BOOK_REVIEWS, bookReview.getUserId()));
         notificationService.sendNotification(NotificationTypeName.BOOK_REVIEWS, NotificationTypeMessage.CREATE_BOOK_REVIEWS, insertedBookReview);
 
